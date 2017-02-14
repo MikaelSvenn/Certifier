@@ -1,6 +1,6 @@
 ﻿using Core.Model;
 
-namespace Core.Services
+namespace Core.Interfaces
 {
     public interface ICertificateService
     {

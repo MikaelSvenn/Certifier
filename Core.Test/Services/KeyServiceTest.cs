@@ -24,7 +24,7 @@ namespace Core.Test.Services
             [SetUp]
             public void Setup()
             {
-                keyPair = keyService.CreateRsaKeyPair("foo");
+                keyPair = keyService.CreateAsymmetricKeyPair("foo");
             }
 
             [Test]
@@ -48,14 +48,14 @@ namespace Core.Test.Services
             [Test]
             public void ShouldCreatePrivateKeyOfGivenSize()
             {
-                keyPair = keyService.CreateRsaKeyPair("foo", 8192);
+                keyPair = keyService.CreateAsymmetricKeyPair("foo", 8192);
                 Assert.AreEqual(8192, keyPair.KeyLengthInBits);
             }
 
             [Test]
             public void ShouldNotAllowKeySizeBelow4096Bits()
             {
-                Assert.Throws<InvalidOperationException>(() => { keyService.CreateRsaKeyPair("foo", 1024); });
+                Assert.Throws<InvalidOperationException>(() => { keyService.CreateAsymmetricKeyPair("foo", 1024); });
             }
 
             [Test]

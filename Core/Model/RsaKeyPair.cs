@@ -1,9 +1,18 @@
-﻿namespace Core.Model
+﻿using Core.Interfaces;
+
+namespace Core.Model
 {
-    public class RsaKeyPair
+    public class RsaKeyPair : IAsymmetricKey
     {
-        public byte[] PrivateKey { get; set; }
-        public byte[] PublicKey { get; set; }
-        public int KeyLengthInBits => PrivateKey.Length * 8;
+        public RsaKeyPair(byte[] privateKey, byte[] publicKey, int keyLength)
+        {
+            PrivateKey = privateKey;
+            PublicKey = publicKey;
+            KeyLengthInBits = keyLength;
+        }
+
+        public byte[] PrivateKey { get; }
+        public byte[] PublicKey { get; }
+        public int KeyLengthInBits { get; }
     }
 }

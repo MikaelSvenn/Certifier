@@ -1,12 +1,19 @@
-﻿using Core.Model;
+﻿using Core.Interfaces;
 
 namespace Core.Services
 {
     public class KeyService : IKeyService
     {
-        public RsaKeyPair CreateRsaKeyPair(string password, int keySizeInBits = 4096)
+        private readonly IKeyProvider keyProvider;
+
+        public KeyService(IKeyProvider keyProvider)
         {
-            throw new System.NotImplementedException();
+            this.keyProvider = keyProvider;
+        }
+
+        public IAsymmetricKey CreateAsymmetricKeyPair(string password, int keySizeInBits = 4096)
+        {
+            return keyProvider.CreateAsymmetricKeyPair(password, keySizeInBits);
         }
     }
 }
