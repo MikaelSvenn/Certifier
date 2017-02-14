@@ -1,6 +1,7 @@
 using System;
-using Core.Model;
+using Core.Interfaces;
 using Core.Services;
+using Moq;
 using NUnit.Framework;
 
 namespace Core.Test.Services
@@ -9,59 +10,54 @@ namespace Core.Test.Services
     public class KeyServiceTest
     {
         private KeyService keyService;
+        private Mock<IKeyProvider> keyProvider;
+        private IAsymmetricKey expected;
 
         [SetUp]
         public void SetupKeyServiceTest()
         {
-            keyService = new KeyService();
+            expected = Mock.Of<IAsymmetricKey>();
+            keyProvider = new Mock<IKeyProvider>();
+            keyProvider.Setup(kp => kp.CreateAsymmetricKeyPair("foopassword", 4096))
+                .Returns(expected);
+
+            keyService = new KeyService(keyProvider.Object);
         }
 
         [TestFixture]
         public class CreateRsaKeyPair : KeyServiceTest
         {
-            private RsaKeyPair keyPair;
+            private IAsymmetricKey keyPair;
 
             [SetUp]
             public void Setup()
             {
-                keyPair = keyService.CreateAsymmetricKeyPair("foo");
-            }
-
-            [Test]
-            public void ShouldCreateRsaKeyPairWithPrivateKey()
-            {
-                Assert.IsNotEmpty(keyPair.PrivateKey);
-            }
-
-            [Test]
-            public void ShouldCreateRsaKeyPairWithPublicKey()
-            {
-                Assert.IsNotEmpty(keyPair.PublicKey);
+                keyPair = keyService.CreateAsymmetricKeyPair("foopassword");
             }
 
             [Test]
             public void ShouldCreate4096BitKeyWhenNoKeySizeIsSpecified()
             {
-                Assert.AreEqual(4096, keyPair.KeyLengthInBits);
-            }
-
-            [Test]
-            public void ShouldCreatePrivateKeyOfGivenSize()
-            {
-                keyPair = keyService.CreateAsymmetricKeyPair("foo", 8192);
-                Assert.AreEqual(8192, keyPair.KeyLengthInBits);
+                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair("foopassword", 4096));
             }
 
             [Test]
             public void ShouldNotAllowKeySizeBelow4096Bits()
             {
-                Assert.Throws<InvalidOperationException>(() => { keyService.CreateAsymmetricKeyPair("foo", 1024); });
+                Assert.Throws<ArgumentException>(() => { keyService.CreateAsymmetricKeyPair("foo", 1024); });
             }
 
             [Test]
-            public void ShouldEncryptPrivateKeyWithGivenPassword()
+            public void ShouldCreateKeyWithGivenKeySize()
             {
+                keyPair = keyService.CreateAsymmetricKeyPair("bar", 8192);
+                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair("bar", 8192));
+            }
 
+            [Test]
+            public void ShouldReturnCreatedKey()
+            {
+                Assert.AreEqual(expected, keyPair);
             }
         }
     }
