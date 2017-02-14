@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.WindowsRuntime;
 using Core.Model;
 using Core.Services;
 using NUnit.Framework;

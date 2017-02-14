@@ -1,6 +1,4 @@
-﻿using Core.Model;
-
-namespace Core.Interfaces
+﻿namespace Core.Interfaces
 {
     public interface IKeyService
     {

@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Core.Interfaces
+﻿namespace Core.Interfaces
 {
     public interface IConfiguration
     {
