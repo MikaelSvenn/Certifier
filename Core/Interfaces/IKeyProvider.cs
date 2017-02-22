@@ -2,6 +2,7 @@
 {
     public interface IKeyProvider
     {
-        IAsymmetricKey CreateAsymmetricKeyPair(string password, int keySize);
+        IAsymmetricKey CreateAsymmetricKeyPair(int keySize);
+        IAsymmetricKey CreateAsymmetricPkcs12KeyPair(string password, int keySize);
     }
 }

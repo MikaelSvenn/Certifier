@@ -49,13 +49,19 @@
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IKeyProvider.cs" />
     <Compile Include="Interfaces\IKeyService.cs" />
+    <Compile Include="Interfaces\ISignatureGenerator.cs" />
+    <Compile Include="Interfaces\ISignatureProvider.cs" />
+    <Compile Include="Interfaces\ISignatureService.cs" />
+    <Compile Include="Model\AsymmetricKeyType.cs" />
     <Compile Include="Model\Certificate.cs" />
     <Compile Include="Model\CertificateDetails.cs" />
     <Compile Include="Model\CertificateSigningRequest.cs" />
     <Compile Include="Model\RsaKeyPair.cs" />
+    <Compile Include="Model\Signature.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CertificateService.cs" />
     <Compile Include="Services\KeyService.cs" />
+    <Compile Include="Services\SignatureService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

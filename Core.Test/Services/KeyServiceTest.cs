@@ -18,7 +18,7 @@ namespace Core.Test.Services
         {
             expected = Mock.Of<IAsymmetricKey>();
             keyProvider = new Mock<IKeyProvider>();
-            keyProvider.Setup(kp => kp.CreateAsymmetricKeyPair("foopassword", 4096))
+            keyProvider.Setup(kp => kp.CreateAsymmetricKeyPair(2048))
                 .Returns(expected);
 
             keyService = new KeyService(keyProvider.Object);
@@ -36,9 +36,9 @@ namespace Core.Test.Services
             }
 
             [Test]
-            public void ShouldCreate4096BitKeyWhenNoKeySizeIsSpecified()
+            public void ShouldCreate2048BitKeyWhenNoKeySizeIsSpecified()
             {
-                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair("foopassword", 4096));
+                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair(2048));
             }
 
             [Test]
@@ -51,7 +51,7 @@ namespace Core.Test.Services
             public void ShouldCreateKeyWithGivenKeySize()
             {
                 keyPair = keyService.CreateAsymmetricKeyPair("bar", 8192);
-                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair("bar", 8192));
+                keyProvider.Verify(kp => kp.CreateAsymmetricKeyPair(8192));
             }
 
             [Test]

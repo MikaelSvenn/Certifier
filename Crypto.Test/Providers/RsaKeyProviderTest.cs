@@ -1,9 +1,10 @@
-using System;
 using Core.Interfaces;
 using Crypto.Generators;
 using Crypto.Providers;
 using Moq;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Providers
 {
@@ -15,22 +16,22 @@ namespace Crypto.Test.Providers
         [SetUp]
         public void SetupRsaKeyProviderTest()
         {
-            var config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 1);
+            var config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10);
             var secureRandomGenerator = new SecureRandomGenerator();
-            var rsaGenerator = new RsaGenerator(secureRandomGenerator);
+            var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
 
             keyProvider = new RsaKeyPairProvider(config, rsaGenerator, secureRandomGenerator);
         }
 
         [TestFixture]
-        public class CreateAsymmetricKeyPair : RsaKeyProviderTest
+        public class CreatePkcs12KeyPairTest : RsaKeyProviderTest
         {
             private IAsymmetricKey keyPair;
 
             [SetUp]
             public void Setup()
             {
-                keyPair = keyProvider.CreateAsymmetricKeyPair("foopassword", 1024);
+                keyPair = keyProvider.CreateAsymmetricPkcs12KeyPair("foopassword", 2048);
             }
 
             [Test]
@@ -48,13 +49,19 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetKeyLength()
             {
-                Assert.AreEqual(1024, keyPair.KeyLengthInBits);
+                Assert.AreEqual(2048, keyPair.KeyLengthInBits);
             }
 
             [Test]
-            public void ShouldCreateValidKey()
+            public void ShouldCreateValidKeyPair()
             {
-                throw new NotImplementedException("TODO: Sign with the created key and verify the created signature");
+                var privateKey = PrivateKeyFactory.DecryptKey("foopassword".ToCharArray(), keyPair.PrivateKey);
+                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey);
+
+                var privateKeyModulus = ((RsaKeyParameters) privateKey).Modulus;
+                var publicKeyModulus = ((RsaKeyParameters) publicKey).Modulus;
+
+                Assert.AreEqual(0, privateKeyModulus.CompareTo(publicKeyModulus));
             }
         }
     }
