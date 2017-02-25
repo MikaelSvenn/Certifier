@@ -14,7 +14,7 @@ namespace Crypto.Test.Generators
         private SecureRandomGenerator secureRandom;
         private SignatureAlgorithmGenerator signatureAlgorithmGenerator;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetupSignatureAlgorithmGeneratorTest()
         {
             configuration = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 1);
@@ -37,7 +37,7 @@ namespace Crypto.Test.Generators
             {
                 private IKeyProvider rsaKeyProvider;
 
-                [SetUp]
+                [OneTimeSetUp]
                 public void Setup()
                 {
                     var rsaKeyPairGenerator = new RsaKeyPairGenerator(secureRandom);
@@ -47,7 +47,10 @@ namespace Crypto.Test.Generators
                 [Test]
                 public void Rsa()
                 {
-                    throw new NotImplementedException();
+                    var key = rsaKeyProvider.CreateAsymmetricKeyPair(2048);
+                    var signer = signatureAlgorithmGenerator.GetForSigning(key);
+
+                    Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
 
                 [Test]
@@ -71,7 +74,7 @@ namespace Crypto.Test.Generators
             {
                 private IKeyProvider rsaKeyProvider;
 
-                [SetUp]
+                [OneTimeSetUp]
                 public void Setup()
                 {
                     var rsaKeyPairGenerator = new RsaKeyPairGenerator(secureRandom);
@@ -81,7 +84,10 @@ namespace Crypto.Test.Generators
                 [Test]
                 public void Rsa()
                 {
-                    throw new NotImplementedException();
+                    var key = rsaKeyProvider.CreateAsymmetricKeyPair(2048);
+                    var signer = signatureAlgorithmGenerator.GetForVerifyingSignature(key);
+
+                    Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
 
                 [Test]

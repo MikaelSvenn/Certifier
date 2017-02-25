@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -15,8 +16,9 @@ namespace Crypto.Test.Providers
         private SignatureProvider signatureProvider;
         private SignatureAlgorithmGenerator signatureAlgorithmGenerator;
         private byte[] content;
+        private Dictionary<AsymmetricKeyType, IAsymmetricKey> keys;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetupSignatureProviderTest()
         {
             secureRandomGenerator = new SecureRandomGenerator();
@@ -27,70 +29,68 @@ namespace Crypto.Test.Providers
 
             content = new byte[2000];
             secureRandomGenerator.NextBytes(content);
+
+            keys = new Dictionary<AsymmetricKeyType, IAsymmetricKey>();
+
+            var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
+            var rsaKeyProvider = new RsaKeyPairProvider(config, rsaGenerator, secureRandomGenerator);
+
+            IAsymmetricKey rsaPkcs12Key = rsaKeyProvider.CreateAsymmetricPkcs12KeyPair("foo", 2048);
+            rsaPkcs12Key.Password = "foo";
+
+            IAsymmetricKey rsaKey = rsaKeyProvider.CreateAsymmetricKeyPair(2048);
+
+            keys.Add(rsaPkcs12Key.KeyType, rsaPkcs12Key);
+            keys.Add(rsaKey.KeyType, rsaKey);
+        }
+
+
+        [TestFixture]
+        public class CreateSignatureTest : SignatureProviderTest
+        {
+            [TestCase(AsymmetricKeyType.RsaPkcs12,  TestName="RsaPkcs12")]
+            [TestCase(AsymmetricKeyType.Rsa, TestName="Rsa")]
+            public void ShouldSetSignedData(AsymmetricKeyType keyType)
+            {
+                var key = keys[keyType];
+                var signature = signatureProvider.CreateSignature(key, content);
+
+                CollectionAssert.IsNotEmpty(signature.SignedData);
+            }
+
+            [TestCase(AsymmetricKeyType.RsaPkcs12,  TestName="RsaPkcs12")]
+            [TestCase(AsymmetricKeyType.Rsa, TestName="Rsa")]
+            public void ShouldSetSignatureContent(AsymmetricKeyType keyType)
+            {
+                var key = keys[keyType];
+                var signature = signatureProvider.CreateSignature(key, content);
+
+                CollectionAssert.IsNotEmpty(signature.Content);
+            }
         }
 
         [TestFixture]
-        public class RsaPkcs12SignatureTest : SignatureProviderTest
+        public class VerifySignatureTest : SignatureProviderTest
         {
-            private IAsymmetricKey key;
-
-            [SetUp]
-            public void SetupRsaPkcs12SignatureTest()
+            [TestCase(AsymmetricKeyType.RsaPkcs12,  TestName="RsaPkcs12")]
+            [TestCase(AsymmetricKeyType.Rsa, TestName="Rsa")]
+            public void ShouldReturnFalseWhenSignatureIsNotValid(AsymmetricKeyType keyType)
             {
-                var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
-                var keyProvider = new RsaKeyPairProvider(config, rsaGenerator, secureRandomGenerator);
+                var key = keys[keyType];
+                var signature = signatureProvider.CreateSignature(key, content);
+                signature.Content[0] = (byte) (signature.Content[0] >> 1);
 
-                key = keyProvider.CreateAsymmetricPkcs12KeyPair("foo", 2048);
-                key.Password = "foo";
+                Assert.IsFalse(signatureProvider.VerifySignature(key, signature));
             }
 
-            [TestFixture]
-            public class CreateSignatureTest : RsaPkcs12SignatureTest
+            [TestCase(AsymmetricKeyType.RsaPkcs12,  TestName="RsaPkcs12")]
+            [TestCase(AsymmetricKeyType.Rsa, TestName="Rsa")]
+            public void ShouldReturnTrueWhenSignatureIsValid(AsymmetricKeyType keyType)
             {
-                private Signature signature;
+                var key = keys[keyType];
+                var signature = signatureProvider.CreateSignature(key, content);
 
-                [SetUp]
-                public void Setup()
-                {
-                    signature = signatureProvider.CreateSignature(key, content);
-                }
-
-                [Test]
-                public void ShouldReturnSignatureWithSignedData()
-                {
-                    CollectionAssert.IsNotEmpty(signature.SignedData);
-                }
-
-                [Test]
-                public void ShouldReturnSignatureWithSignatureContent()
-                {
-                    CollectionAssert.IsNotEmpty(signature.Content);
-                }
-            }
-
-            [TestFixture]
-            public class VerifySignatureTest : RsaPkcs12SignatureTest
-            {
-                private Signature signature;
-
-                [SetUp]
-                public void Setup()
-                {
-                    signature = signatureProvider.CreateSignature(key, content);
-                }
-
-                [Test]
-                public void ShouldReturnFalseWhenSignatureIsNotValid()
-                {
-                    signature.Content[0] = (byte) (signature.Content[0] >> 1);
-                    Assert.IsFalse(signatureProvider.VerifySignature(key, signature));
-                }
-
-                [Test]
-                public void ShouldReturnTrueWhenSignatureIsValid()
-                {
-                    Assert.True(signatureProvider.VerifySignature(key, signature));
-                }
+                Assert.IsTrue(signatureProvider.VerifySignature(key, signature));
             }
         }
     }

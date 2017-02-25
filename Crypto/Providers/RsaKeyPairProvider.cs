@@ -1,9 +1,11 @@
 ﻿using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 
@@ -24,7 +26,19 @@ namespace Crypto.Providers
 
         public IAsymmetricKey CreateAsymmetricKeyPair(int keySize)
         {
-            throw new System.NotImplementedException("Todo: Create unencrypted RSA key pair");
+            AsymmetricCipherKeyPair rsaKeyPair = rsaKeyPairGenerator.GenerateKeyPair(keySize);
+            SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(rsaKeyPair.Public);
+            byte[] publicKey = publicKeyInfo
+                .ToAsn1Object()
+                .GetDerEncoded();
+
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(rsaKeyPair.Private);
+            byte[] privateKey = privateKeyInfo
+                .ToAsn1Object()
+                .GetDerEncoded();
+
+            int keyLength = ((RsaKeyParameters) rsaKeyPair.Private).Modulus.BitLength;
+            return new RsaKeyPair(privateKey, publicKey, keyLength, AsymmetricKeyType.Rsa);
         }
 
         public IAsymmetricKey CreateAsymmetricPkcs12KeyPair(string password, int keySize)

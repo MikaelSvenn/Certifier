@@ -11,7 +11,7 @@ namespace Crypto.Test.Generators
     {
         private RsaKeyPairGenerator rsaKeyPairGenerator;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetupRsaGeneratorTest()
         {
             var secureRandom = new SecureRandomGenerator();
@@ -23,7 +23,7 @@ namespace Crypto.Test.Generators
         {
             private AsymmetricCipherKeyPair keyPair;
 
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 keyPair = rsaKeyPairGenerator.GenerateKeyPair(1024);
