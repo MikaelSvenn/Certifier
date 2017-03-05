@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypto", "Crypto\Crypto.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypto.Test", "Crypto.Test\Crypto.Test.csproj", "{FECB4888-7B24-4D07-8F14-47C6D49694EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Console", "Ui.Console\Ui.Console.csproj", "{72FACE20-E23D-48E0-A79B-3F2B59F479BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui.Console.Test", "Ui.Console.Test\Ui.Console.Test.csproj", "{D9342401-D2CA-4249-B078-F3572AF9BE06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -33,6 +37,14 @@ Global
 		{FECB4888-7B24-4D07-8F14-47C6D49694EE}.Debug|x86.Build.0 = Debug|x86
 		{FECB4888-7B24-4D07-8F14-47C6D49694EE}.Release|x86.ActiveCfg = Release|x86
 		{FECB4888-7B24-4D07-8F14-47C6D49694EE}.Release|x86.Build.0 = Release|x86
+		{72FACE20-E23D-48E0-A79B-3F2B59F479BE}.Debug|x86.ActiveCfg = Debug|x86
+		{72FACE20-E23D-48E0-A79B-3F2B59F479BE}.Debug|x86.Build.0 = Debug|x86
+		{72FACE20-E23D-48E0-A79B-3F2B59F479BE}.Release|x86.ActiveCfg = Release|x86
+		{72FACE20-E23D-48E0-A79B-3F2B59F479BE}.Release|x86.Build.0 = Release|x86
+		{D9342401-D2CA-4249-B078-F3572AF9BE06}.Debug|x86.ActiveCfg = Debug|x86
+		{D9342401-D2CA-4249-B078-F3572AF9BE06}.Debug|x86.Build.0 = Debug|x86
+		{D9342401-D2CA-4249-B078-F3572AF9BE06}.Release|x86.ActiveCfg = Release|x86
+		{D9342401-D2CA-4249-B078-F3572AF9BE06}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

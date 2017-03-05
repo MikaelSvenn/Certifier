@@ -44,7 +44,6 @@ namespace Crypto.Test.Providers
             keys.Add(rsaKey.KeyType, rsaKey);
         }
 
-
         [TestFixture]
         public class CreateSignatureTest : SignatureProviderTest
         {
