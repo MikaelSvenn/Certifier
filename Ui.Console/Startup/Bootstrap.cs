@@ -1,6 +1,5 @@
 ﻿using Core.Configuration;
 using Core.Interfaces;
-using Core.Services;
 using Crypto.Generators;
 using Crypto.Providers;
 using SimpleInjector;
@@ -21,9 +20,6 @@ namespace Ui.Console.Startup
 
             container.Register<IKeyProvider, RsaKeyPairProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
-
-            container.Register<IKeyService, KeyService>();
-            container.Register<ISignatureService, SignatureService>();
 
             container.Register<CommandLineParser>();
             container.Register<ApplicationArguments>(() =>
