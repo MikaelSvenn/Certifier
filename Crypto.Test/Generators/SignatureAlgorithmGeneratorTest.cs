@@ -28,8 +28,9 @@ namespace Crypto.Test.Generators
             [Test]
             public void ShouldThrowArgumentExceptionWhenPrivateKeyIsEncryptedAndNoPasswordIsProvided()
             {
-                var key = Mock.Of<IAsymmetricKey>(k => k.IsEncryptedPrivateKey && !k.HasPassword);
-                Assert.Throws<ArgumentException>(() => { signatureAlgorithmGenerator.GetForSigning(key); });
+                var key = Mock.Of<IAsymmetricKey>(k => k.IsEncrypted);
+                var keyPair = Mock.Of<IAsymmetricKeyPair>(kp => kp.PrivateKey == key && kp.HasPassword);
+                Assert.Throws<ArgumentException>(() => { signatureAlgorithmGenerator.GetForSigning(keyPair); });
             }
 
             [TestFixture]

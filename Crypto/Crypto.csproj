@@ -46,6 +46,7 @@
     <Compile Include="Generators\SecureRandomGenerator.cs" />
     <Compile Include="Generators\SignatureAlgorithmGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\Pkcs8FormattingProvider.cs" />
     <Compile Include="Providers\RsaKeyPairProvider.cs" />
     <Compile Include="Providers\SignatureProvider.cs" />
   </ItemGroup>

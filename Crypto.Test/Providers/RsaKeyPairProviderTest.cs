@@ -1,4 +1,3 @@
-using System.Runtime.Remoting;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -28,7 +27,7 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class CreateAsymmetricKeyPairTest : RsaKeyPairProviderTest
         {
-            private IAsymmetricKey keyPair;
+            private IAsymmetricKeyPair keyPair;
 
             [OneTimeSetUp]
             public void Setup()
@@ -39,32 +38,44 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldCreatePrivateKey()
             {
-                Assert.IsNotEmpty(keyPair.PrivateKey);
+                Assert.IsNotEmpty(keyPair.PrivateKey.Content);
             }
 
             [Test]
             public void ShouldCreatePublicKey()
             {
-                Assert.IsNotEmpty(keyPair.PublicKey);
+                Assert.IsNotEmpty(keyPair.PublicKey.Content);
             }
 
             [Test]
-            public void ShouldSetKeyLength()
+            public void ShouldSetPrivateKeyLength()
             {
-                Assert.AreEqual(2048, keyPair.KeyLengthInBits);
+                Assert.AreEqual(2048, keyPair.PrivateKey.KeySize);
             }
 
             [Test]
-            public void ShouldSetKeyType()
+            public void ShouldSetPublicKeyLength()
             {
-                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.KeyType);
+                Assert.AreEqual(2048, keyPair.PublicKey.KeySize);
+            }
+
+            [Test]
+            public void ShouldSetPrivateKeyType()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PrivateKey.KeyType);
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyType()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PublicKey.KeyType);
             }
 
             [Test]
             public void ShouldCreateValidUnencryptedKeyPair()
             {
-                var privateKey = PrivateKeyFactory.CreateKey(keyPair.PrivateKey);
-                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey);
+                var privateKey = PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
+                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
 
                 var privateKeyModulus = ((RsaKeyParameters) privateKey).Modulus;
                 var publicKeyModulus = ((RsaKeyParameters) publicKey).Modulus;
@@ -76,7 +87,7 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class CreatePkcs12KeyPairPairTest : RsaKeyPairProviderTest
         {
-            private IAsymmetricKey keyPair;
+            private IAsymmetricKeyPair keyPair;
 
             [OneTimeSetUp]
             public void Setup()
@@ -87,32 +98,44 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldCreatePrivateKey()
             {
-                Assert.IsNotEmpty(keyPair.PrivateKey);
+                Assert.IsNotEmpty(keyPair.PrivateKey.Content);
             }
 
             [Test]
             public void ShouldCreatePublicKey()
             {
-                Assert.IsNotEmpty(keyPair.PublicKey);
+                Assert.IsNotEmpty(keyPair.PublicKey.Content);
             }
 
             [Test]
-            public void ShouldSetKeyLength()
+            public void ShouldSetPrivateKeyLength()
             {
-                Assert.AreEqual(2048, keyPair.KeyLengthInBits);
+                Assert.AreEqual(2048, keyPair.PrivateKey.KeySize);
             }
 
             [Test]
-            public void ShouldSetKeyType()
+            public void ShouldSetPublicKeyLength()
             {
-                Assert.AreEqual(AsymmetricKeyType.RsaPkcs12, keyPair.KeyType);
+                Assert.AreEqual(2048, keyPair.PublicKey.KeySize);
+            }
+
+            [Test]
+            public void ShouldSetPrivateKeyType()
+            {
+                Assert.AreEqual(AsymmetricKeyType.RsaPkcs12, keyPair.PrivateKey.KeyType);
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyType()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PublicKey.KeyType);
             }
 
             [Test]
             public void ShouldCreateValidEncryptedKeyPair()
             {
-                var privateKey = PrivateKeyFactory.DecryptKey("foopassword".ToCharArray(), keyPair.PrivateKey);
-                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey);
+                var privateKey = PrivateKeyFactory.DecryptKey("foopassword".ToCharArray(), keyPair.PrivateKey.Content);
+                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
 
                 var privateKeyModulus = ((RsaKeyParameters) privateKey).Modulus;
                 var publicKeyModulus = ((RsaKeyParameters) publicKey).Modulus;

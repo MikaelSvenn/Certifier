@@ -15,9 +15,9 @@ namespace Crypto.Providers
             this.signatureAlgorithmGenerator = signatureAlgorithmGenerator;
         }
 
-        public SignatureModel CreateSignature(IAsymmetricKey asymmetricKey, byte[] content)
+        public SignatureModel CreateSignature(IAsymmetricKeyPair asymmetricKeyPair, byte[] content)
         {
-            ISigner signer = signatureAlgorithmGenerator.GetForSigning(asymmetricKey);
+            ISigner signer = signatureAlgorithmGenerator.GetForSigning(asymmetricKeyPair);
             signer.BlockUpdate(content, 0, content.Length);
             var signature = signer.GenerateSignature();
 
@@ -28,9 +28,9 @@ namespace Crypto.Providers
             };
         }
 
-        public bool VerifySignature(IAsymmetricKey asymmetricKey, SignatureModel signature)
+        public bool VerifySignature(IAsymmetricKeyPair asymmetricKeyPair, SignatureModel signature)
         {
-            ISigner signer = signatureAlgorithmGenerator.GetForVerifyingSignature(asymmetricKey);
+            ISigner signer = signatureAlgorithmGenerator.GetForVerifyingSignature(asymmetricKeyPair);
             signer.BlockUpdate(signature.SignedData, 0, signature.SignedData.Length);
             return signer.VerifySignature(signature.Content);
         }

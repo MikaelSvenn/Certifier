@@ -4,35 +4,29 @@ using NUnit.Framework;
 namespace Core.Test.Model
 {
     [TestFixture]
-    public class RsaKeyPairTest
+    public class AsymmetricKeyPairTest
     {
-        private RsaKeyPair keyPair;
+        private AsymmetricKeyPair keyPair;
+        private RsaKey privateKey;
+        private RsaKey publicKey;
 
         [SetUp]
         public void Setup()
         {
-            keyPair = new RsaKeyPair(null, null, 2048, AsymmetricKeyType.Rsa);
+            privateKey = new RsaKey(null, AsymmetricKeyType.RsaPkcs12, 4096);
+            publicKey = new RsaKey(null, AsymmetricKeyType.Rsa, 2048);
+
+            keyPair = new AsymmetricKeyPair(privateKey, publicKey);
         }
 
-        [TestFixture]
-        public class IsEncryptedPrivateKeyTest : RsaKeyPairTest
+        [Test]
+        public void KeyLengthInBitsShouldReturnPrivateKeyLength()
         {
-            [Test]
-            public void ShouldReturnFalseWhenKeyTypeIsRsa()
-            {
-                Assert.IsFalse(keyPair.IsEncryptedPrivateKey);
-            }
-
-            [Test]
-            public void ShouldReturnTrueWhenKeyTypeIsRsaPkcs12()
-            {
-                keyPair = new RsaKeyPair(null, null, 2048, AsymmetricKeyType.RsaPkcs12);
-                Assert.IsTrue(keyPair.IsEncryptedPrivateKey);
-            }
+            Assert.AreEqual(4096, keyPair.KeyLengthInBits);
         }
 
         [TestFixture]
-        public class HasPassword : RsaKeyPairTest
+        public class HasPassword : AsymmetricKeyPairTest
         {
             [Test]
             public void ShouldReturnFalseWhenPasswordIsNull()

@@ -23,24 +23,24 @@ namespace Crypto.Generators
             };
         }
 
-        public ISigner GetForSigning(IAsymmetricKey keyPair)
+        public ISigner GetForSigning(IAsymmetricKeyPair keyPair)
         {
             AsymmetricKeyParameter key;
-            if (keyPair.IsEncryptedPrivateKey)
+            if (keyPair.PrivateKey.IsEncrypted)
             {
                 if (string.IsNullOrEmpty(keyPair.Password))
                 {
                     throw new ArgumentException("Private key password is required.");
                 }
 
-                key = PrivateKeyFactory.DecryptKey(keyPair.Password.ToCharArray(), keyPair.PrivateKey);
+                key = PrivateKeyFactory.DecryptKey(keyPair.Password.ToCharArray(), keyPair.PrivateKey.Content);
             }
             else
             {
-                key = PrivateKeyFactory.CreateKey(keyPair.PrivateKey);
+                key = PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
             }
 
-            var signatureAlgorithm = bouncyCastleSignatureAlgorithms[keyPair.KeyType];
+            var signatureAlgorithm = bouncyCastleSignatureAlgorithms[keyPair.PrivateKey.KeyType];
             var signer = SignerUtilities.GetSigner(signatureAlgorithm);
 
             var cipherParameters = new ParametersWithRandom(key, secureRandomGenerator.Generator);
@@ -49,10 +49,10 @@ namespace Crypto.Generators
             return signer;
         }
 
-        public ISigner GetForVerifyingSignature(IAsymmetricKey keyPair)
+        public ISigner GetForVerifyingSignature(IAsymmetricKeyPair keyPair)
         {
-            var key = PublicKeyFactory.CreateKey(keyPair.PublicKey);
-            string signatureAlgorithm = bouncyCastleSignatureAlgorithms[keyPair.KeyType];
+            var key = PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+            string signatureAlgorithm = bouncyCastleSignatureAlgorithms[keyPair.PublicKey.KeyType];
             var signer = SignerUtilities.GetSigner(signatureAlgorithm);
             signer.Init(false, key);
 

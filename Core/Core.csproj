@@ -45,15 +45,18 @@
   <ItemGroup>
     <Compile Include="Configuration\KeyProviderConfiguration.cs" />
     <Compile Include="Interfaces\IAsymmetricKey.cs" />
+    <Compile Include="Interfaces\IAsymmetricKeyPair.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
+    <Compile Include="Interfaces\IPkcsFormattingProvider.cs" />
     <Compile Include="Interfaces\IKeyProvider.cs" />
     <Compile Include="Interfaces\ISignatureGenerator.cs" />
     <Compile Include="Interfaces\ISignatureProvider.cs" />
+    <Compile Include="Model\RsaKey.cs" />
     <Compile Include="Model\AsymmetricKeyType.cs" />
     <Compile Include="Model\Certificate.cs" />
     <Compile Include="Model\CertificateDetails.cs" />
     <Compile Include="Model\CertificateSigningRequest.cs" />
-    <Compile Include="Model\RsaKeyPair.cs" />
+    <Compile Include="Model\AsymmetricKeyPair.cs" />
     <Compile Include="Model\Signature.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

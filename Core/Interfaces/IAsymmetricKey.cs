@@ -4,12 +4,9 @@ namespace Core.Interfaces
 {
     public interface IAsymmetricKey
     {
-        byte[] PrivateKey { get; }
-        byte[] PublicKey { get; }
-        int KeyLengthInBits { get; }
+        byte[] Content { get; }
         AsymmetricKeyType KeyType { get; }
-        bool IsEncryptedPrivateKey { get; }
-        string Password { get; set; }
-        bool HasPassword { get; }
+        int KeySize { get; }
+        bool IsEncrypted { get; }
     }
 }

@@ -16,7 +16,7 @@ namespace Crypto.Test.Providers
         private SignatureProvider signatureProvider;
         private SignatureAlgorithmGenerator signatureAlgorithmGenerator;
         private byte[] content;
-        private Dictionary<AsymmetricKeyType, IAsymmetricKey> keys;
+        private Dictionary<AsymmetricKeyType, IAsymmetricKeyPair> keys;
 
         [OneTimeSetUp]
         public void SetupSignatureProviderTest()
@@ -30,18 +30,18 @@ namespace Crypto.Test.Providers
             content = new byte[2000];
             secureRandomGenerator.NextBytes(content);
 
-            keys = new Dictionary<AsymmetricKeyType, IAsymmetricKey>();
+            keys = new Dictionary<AsymmetricKeyType, IAsymmetricKeyPair>();
 
             var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
             var rsaKeyProvider = new RsaKeyPairProvider(config, rsaGenerator, secureRandomGenerator);
 
-            IAsymmetricKey rsaPkcs12Key = rsaKeyProvider.CreateAsymmetricPkcs12KeyPair("foo", 2048);
+            IAsymmetricKeyPair rsaPkcs12Key = rsaKeyProvider.CreateAsymmetricPkcs12KeyPair("foo", 2048);
             rsaPkcs12Key.Password = "foo";
 
-            IAsymmetricKey rsaKey = rsaKeyProvider.CreateAsymmetricKeyPair(2048);
+            IAsymmetricKeyPair rsaKeyPair = rsaKeyProvider.CreateAsymmetricKeyPair(2048);
 
-            keys.Add(rsaPkcs12Key.KeyType, rsaPkcs12Key);
-            keys.Add(rsaKey.KeyType, rsaKey);
+            keys.Add(rsaPkcs12Key.PrivateKey.KeyType, rsaPkcs12Key);
+            keys.Add(rsaKeyPair.PrivateKey.KeyType, rsaKeyPair);
         }
 
         [TestFixture]

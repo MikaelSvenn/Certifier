@@ -24,41 +24,52 @@ namespace Crypto.Providers
             this.secureRandom = secureRandom;
         }
 
-        public IAsymmetricKey CreateAsymmetricKeyPair(int keySize)
+        public IAsymmetricKeyPair CreateAsymmetricKeyPair(int keySize)
         {
             AsymmetricCipherKeyPair rsaKeyPair = rsaKeyPairGenerator.GenerateKeyPair(keySize);
             SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(rsaKeyPair.Public);
-            byte[] publicKey = publicKeyInfo
+            byte[] publicKeyContent = publicKeyInfo
                 .ToAsn1Object()
                 .GetDerEncoded();
 
             PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(rsaKeyPair.Private);
-            byte[] privateKey = privateKeyInfo
+            byte[] privateKeyContent = privateKeyInfo
                 .ToAsn1Object()
                 .GetDerEncoded();
 
-            int keyLength = ((RsaKeyParameters) rsaKeyPair.Private).Modulus.BitLength;
-            return new RsaKeyPair(privateKey, publicKey, keyLength, AsymmetricKeyType.Rsa);
+            int privateKeyLength = ((RsaKeyParameters) rsaKeyPair.Private).Modulus.BitLength;
+            int publicKeyLength = ((RsaKeyParameters) rsaKeyPair.Public).Modulus.BitLength;
+
+            var publicKey = new RsaKey(publicKeyContent, AsymmetricKeyType.Rsa, privateKeyLength);
+            var privateKey = new RsaKey(privateKeyContent, AsymmetricKeyType.Rsa, publicKeyLength);
+
+            return new AsymmetricKeyPair(privateKey, publicKey);
         }
 
-        public IAsymmetricKey CreateAsymmetricPkcs12KeyPair(string password, int keySize)
+        public IAsymmetricKeyPair CreateAsymmetricPkcs12KeyPair(string password, int keySize)
         {
             AsymmetricCipherKeyPair rsaKeyPair = rsaKeyPairGenerator.GenerateKeyPair(keySize);
 
-            var salt = new byte[keySize];
+            var saltLength = configuration.Get<int>("SaltLengthInBytes");
+            var salt = new byte[saltLength];
             secureRandom.NextBytes(salt);
 
             var iterationCount = configuration.Get<int>("KeyDerivationIterationCount");
-            byte[] privateKey = PrivateKeyFactory.EncryptKey("PBEwithSHA-1and3-keyDESEDE-CBC",
+            byte[] privateKeyContent = PrivateKeyFactory.EncryptKey("PBEwithSHA-1and3-keyDESEDE-CBC",
                 password.ToCharArray(), salt, iterationCount, rsaKeyPair.Private);
 
             SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(rsaKeyPair.Public);
-            byte[] publicKey = publicKeyInfo
+            byte[] publicKeyContent = publicKeyInfo
                 .ToAsn1Object()
                 .GetDerEncoded();
 
-            int keyLength = ((RsaKeyParameters) rsaKeyPair.Private).Modulus.BitLength;
-            return new RsaKeyPair(privateKey, publicKey, keyLength, AsymmetricKeyType.RsaPkcs12);
+            int privateKeyLength = ((RsaKeyParameters) rsaKeyPair.Private).Modulus.BitLength;
+            int publicKeyLength = ((RsaKeyParameters) rsaKeyPair.Public).Modulus.BitLength;
+
+            var publicKey = new RsaKey(publicKeyContent, AsymmetricKeyType.Rsa, privateKeyLength);
+            var privateKey = new RsaKey(privateKeyContent, AsymmetricKeyType.RsaPkcs12, publicKeyLength);
+
+            return new AsymmetricKeyPair(privateKey, publicKey);
         }
     }
 }

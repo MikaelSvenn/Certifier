@@ -7,6 +7,7 @@ namespace Core.Configuration
     {
         private readonly Dictionary<string, dynamic> configuration = new Dictionary<string, dynamic>
         {
+            {"SaltLengthInBytes", 1024},
             {"KeyDerivationIterationCount", 200000}
         };
 

@@ -48,7 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\RsaKeyPairTest.cs" />
+    <Compile Include="Model\AsymmetricKeyPairTest.cs" />
+    <Compile Include="Model\RsaKeyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
