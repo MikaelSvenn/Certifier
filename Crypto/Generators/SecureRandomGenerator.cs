@@ -13,9 +13,12 @@ namespace Crypto.Generators
 
         public SecureRandom Generator { get; }
 
-        public void NextBytes(byte[] result)
+        public virtual byte[] NextBytes(int length)
         {
+            var result = new byte[length];
             Generator.NextBytes(result);
+
+            return result;
         }
     }
 }

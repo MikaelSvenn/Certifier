@@ -42,12 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\PkcsEncryptionGenerator.cs" />
     <Compile Include="Generators\RsaKeyPairGenerator.cs" />
     <Compile Include="Generators\SecureRandomGenerator.cs" />
-    <Compile Include="Generators\SignatureAlgorithmGenerator.cs" />
+    <Compile Include="Mappers\OidToCipherTypeMapper.cs" />
+    <Compile Include="Mappers\SignatureAlgorithmMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\AsymmetricKeyProvider.cs" />
+    <Compile Include="Providers\PkcsEncryptionProvider.cs" />
     <Compile Include="Providers\Pkcs8FormattingProvider.cs" />
-    <Compile Include="Providers\RsaKeyPairProvider.cs" />
+    <Compile Include="Providers\RsaKeyProvider.cs" />
     <Compile Include="Providers\SignatureProvider.cs" />
   </ItemGroup>
   <ItemGroup>

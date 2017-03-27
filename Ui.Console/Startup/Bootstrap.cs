@@ -1,6 +1,8 @@
 ﻿using Core.Configuration;
 using Core.Interfaces;
+using Core.Model;
 using Crypto.Generators;
+using Crypto.Mappers;
 using Crypto.Providers;
 using SimpleInjector;
 
@@ -12,13 +14,13 @@ namespace Ui.Console.Startup
         {
             var container = new Container();
 
-            container.Register<IConfiguration, KeyProviderConfiguration>();
+            container.Register<IConfiguration, PbeConfiguration>();
 
             container.Register<RsaKeyPairGenerator>();
             container.Register<SecureRandomGenerator>();
-            container.Register<SignatureAlgorithmGenerator>();
+            container.Register<SignatureAlgorithmMapper>();
 
-            container.Register<IKeyProvider, RsaKeyPairProvider>();
+            container.Register<IAsymmetricKeyProvider<RsaKey>, RsaKeyProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
 
             container.Register<CommandLineParser>();

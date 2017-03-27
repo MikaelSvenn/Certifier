@@ -22,8 +22,7 @@ namespace Crypto.Test.Generators
 
             for (var i = 0; i < amount; i++)
             {
-                var result = new byte[randomLenght];
-                randomGenerator.NextBytes(result);
+                var result = randomGenerator.NextBytes(randomLenght);
                 results.Add(result);
             }
 

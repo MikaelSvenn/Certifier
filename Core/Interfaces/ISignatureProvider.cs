@@ -4,7 +4,7 @@ namespace Core.Interfaces
 {
     public interface ISignatureProvider
     {
-        Signature CreateSignature(IAsymmetricKeyPair asymmetricKeyPair, byte[] content);
-        bool VerifySignature(IAsymmetricKeyPair asymmetricKeyPair, Signature signature);
+        Signature CreateSignature(IAsymmetricKey privateKey, byte[] content, string password = "");
+        bool VerifySignature(IAsymmetricKey publicKey, Signature signature);
     }
 }

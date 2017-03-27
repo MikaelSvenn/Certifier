@@ -1,5 +1,5 @@
 ﻿using Core.Interfaces;
-using Crypto.Generators;
+using Crypto.Mappers;
 using Org.BouncyCastle.Crypto;
 using SignatureModel = Core.Model.Signature;
 
@@ -7,17 +7,17 @@ namespace Crypto.Providers
 {
     public class SignatureProvider : ISignatureProvider
     {
-        private readonly SignatureAlgorithmGenerator signatureAlgorithmGenerator;
+        private readonly SignatureAlgorithmMapper signatureAlgorithmMapper;
 
 
-        public SignatureProvider(SignatureAlgorithmGenerator signatureAlgorithmGenerator)
+        public SignatureProvider(SignatureAlgorithmMapper signatureAlgorithmMapper)
         {
-            this.signatureAlgorithmGenerator = signatureAlgorithmGenerator;
+            this.signatureAlgorithmMapper = signatureAlgorithmMapper;
         }
 
-        public SignatureModel CreateSignature(IAsymmetricKeyPair asymmetricKeyPair, byte[] content)
+        public SignatureModel CreateSignature(IAsymmetricKey privateKey, byte[] content, string password = "")
         {
-            ISigner signer = signatureAlgorithmGenerator.GetForSigning(asymmetricKeyPair);
+            ISigner signer = signatureAlgorithmMapper.GetForSigning(privateKey, password);
             signer.BlockUpdate(content, 0, content.Length);
             var signature = signer.GenerateSignature();
 
@@ -28,9 +28,9 @@ namespace Crypto.Providers
             };
         }
 
-        public bool VerifySignature(IAsymmetricKeyPair asymmetricKeyPair, SignatureModel signature)
+        public bool VerifySignature(IAsymmetricKey publicKey, SignatureModel signature)
         {
-            ISigner signer = signatureAlgorithmGenerator.GetForVerifyingSignature(asymmetricKeyPair);
+            ISigner signer = signatureAlgorithmMapper.GetForVerifyingSignature(publicKey);
             signer.BlockUpdate(signature.SignedData, 0, signature.SignedData.Length);
             return signer.VerifySignature(signature.Content);
         }

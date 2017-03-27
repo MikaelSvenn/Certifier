@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -10,29 +12,31 @@ using Org.BouncyCastle.Security;
 namespace Crypto.Test.Providers
 {
     [TestFixture]
-    public class RsaKeyPairProviderTest
+    public class RsaKeyProviderTest
     {
-        private RsaKeyPairProvider keyProvider;
+        private RsaKeyProvider keyProvider;
 
         [OneTimeSetUp]
         public void SetupRsaKeyProviderTest()
         {
-            var config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10);
+            var config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10 &&
+                m.Get<int>("SaltLengthInBytes") == 100);
+
             var secureRandomGenerator = new SecureRandomGenerator();
             var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
 
-            keyProvider = new RsaKeyPairProvider(config, rsaGenerator, secureRandomGenerator);
+            keyProvider = new RsaKeyProvider(config, rsaGenerator, secureRandomGenerator);
         }
 
         [TestFixture]
-        public class CreateAsymmetricKeyPairTest : RsaKeyPairProviderTest
+        public class CreateKeyPairTest : RsaKeyProviderTest
         {
             private IAsymmetricKeyPair keyPair;
 
             [OneTimeSetUp]
             public void Setup()
             {
-                keyPair = keyProvider.CreateAsymmetricKeyPair(2048);
+                keyPair = keyProvider.CreateKeyPair(2048);
             }
 
             [Test]
@@ -62,13 +66,13 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetPrivateKeyType()
             {
-                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PrivateKey.KeyType);
+                Assert.AreEqual(AsymmetricKeyType.Private, keyPair.PrivateKey.KeyType);
             }
 
             [Test]
             public void ShouldSetPublicKeyType()
             {
-                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PublicKey.KeyType);
+                Assert.AreEqual(AsymmetricKeyType.Public, keyPair.PublicKey.KeyType);
             }
 
             [Test]
@@ -85,14 +89,14 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        public class CreatePkcs12KeyPairPairTest : RsaKeyPairProviderTest
+        public class CreatePkcs12KeyTest : RsaKeyProviderTest
         {
             private IAsymmetricKeyPair keyPair;
 
             [OneTimeSetUp]
             public void Setup()
             {
-                keyPair = keyProvider.CreateAsymmetricPkcs12KeyPair("foopassword", 2048);
+                keyPair = keyProvider.CreatePkcs12KeyPair("foopassword", 2048);
             }
 
             [Test]
@@ -122,13 +126,13 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetPrivateKeyType()
             {
-                Assert.AreEqual(AsymmetricKeyType.RsaPkcs12, keyPair.PrivateKey.KeyType);
+                Assert.AreEqual(AsymmetricKeyType.Encrypted, keyPair.PrivateKey.KeyType);
             }
 
             [Test]
             public void ShouldSetPublicKeyType()
             {
-                Assert.AreEqual(AsymmetricKeyType.Rsa, keyPair.PublicKey.KeyType);
+                Assert.AreEqual(AsymmetricKeyType.Public, keyPair.PublicKey.KeyType);
             }
 
             [Test]
@@ -141,6 +145,61 @@ namespace Crypto.Test.Providers
                 var publicKeyModulus = ((RsaKeyParameters) publicKey).Modulus;
 
                 Assert.AreEqual(0, privateKeyModulus.CompareTo(publicKeyModulus));
+            }
+        }
+
+        [TestFixture]
+        public class GetKeyTest : RsaKeyProviderTest
+        {
+            private IAsymmetricKeyPair keyPair;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = keyProvider.CreateKeyPair(1024);
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenKeyIsEncrypted()
+            {
+                Assert.Throws<InvalidOperationException>(() => keyProvider.GetKey(null, AsymmetricKeyType.Encrypted));
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyLength()
+            {
+                var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
+                Assert.AreEqual(1024, result.KeySize);
+            }
+
+            [Test]
+            public void ShouldSetPrivateKeyLength()
+            {
+                var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
+                Assert.AreEqual(1024, result.KeySize);
+            }
+
+            [Test]
+            public void ShouldReturnPublicRsaKey()
+            {
+                var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
+                Assert.IsAssignableFrom<RsaKey>(result);
+            }
+
+            [Test]
+            public void ShouldReturnPrivateRsaKey()
+            {
+                var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
+                Assert.IsAssignableFrom<RsaKey>(result);
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenWrongKeyTypeIsProvided()
+            {
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Public);
+                });
             }
         }
     }

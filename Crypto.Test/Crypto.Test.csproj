@@ -51,12 +51,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Generators\PkcsEncryptionGeneratorTest.cs" />
     <Compile Include="Generators\RsaKeyPairGeneratorTest.cs" />
     <Compile Include="Generators\SecureRandomGeneratorTest.cs" />
-    <Compile Include="Generators\SignatureAlgorithmGeneratorTest.cs" />
+    <Compile Include="Mappers\OidToCipherTypeMapperTest.cs" />
+    <Compile Include="Mappers\SignatureAlgorithmMapperTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\AsymmetricKeyProviderTest.cs" />
     <Compile Include="Providers\Pkcs8FormattingProviderTest.cs" />
-    <Compile Include="Providers\RsaKeyPairProviderTest.cs" />
+    <Compile Include="Providers\PkcsEncryptionProviderTest.cs" />
+    <Compile Include="Providers\RsaKeyProviderTest.cs" />
     <Compile Include="Providers\SignatureProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>

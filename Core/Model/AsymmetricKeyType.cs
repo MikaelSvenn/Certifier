@@ -2,7 +2,8 @@
 {
     public enum AsymmetricKeyType
     {
-        Rsa,
-        RsaPkcs12
+        Private,
+        Public,
+        Encrypted
     }
 }

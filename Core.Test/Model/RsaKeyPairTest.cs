@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Core.Test.Model
 {
     [TestFixture]
-    public class AsymmetricKeyPairTest
+    public class RsaKeyPairTest
     {
         private AsymmetricKeyPair keyPair;
         private RsaKey privateKey;
@@ -13,8 +13,8 @@ namespace Core.Test.Model
         [SetUp]
         public void Setup()
         {
-            privateKey = new RsaKey(null, AsymmetricKeyType.RsaPkcs12, 4096);
-            publicKey = new RsaKey(null, AsymmetricKeyType.Rsa, 2048);
+            privateKey = new RsaKey(null, AsymmetricKeyType.Encrypted, 4096);
+            publicKey = new RsaKey(null, AsymmetricKeyType.Public, 2048);
 
             keyPair = new AsymmetricKeyPair(privateKey, publicKey);
         }
@@ -26,7 +26,7 @@ namespace Core.Test.Model
         }
 
         [TestFixture]
-        public class HasPassword : AsymmetricKeyPairTest
+        public class HasPassword : RsaKeyPairTest
         {
             [Test]
             public void ShouldReturnFalseWhenPasswordIsNull()
