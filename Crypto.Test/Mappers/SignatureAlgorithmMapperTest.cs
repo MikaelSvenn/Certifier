@@ -43,31 +43,34 @@ namespace Crypto.Test.Mappers
             public class ShouldReturnSha512WithMgf1For : GetForSigningTest
             {
                 private IAsymmetricKeyProvider<RsaKey> rsaKeyProvider;
+                private IAsymmetricKeyPair keyPair;
+                private IAsymmetricKey encryptedPrivateKey;
 
                 [OneTimeSetUp]
                 public void Setup()
                 {
                     var rsaKeyPairGenerator = new RsaKeyPairGenerator(secureRandom);
-                    rsaKeyProvider = new RsaKeyProvider(configuration, rsaKeyPairGenerator, secureRandom);
+                    rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
+                    keyPair = rsaKeyProvider.CreateKeyPair(2048);
+
+                    var oidToCipherTypeMapper = new OidToCipherTypeMapper();
+                    var asymmetricKeyProvider = new AsymmetricKeyProvider(oidToCipherTypeMapper, rsaKeyProvider);
+                    var encryptionProvider = new PkcsEncryptionProvider(configuration, secureRandom, asymmetricKeyProvider, new PkcsEncryptionGenerator());
+
+                    encryptedPrivateKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foobarbaz");
                 }
 
                 [Test]
                 public void RsaPrivate()
                 {
-                    var keyPair = rsaKeyProvider.CreateKeyPair(2048);
                     var signer = signatureAlgorithmMapper.GetForSigning(keyPair.PrivateKey);
-
                     Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
 
                 [Test]
                 public void RsaEncrypted()
                 {
-                    var keyPair = rsaKeyProvider.CreatePkcs12KeyPair("foobarbaz", 2048);
-                    keyPair.Password = "foobarbaz";
-
-                    var signer = signatureAlgorithmMapper.GetForSigning(keyPair.PrivateKey, "foobarbaz");
-
+                    var signer = signatureAlgorithmMapper.GetForSigning(encryptedPrivateKey, "foobarbaz");
                     Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
             }
@@ -85,7 +88,7 @@ namespace Crypto.Test.Mappers
                 public void Setup()
                 {
                     var rsaKeyPairGenerator = new RsaKeyPairGenerator(secureRandom);
-                    rsaKeyProvider = new RsaKeyProvider(configuration, rsaKeyPairGenerator, secureRandom);
+                    rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
                 }
 
                 [Test]

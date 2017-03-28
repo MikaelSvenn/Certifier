@@ -24,7 +24,7 @@ namespace Crypto.Test.Providers
                                                              c.Get<int>("KeyDerivationIterationCount") == 10);
             var secureRandom = new SecureRandomGenerator();
             var rsaGenerator = new RsaKeyPairGenerator(secureRandom);
-            rsaKeyProvider = new RsaKeyProvider(configuration, rsaGenerator, secureRandom);
+            rsaKeyProvider = new RsaKeyProvider(rsaGenerator);
 
             cipherTypeMapper = new Mock<OidToCipherTypeMapper>();
             keyProvider = new AsymmetricKeyProvider(cipherTypeMapper.Object, rsaKeyProvider);

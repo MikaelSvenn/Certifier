@@ -14,15 +14,11 @@ namespace Crypto.Providers
 {
     public class RsaKeyProvider : IAsymmetricKeyProvider<RsaKey>
     {
-        private readonly IConfiguration configuration;
         private readonly RsaKeyPairGenerator rsaKeyPairGenerator;
-        private readonly SecureRandomGenerator secureRandom;
 
-        public RsaKeyProvider(IConfiguration configuration, RsaKeyPairGenerator rsaKeyPairGenerator, SecureRandomGenerator secureRandom)
+        public RsaKeyProvider(RsaKeyPairGenerator rsaKeyPairGenerator)
         {
-            this.configuration = configuration;
             this.rsaKeyPairGenerator = rsaKeyPairGenerator;
-            this.secureRandom = secureRandom;
         }
 
         public IAsymmetricKeyPair CreateKeyPair(int keySize)
@@ -50,31 +46,6 @@ namespace Crypto.Providers
         private int GetKeyLength(AsymmetricKeyParameter key)
         {
             return ((RsaKeyParameters) key).Modulus.BitLength;
-        }
-
-        public IAsymmetricKeyPair CreatePkcs12KeyPair(string password, int keySize)
-        {
-            AsymmetricCipherKeyPair rsaKeyPair = rsaKeyPairGenerator.GenerateKeyPair(keySize);
-
-            var saltLength = configuration.Get<int>("SaltLengthInBytes");
-            byte[] salt = secureRandom.NextBytes(saltLength);
-
-            var iterationCount = configuration.Get<int>("KeyDerivationIterationCount");
-            byte[] privateKeyContent = PrivateKeyFactory.EncryptKey(PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc,
-                password.ToCharArray(), salt, iterationCount, rsaKeyPair.Private);
-
-            SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(rsaKeyPair.Public);
-            byte[] publicKeyContent = publicKeyInfo
-                .ToAsn1Object()
-                .GetDerEncoded();
-
-            int privateKeyLength = GetKeyLength(rsaKeyPair.Private);
-            int publicKeyLength = GetKeyLength(rsaKeyPair.Public);
-
-            var publicKey = new RsaKey(publicKeyContent, AsymmetricKeyType.Public, publicKeyLength);
-            var privateKey = new RsaKey(privateKeyContent, AsymmetricKeyType.Encrypted, privateKeyLength);
-
-            return new AsymmetricKeyPair(privateKey, publicKey);
         }
 
         public RsaKey GetKey(byte[] content, AsymmetricKeyType keyType)

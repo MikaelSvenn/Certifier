@@ -34,15 +34,17 @@ namespace Crypto.Test.Providers
             keys = new Dictionary<AsymmetricKeyType, IAsymmetricKeyPair>();
 
             var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
-            var rsaKeyProvider = new RsaKeyProvider(config, rsaGenerator, secureRandomGenerator);
+            var rsaKeyProvider = new RsaKeyProvider(rsaGenerator);
+            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider);
+            var encryptionProvider = new PkcsEncryptionProvider(config, secureRandomGenerator, asymmetricKeyProvider, new PkcsEncryptionGenerator());
 
-            IAsymmetricKeyPair rsaPkcs12Key = rsaKeyProvider.CreatePkcs12KeyPair("foo", 2048);
-            rsaPkcs12Key.Password = "foo";
+            IAsymmetricKeyPair keyPair = rsaKeyProvider.CreateKeyPair(2048);
+            IAsymmetricKey encryptedKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foopassword");
+            IAsymmetricKeyPair encryptedKeyPair = new AsymmetricKeyPair(encryptedKey, keyPair.PublicKey);
+            encryptedKeyPair.Password = "foopassword";
 
-            IAsymmetricKeyPair rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
-
-            keys.Add(rsaPkcs12Key.PrivateKey.KeyType, rsaPkcs12Key);
-            keys.Add(rsaKeyPair.PrivateKey.KeyType, rsaKeyPair);
+            keys.Add(encryptedKey.KeyType, encryptedKeyPair);
+            keys.Add(keyPair.PrivateKey.KeyType, keyPair);
         }
 
         [TestFixture]

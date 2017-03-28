@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Generators
@@ -23,11 +22,8 @@ namespace Crypto.Test.Generators
         {
             encryptionGenerator = new PkcsEncryptionGenerator();
 
-            var configuration = Mock.Of<IConfiguration>(c => c.Get<int>("SaltLengthInBytes") == 100 &&
-                                                             c.Get<int>("KeyDerivationIterationCount") == 10);
-
             var secureRandom = new SecureRandomGenerator();
-            var rsaProvider = new RsaKeyProvider(configuration, new RsaKeyPairGenerator(secureRandom), secureRandom);
+            var rsaProvider = new RsaKeyProvider(new RsaKeyPairGenerator(secureRandom));
             keyPair = rsaProvider.CreateKeyPair(1024);
 
             encryptedKey = encryptionGenerator.Encrypt("fooBar", new byte[] {0x01, 0x02}, 10, keyPair.PrivateKey.Content);
