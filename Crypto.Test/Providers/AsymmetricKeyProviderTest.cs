@@ -69,8 +69,9 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldReturnValidKey()
             {
+                var algorithmMapper = new SignatureAlgorithmIdentifierMapper();
                 var secureRandom = new SecureRandomGenerator();
-                var signatureProvider = new SignatureProvider(new SignatureAlgorithmProvider(secureRandom));
+                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom);
                 var data = secureRandom.NextBytes(100);
 
                 Signature signature = signatureProvider.CreateSignature(keyPair.PrivateKey, data);
@@ -117,8 +118,9 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldReturnValidKey()
             {
+                var algorithmMapper = new SignatureAlgorithmIdentifierMapper();
                 var secureRandom = new SecureRandomGenerator();
-                var signatureProvider = new SignatureProvider(new SignatureAlgorithmProvider(secureRandom));
+                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom);
 
                 var data = secureRandom.NextBytes(100);
 

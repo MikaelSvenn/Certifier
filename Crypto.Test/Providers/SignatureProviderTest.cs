@@ -4,7 +4,6 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
-using Moq;
 using NUnit.Framework;
 
 namespace Crypto.Test.Providers
@@ -12,60 +11,48 @@ namespace Crypto.Test.Providers
     [TestFixture]
     public class SignatureProviderTest
     {
-        private IConfiguration config;
         private SecureRandomGenerator secureRandomGenerator;
         private SignatureProvider signatureProvider;
-        private SignatureAlgorithmProvider signatureAlgorithmProvider;
+        private SignatureAlgorithmIdentifierMapper algorithmIdentifierMapper;
         private byte[] content;
-        private Dictionary<AsymmetricKeyType, IAsymmetricKeyPair> keys;
+        private Dictionary<CipherType, IAsymmetricKeyPair> keys;
 
         [OneTimeSetUp]
         public void SetupSignatureProviderTest()
         {
+            algorithmIdentifierMapper = new SignatureAlgorithmIdentifierMapper();
             secureRandomGenerator = new SecureRandomGenerator();
-            signatureAlgorithmProvider = new SignatureAlgorithmProvider(secureRandomGenerator);
-            signatureProvider = new SignatureProvider(signatureAlgorithmProvider);
-
-            config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10 &&
-                m.Get<int>("SaltLengthInBytes") == 100);
+            signatureProvider = new SignatureProvider(algorithmIdentifierMapper, secureRandomGenerator);
 
             content = secureRandomGenerator.NextBytes(2000);
 
-            keys = new Dictionary<AsymmetricKeyType, IAsymmetricKeyPair>();
+            keys = new Dictionary<CipherType, IAsymmetricKeyPair>();
 
             var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
             var rsaKeyProvider = new RsaKeyProvider(rsaGenerator);
-            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider);
-            var encryptionProvider = new PkcsEncryptionProvider(config, secureRandomGenerator, asymmetricKeyProvider, new PkcsEncryptionGenerator());
 
             IAsymmetricKeyPair keyPair = rsaKeyProvider.CreateKeyPair(2048);
-            IAsymmetricKey encryptedKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foopassword");
-            IAsymmetricKeyPair encryptedKeyPair = new AsymmetricKeyPair(encryptedKey, keyPair.PublicKey);
-            encryptedKeyPair.Password = "foopassword";
 
-            keys.Add(encryptedKey.KeyType, encryptedKeyPair);
-            keys.Add(keyPair.PrivateKey.KeyType, keyPair);
+            keys.Add(keyPair.PrivateKey.CipherType, keyPair);
         }
 
         [TestFixture]
         public class CreateSignatureTest : SignatureProviderTest
         {
-            [TestCase(AsymmetricKeyType.Encrypted,  TestName="Encrypted")]
-            [TestCase(AsymmetricKeyType.Private, TestName="Private")]
-            public void ShouldSetSignedData(AsymmetricKeyType keyType)
+            [TestCase(CipherType.Rsa, TestName="RSA Signature")]
+            public void ShouldSetSignedData(CipherType cipherType)
             {
-                var keyPair = keys[keyType];
-                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content, keyPair.Password);
+                var keyPair = keys[cipherType];
+                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content);
 
                 CollectionAssert.IsNotEmpty(signature.SignedData);
             }
 
-            [TestCase(AsymmetricKeyType.Encrypted,  TestName="Encrypted")]
-            [TestCase(AsymmetricKeyType.Private, TestName="Private")]
-            public void ShouldSetSignatureContent(AsymmetricKeyType keyType)
+            [TestCase(CipherType.Rsa, TestName="RSA Content")]
+            public void ShouldSetSignatureContent(CipherType cipherType)
             {
-                var keyPair = keys[keyType];
-                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content, keyPair.Password);
+                var keyPair = keys[cipherType];
+                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content);
 
                 CollectionAssert.IsNotEmpty(signature.Content);
             }
@@ -74,23 +61,21 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class VerifySignatureTest : SignatureProviderTest
         {
-            [TestCase(AsymmetricKeyType.Encrypted,  TestName="Encrypted")]
-            [TestCase(AsymmetricKeyType.Private, TestName="Private")]
-            public void ShouldReturnFalseWhenSignatureIsNotValid(AsymmetricKeyType keyType)
+            [TestCase(CipherType.Rsa,  TestName="RSA")]
+            public void ShouldReturnFalseWhenSignatureIsNotValid(CipherType cipherType)
             {
-                var keyPair = keys[keyType];
-                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content, keyPair.Password);
+                var keyPair = keys[cipherType];
+                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content);
                 signature.Content[0] = (byte) (signature.Content[0] >> 1);
 
                 Assert.IsFalse(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
             }
 
-            [TestCase(AsymmetricKeyType.Encrypted,  TestName="Encrypted")]
-            [TestCase(AsymmetricKeyType.Private, TestName="Private")]
-            public void ShouldReturnTrueWhenSignatureIsValid(AsymmetricKeyType keyType)
+            [TestCase(CipherType.Rsa,  TestName="RSA")]
+            public void ShouldReturnTrueWhenSignatureIsValid(CipherType cipherType)
             {
-                var keyPair = keys[keyType];
-                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content, keyPair.Password);
+                var keyPair = keys[cipherType];
+                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content);
 
                 Assert.IsTrue(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
             }
