@@ -3,7 +3,9 @@ using Core.Model;
 using Crypto.Mappers;
 using NUnit.Framework;
 using Org.BouncyCastle.Asn1.CryptoPro;
+using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.X9;
 
 namespace Crypto.Test.Mappers
@@ -42,12 +44,32 @@ namespace Crypto.Test.Mappers
                     .SetName("RSA")
                     .Returns(CipherType.Rsa);
 
+                yield return new TestCaseData(PkcsObjectIdentifiers.IdRsassaPss.Id)
+                    .SetName("RSA PSS")
+                    .Returns(CipherType.Rsa);
+
+                yield return new TestCaseData(PkcsObjectIdentifiers.IdRsaesOaep.Id)
+                    .SetName("RSA OEAP")
+                    .Returns(CipherType.Rsa);
+
+                yield return new TestCaseData(X509ObjectIdentifiers.IdEARsa.Id)
+                    .SetName("RSA EA")
+                    .Returns(CipherType.Rsa);
+
                 yield return new TestCaseData(X9ObjectIdentifiers.IdDsa.Id)
                     .SetName("DSA")
                     .Returns(CipherType.Dsa);
 
+                yield return new TestCaseData(OiwObjectIdentifiers.ElGamalAlgorithm.Id)
+                    .SetName("ElGamal")
+                    .Returns(CipherType.ElGamal);
+
                 yield return new TestCaseData(CryptoProObjectIdentifiers.GostR3410x2001.Id)
                     .SetName("EC (Gost R3410x2001)")
+                    .Returns(CipherType.Ec);
+
+                yield return new TestCaseData(CryptoProObjectIdentifiers.GostR3410x94.Id)
+                    .SetName("EC (Gost R3410x94)")
                     .Returns(CipherType.Ec);
 
                 yield return new TestCaseData(X9ObjectIdentifiers.IdECPublicKey.Id)

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using Core.Model;
 using Org.BouncyCastle.Asn1.CryptoPro;
+using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.X9;
 
 namespace Crypto.Mappers
@@ -15,8 +17,13 @@ namespace Crypto.Mappers
             keyAlgorithms = new Dictionary<string, CipherType>
             {
                 {PkcsObjectIdentifiers.RsaEncryption.Id, CipherType.Rsa},
+                {X509ObjectIdentifiers.IdEARsa.Id, CipherType.Rsa},
+                {PkcsObjectIdentifiers.IdRsassaPss.Id, CipherType.Rsa},
+                {PkcsObjectIdentifiers.IdRsaesOaep.Id, CipherType.Rsa},
                 {X9ObjectIdentifiers.IdDsa.Id, CipherType.Dsa},
+                {OiwObjectIdentifiers.ElGamalAlgorithm.Id, CipherType.ElGamal},
                 {CryptoProObjectIdentifiers.GostR3410x2001.Id, CipherType.Ec},
+                {CryptoProObjectIdentifiers.GostR3410x94.Id, CipherType.Ec},
                 {X9ObjectIdentifiers.IdECPublicKey.Id, CipherType.Ec},
                 {PkcsObjectIdentifiers.Pkcs5 + ".1", CipherType.Pkcs5Encrypted},
                 {PkcsObjectIdentifiers.Pkcs5 + ".3", CipherType.Pkcs5Encrypted},
