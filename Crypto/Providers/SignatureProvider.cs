@@ -7,17 +7,17 @@ namespace Crypto.Providers
 {
     public class SignatureProvider : ISignatureProvider
     {
-        private readonly SignatureAlgorithmMapper signatureAlgorithmMapper;
+        private readonly SignatureAlgorithmProvider signatureAlgorithmProvider;
 
 
-        public SignatureProvider(SignatureAlgorithmMapper signatureAlgorithmMapper)
+        public SignatureProvider(SignatureAlgorithmProvider signatureAlgorithmProvider)
         {
-            this.signatureAlgorithmMapper = signatureAlgorithmMapper;
+            this.signatureAlgorithmProvider = signatureAlgorithmProvider;
         }
 
         public SignatureModel CreateSignature(IAsymmetricKey privateKey, byte[] content, string password = "")
         {
-            ISigner signer = signatureAlgorithmMapper.GetForSigning(privateKey, password);
+            ISigner signer = signatureAlgorithmProvider.GetForSigning(privateKey, password);
             signer.BlockUpdate(content, 0, content.Length);
             var signature = signer.GenerateSignature();
 
@@ -30,7 +30,7 @@ namespace Crypto.Providers
 
         public bool VerifySignature(IAsymmetricKey publicKey, SignatureModel signature)
         {
-            ISigner signer = signatureAlgorithmMapper.GetForVerifyingSignature(publicKey);
+            ISigner signer = signatureAlgorithmProvider.GetForVerifyingSignature(publicKey);
             signer.BlockUpdate(signature.SignedData, 0, signature.SignedData.Length);
             return signer.VerifySignature(signature.Content);
         }

@@ -18,7 +18,7 @@ namespace Ui.Console.Startup
 
             container.Register<RsaKeyPairGenerator>();
             container.Register<SecureRandomGenerator>();
-            container.Register<SignatureAlgorithmMapper>();
+            container.Register<SignatureAlgorithmProvider>();
 
             container.Register<IAsymmetricKeyProvider<RsaKey>, RsaKeyProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();

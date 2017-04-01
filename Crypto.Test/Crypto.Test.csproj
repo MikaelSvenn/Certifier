@@ -55,7 +55,7 @@
     <Compile Include="Generators\RsaKeyPairGeneratorTest.cs" />
     <Compile Include="Generators\SecureRandomGeneratorTest.cs" />
     <Compile Include="Mappers\OidToCipherTypeMapperTest.cs" />
-    <Compile Include="Mappers\SignatureAlgorithmMapperTest.cs" />
+    <Compile Include="Mappers\SignatureAlgorithmProviderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\AsymmetricKeyProviderTest.cs" />
     <Compile Include="Providers\Pkcs8FormattingProviderTest.cs" />

@@ -7,14 +7,14 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-namespace Crypto.Mappers
+namespace Crypto.Providers
 {
-    public class SignatureAlgorithmMapper
+    public class SignatureAlgorithmProvider
     {
         private readonly SecureRandomGenerator secureRandomGenerator;
         private readonly Dictionary<AsymmetricKeyType, string> bouncyCastleSignatureAlgorithms;
 
-        public SignatureAlgorithmMapper(SecureRandomGenerator secureRandomGenerator)
+        public SignatureAlgorithmProvider(SecureRandomGenerator secureRandomGenerator)
         {
             this.secureRandomGenerator = secureRandomGenerator;
             bouncyCastleSignatureAlgorithms = new Dictionary<AsymmetricKeyType, string>

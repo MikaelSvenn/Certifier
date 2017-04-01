@@ -10,24 +10,24 @@ using NUnit.Framework;
 namespace Crypto.Test.Mappers
 {
     [TestFixture]
-    public class SignatureAlgorithmMapperTest
+    public class SignatureAlgorithmProviderTest
     {
         private IConfiguration configuration;
         private SecureRandomGenerator secureRandom;
-        private SignatureAlgorithmMapper signatureAlgorithmMapper;
+        private SignatureAlgorithmProvider signatureAlgorithmProvider;
 
         [OneTimeSetUp]
-        public void SetupSignatureAlgorithmMapperTest()
+        public void SetupSignatureAlgorithmProviderTest()
         {
             configuration = Mock.Of<IConfiguration>(m => m.Get<int>("SaltLengthInBytes") == 100 &&
                                                          m.Get<int>("KeyDerivationIterationCount") == 1);
 
             secureRandom = new SecureRandomGenerator();
-            signatureAlgorithmMapper = new SignatureAlgorithmMapper(secureRandom);
+            signatureAlgorithmProvider = new SignatureAlgorithmProvider(secureRandom);
         }
 
         [TestFixture]
-        public class GetForSigningTest : SignatureAlgorithmMapperTest
+        public class GetForSigningTest : SignatureAlgorithmProviderTest
         {
             [Test]
             public void ShouldThrowArgumentExceptionWhenPrivateKeyIsEncryptedAndNoPasswordIsProvided()
@@ -35,7 +35,7 @@ namespace Crypto.Test.Mappers
                 var key = Mock.Of<IAsymmetricKey>(k => k.IsEncrypted);
                 Assert.Throws<ArgumentException>(() =>
                 {
-                    signatureAlgorithmMapper.GetForSigning(key);
+                    signatureAlgorithmProvider.GetForSigning(key);
                 });
             }
 
@@ -63,21 +63,21 @@ namespace Crypto.Test.Mappers
                 [Test]
                 public void RsaPrivate()
                 {
-                    var signer = signatureAlgorithmMapper.GetForSigning(keyPair.PrivateKey);
+                    var signer = signatureAlgorithmProvider.GetForSigning(keyPair.PrivateKey);
                     Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
 
                 [Test]
                 public void RsaEncrypted()
                 {
-                    var signer = signatureAlgorithmMapper.GetForSigning(encryptedPrivateKey, "foobarbaz");
+                    var signer = signatureAlgorithmProvider.GetForSigning(encryptedPrivateKey, "foobarbaz");
                     Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }
             }
         }
 
         [TestFixture]
-        public class GetForVerifyingTest : SignatureAlgorithmMapperTest
+        public class GetForVerifyingTest : SignatureAlgorithmProviderTest
         {
             [TestFixture]
             public class ShouldReturnSha512WithMgf1For : GetForVerifyingTest
@@ -95,7 +95,7 @@ namespace Crypto.Test.Mappers
                 public void RsaPublic()
                 {
                     var keyPair = rsaKeyProvider.CreateKeyPair(2048);
-                    var signer = signatureAlgorithmMapper.GetForVerifyingSignature(keyPair.PublicKey);
+                    var signer = signatureAlgorithmProvider.GetForVerifyingSignature(keyPair.PublicKey);
 
                     Assert.AreEqual("SHA-512withRSAandMGF1", signer.AlgorithmName);
                 }

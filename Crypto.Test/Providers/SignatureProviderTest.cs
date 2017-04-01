@@ -15,7 +15,7 @@ namespace Crypto.Test.Providers
         private IConfiguration config;
         private SecureRandomGenerator secureRandomGenerator;
         private SignatureProvider signatureProvider;
-        private SignatureAlgorithmMapper signatureAlgorithmMapper;
+        private SignatureAlgorithmProvider signatureAlgorithmProvider;
         private byte[] content;
         private Dictionary<AsymmetricKeyType, IAsymmetricKeyPair> keys;
 
@@ -23,8 +23,8 @@ namespace Crypto.Test.Providers
         public void SetupSignatureProviderTest()
         {
             secureRandomGenerator = new SecureRandomGenerator();
-            signatureAlgorithmMapper = new SignatureAlgorithmMapper(secureRandomGenerator);
-            signatureProvider = new SignatureProvider(signatureAlgorithmMapper);
+            signatureAlgorithmProvider = new SignatureAlgorithmProvider(secureRandomGenerator);
+            signatureProvider = new SignatureProvider(signatureAlgorithmProvider);
 
             config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10 &&
                 m.Get<int>("SaltLengthInBytes") == 100);
