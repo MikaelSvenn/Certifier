@@ -10,11 +10,11 @@
         public string Signature { get; set; }
         public bool ShowHelp { get; set; }
 
-        public CreateTarget Create { get; set; }
-        public VerifyTarget Verify { get; set; }
+        public OperationTarget Create { get; set; }
+        public OperationTarget Verify { get; set; }
 
         public bool IsValid => !ShowHelp &&
-                                 !(Create == CreateTarget.none && Verify == VerifyTarget.none) &&
-                                 !(Create != CreateTarget.none && Verify != VerifyTarget.none);
+                                 !(Create == OperationTarget.none && Verify == OperationTarget.none) &&
+                                 !(Create != OperationTarget.none && Verify != OperationTarget.none);
     }
 }

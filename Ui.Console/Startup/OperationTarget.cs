@@ -1,6 +1,6 @@
 ﻿namespace Ui.Console.Startup
 {
-    public enum CreateTarget
+    public enum OperationTarget
     {
         none,
         key,

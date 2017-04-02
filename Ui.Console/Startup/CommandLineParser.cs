@@ -35,10 +35,10 @@ namespace Ui.Console.Startup
                 .As('s', "signature")
                 .SetDefault(string.Empty);
 
-            parser.Setup<CreateTarget>(argument => argument.Create)
+            parser.Setup(argument => argument.Create)
                 .As('c', "create");
 
-            parser.Setup<VerifyTarget>(argument => argument.Verify)
+            parser.Setup(argument => argument.Verify)
                 .As('v', "verify");
 
             var result = parser.Parse(arguments);

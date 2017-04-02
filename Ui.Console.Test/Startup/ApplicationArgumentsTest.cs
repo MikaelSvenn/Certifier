@@ -16,7 +16,7 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = CreateTarget.key,
+                    Create = OperationTarget.key,
                     ShowHelp = true
                 };
 
@@ -28,8 +28,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = CreateTarget.none,
-                    Verify = VerifyTarget.none
+                    Create = OperationTarget.none,
+                    Verify = OperationTarget.none
                 };
 
                 Assert.IsFalse(arguments.IsValid);
@@ -40,8 +40,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = CreateTarget.key,
-                    Verify = VerifyTarget.signature
+                    Create = OperationTarget.key,
+                    Verify = OperationTarget.signature
                 };
 
                 Assert.IsFalse(arguments.IsValid);
@@ -52,8 +52,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = CreateTarget.signature,
-                    Verify = VerifyTarget.none
+                    Create = OperationTarget.signature,
+                    Verify = OperationTarget.none
                 };
 
                 Assert.IsTrue(arguments.IsValid);
@@ -64,8 +64,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = CreateTarget.none,
-                    Verify = VerifyTarget.key
+                    Create = OperationTarget.none,
+                    Verify = OperationTarget.key
                 };
 
                 Assert.IsTrue(arguments.IsValid);

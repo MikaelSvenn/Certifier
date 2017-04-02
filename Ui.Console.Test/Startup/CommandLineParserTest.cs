@@ -64,13 +64,13 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void CreateTarget()
             {
-                Assert.AreEqual(Console.Startup.CreateTarget.none, arguments.Create);
+                Assert.AreEqual(OperationTarget.none, arguments.Create);
             }
 
             [Test]
             public void VerifyTarget()
             {
-                Assert.AreEqual(Console.Startup.VerifyTarget.none, arguments.Verify);
+                Assert.AreEqual(OperationTarget.none, arguments.Verify);
             }
         }
 
@@ -100,8 +100,7 @@ namespace Ui.Console.Test.Startup
                 Assert.IsTrue(result.ShowHelp);
             }
 
-            private static string[][] validArguments = new[]
-            {
+            private static string[][] validArguments = {
                 new []{"-c", "key", "-k", "2048"},
                 new []{"-c", "signature", "--privatekey", "foo", "-f", "bar"},
                 new []{"--privatekey", "foo"},
@@ -120,8 +119,7 @@ namespace Ui.Console.Test.Startup
         [TestFixture]
         public class ShouldParseGivenParameters : CommandLineParserTest
         {
-            private static string[][] createKey = new[]
-            {
+            private static string[][] createKey = {
                 new []{"-c", "key"},
                 new []{"--create", "key"},
             };
@@ -130,11 +128,10 @@ namespace Ui.Console.Test.Startup
             public void CreateKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Create, CreateTarget.key);
+                Assert.AreEqual(result.Create, OperationTarget.key);
             }
 
-            private static string[][] createSignature = new[]
-            {
+            private static string[][] createSignature = {
                 new []{"-c", "signature"},
                 new []{"--create", "signature"},
             };
@@ -143,11 +140,10 @@ namespace Ui.Console.Test.Startup
             public void CreateSignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Create, CreateTarget.signature);
+                Assert.AreEqual(result.Create, OperationTarget.signature);
             }
 
-            private static string[][] verifyKey = new[]
-            {
+            private static string[][] verifyKey = {
                 new []{"-v", "key"},
                 new []{"--verify", "key"},
             };
@@ -156,11 +152,10 @@ namespace Ui.Console.Test.Startup
             public void VerifyKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Verify, VerifyTarget.key);
+                Assert.AreEqual(result.Verify, OperationTarget.key);
             }
 
-            private static string[][] verifySignature = new[]
-            {
+            private static string[][] verifySignature = {
                 new []{"-v", "signature"},
                 new []{"--verify", "signature"},
             };
@@ -169,11 +164,10 @@ namespace Ui.Console.Test.Startup
             public void VerifySignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Verify, VerifyTarget.signature);
+                Assert.AreEqual(result.Verify, OperationTarget.signature);
             }
 
-            private static string[][] keySize = new[]
-            {
+            private static string[][] keySize = {
                 new []{"-k", "2048"},
                 new []{"--keysize", "2048"}
             };
@@ -185,8 +179,7 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual(2048, result.KeySize);
             }
 
-            private static string[][] password = new[]
-            {
+            private static string[][] password = {
                 new []{"-p", "foobar"},
                 new []{"--password", "foobar"}
             };
@@ -212,8 +205,7 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual(@"c:\temp\public", result.PublicKeyPath);
             }
 
-            private static string[][] filePath = new[]
-            {
+            private static string[][] filePath = {
                 new []{"-f", @"c:\temp\file"},
                 new []{"--file", @"c:\temp\file"}
             };
