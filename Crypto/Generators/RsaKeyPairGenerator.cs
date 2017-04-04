@@ -1,5 +1,4 @@
 ﻿using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
 
 namespace Crypto.Generators
 {

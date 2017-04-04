@@ -63,7 +63,7 @@ namespace Crypto.Test.Providers
             public void ShouldThrowExceptionWhenGivenKeyIsAlreadyEncrypted()
             {
                 var key = Mock.Of<IAsymmetricKey>(k => k.IsEncrypted);
-                Assert.Throws<ArgumentException>(() => { encryptionProvider.EncryptPrivateKey(key, "foo"); });
+                Assert.Throws<InvalidOperationException>(() => { encryptionProvider.EncryptPrivateKey(key, "foo"); });
             }
 
             [Test]

@@ -26,7 +26,7 @@ namespace Crypto.Providers
         {
             if (key.IsEncrypted)
             {
-                throw new ArgumentException("Key is already encrypted");
+                throw new InvalidOperationException("Key is already encrypted");
             }
 
             var saltLength = configuration.Get<int>("SaltLengthInBytes");
