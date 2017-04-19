@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
+      <HintPath>..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq, Version=4.6.38.0, Culture=neutral, PublicKeyToken=69f491c39445e920">
+      <HintPath>..\packages\Moq.4.6.38-alpha\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -42,11 +48,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
+    <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
+    <Compile Include="Decorator\Pkcs8FormattingDecoratorTest.cs" />
+    <Compile Include="Decorator\PkcsKeyEncryptionDecoratorTest.cs" />
+    <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Startup\ApplicationArgumentsTest.cs" />
     <Compile Include="Startup\CommandLineParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{7E9DD347-7319-47A2-9084-280BD8CE6D72}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Crypto\Crypto.csproj">
+      <Project>{E821BCB0-D6D6-4CCB-8257-1809878EB28D}</Project>
+      <Name>Crypto</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ui.Console\Ui.Console.csproj">
       <Project>{72FACE20-E23D-48E0-A79B-3F2B59F479BE}</Project>
       <Name>Ui.Console</Name>

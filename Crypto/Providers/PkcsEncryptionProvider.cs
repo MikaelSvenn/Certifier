@@ -7,7 +7,7 @@ using Org.BouncyCastle.Security;
 
 namespace Crypto.Providers
 {
-    public class PkcsEncryptionProvider
+    public class PkcsEncryptionProvider : IKeyEncryptionProvider
     {
         private readonly IConfiguration configuration;
         private readonly SecureRandomGenerator secureRandomGenerator;

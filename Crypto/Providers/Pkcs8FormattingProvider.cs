@@ -8,7 +8,6 @@ namespace Crypto.Providers
     {
         private readonly AsymmetricKeyProvider keyProvider;
 
-
         public Pkcs8FormattingProvider(AsymmetricKeyProvider keyProvider)
         {
             this.keyProvider = keyProvider;
@@ -26,7 +25,6 @@ namespace Crypto.Providers
 
             return pemObject.Type.Contains("ENCRYPTED") ? keyProvider.GetEncryptedPrivateKey(pemObject.Content) : keyProvider.GetPrivateKey(pemObject.Content);
         }
-
 
         public string GetAsPem(IAsymmetricKey key)
         {

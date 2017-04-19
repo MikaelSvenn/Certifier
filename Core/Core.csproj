@@ -47,20 +47,20 @@
     <Compile Include="Interfaces\IAsymmetricKey.cs" />
     <Compile Include="Interfaces\IAsymmetricKeyPair.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
+    <Compile Include="Interfaces\IKeyEncryptionProvider.cs" />
     <Compile Include="Interfaces\IPkcsFormattingProvider.cs" />
     <Compile Include="Interfaces\IAsymmetricKeyProvider.cs" />
     <Compile Include="Interfaces\ISignatureGenerator.cs" />
     <Compile Include="Interfaces\ISignatureProvider.cs" />
     <Compile Include="Model\CipherType.cs" />
     <Compile Include="Model\EncryptedKey.cs" />
+    <Compile Include="Model\KeyEncryptionType.cs" />
     <Compile Include="Model\RsaKey.cs" />
     <Compile Include="Model\AsymmetricKeyType.cs" />
-    <Compile Include="Model\Certificate.cs" />
-    <Compile Include="Model\CertificateDetails.cs" />
-    <Compile Include="Model\CertificateSigningRequest.cs" />
     <Compile Include="Model\AsymmetricKeyPair.cs" />
     <Compile Include="Model\Signature.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemWrappers\FileWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
