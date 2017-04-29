@@ -7,6 +7,7 @@ using SimpleInjector;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 using Ui.Console.Decorator;
+using Ui.Console.Provider;
 
 namespace Ui.Console.Startup
 {
@@ -31,6 +32,9 @@ namespace Ui.Console.Startup
                 var parser = container.GetInstance<CommandLineParser>();
                 return parser.ParseArguments(applicationArguments);
             }, Lifestyle.Singleton);
+
+            container.Register<ICommandActivationProvider, CommandActivationProvider>();
+            container.Register<ICommandExecutor, CommandExecutor>();
 
             // Commands
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });
