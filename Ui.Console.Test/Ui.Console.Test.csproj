@@ -39,6 +39,9 @@
     <Reference Include="Moq, Version=4.6.38.0, Culture=neutral, PublicKeyToken=69f491c39445e920">
       <HintPath>..\packages\Moq.4.6.38-alpha\lib\net45\Moq.dll</HintPath>
     </Reference>
+    <Reference Include="SimpleInjector, Version=4.0.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99">
+      <HintPath>..\packages\SimpleInjector.4.0.0-beta1\lib\net45\SimpleInjector.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -54,7 +57,12 @@
     <Compile Include="Decorator\Pkcs8FormattingDecoratorTest.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecoratorTest.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
+    <Compile Include="Provider\CommandActivationProviderTest.cs" />
+    <Compile Include="Provider\RsaKeyCommandProviderTest.cs" />
+    <Compile Include="Provider\WriteToFileCommandProviderTest.cs" />
     <Compile Include="Startup\ApplicationArgumentsTest.cs" />
+    <Compile Include="Startup\CommandActivatorTest.cs" />
+    <Compile Include="Startup\CommandExecutorTest.cs" />
     <Compile Include="Startup\CommandLineParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

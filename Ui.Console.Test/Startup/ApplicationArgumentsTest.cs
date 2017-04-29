@@ -16,7 +16,7 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = OperationTarget.key,
+                    CreateOperation = OperationTarget.key,
                     ShowHelp = true
                 };
 
@@ -28,8 +28,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = OperationTarget.none,
-                    Verify = OperationTarget.none
+                    CreateOperation = OperationTarget.none,
+                    VerifyOperation = OperationTarget.none
                 };
 
                 Assert.IsFalse(arguments.IsValid);
@@ -40,8 +40,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = OperationTarget.key,
-                    Verify = OperationTarget.signature
+                    CreateOperation = OperationTarget.key,
+                    VerifyOperation = OperationTarget.signature
                 };
 
                 Assert.IsFalse(arguments.IsValid);
@@ -52,8 +52,8 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = OperationTarget.signature,
-                    Verify = OperationTarget.none
+                    CreateOperation = OperationTarget.signature,
+                    VerifyOperation = OperationTarget.none
                 };
 
                 Assert.IsTrue(arguments.IsValid);
@@ -64,11 +64,38 @@ namespace Ui.Console.Test.Startup
             {
                 arguments = new ApplicationArguments
                 {
-                    Create = OperationTarget.none,
-                    Verify = OperationTarget.key
+                    CreateOperation = OperationTarget.none,
+                    VerifyOperation = OperationTarget.key
                 };
 
                 Assert.IsTrue(arguments.IsValid);
+            }
+        }
+
+        [TestFixture]
+        public class IsCreate : ApplicationArgumentsTest
+        {
+            [Test]
+            public void ShouldBeFalseWhenCreateIsNone()
+            {
+                arguments = new ApplicationArguments
+                {
+                    CreateOperation = OperationTarget.none
+                };
+
+                Assert.IsFalse(arguments.IsCreate);
+            }
+
+            [TestCase(OperationTarget.key, TestName = "Key")]
+            [TestCase(OperationTarget.signature, TestName = "Signature")]
+            public void ShouldBeTrueWhenCreateIsNotNone(OperationTarget target)
+            {
+                arguments = new ApplicationArguments
+                {
+                    CreateOperation = target
+                };
+
+                Assert.IsTrue(arguments.IsCreate);
             }
         }
 

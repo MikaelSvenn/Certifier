@@ -1,3 +1,4 @@
+using Core.Model;
 using NUnit.Framework;
 using Ui.Console.Startup;
 
@@ -64,13 +65,13 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void CreateTarget()
             {
-                Assert.AreEqual(OperationTarget.none, arguments.Create);
+                Assert.AreEqual(OperationTarget.none, arguments.CreateOperation);
             }
 
             [Test]
             public void VerifyTarget()
             {
-                Assert.AreEqual(OperationTarget.none, arguments.Verify);
+                Assert.AreEqual(OperationTarget.none, arguments.VerifyOperation);
             }
         }
 
@@ -101,7 +102,8 @@ namespace Ui.Console.Test.Startup
             }
 
             private static string[][] validArguments = {
-                new []{"-c", "key", "-k", "2048"},
+                new []{"-c", "key", "-b", "2048"},
+                new []{"-c", "key", "-k", "dsa", "-b", "2048"},
                 new []{"-c", "signature", "--privatekey", "foo", "-f", "bar"},
                 new []{"--privatekey", "foo"},
                 new []{"--verify", "signature", "-s", "foobarbaz", "-f", "foofile"},
@@ -128,7 +130,7 @@ namespace Ui.Console.Test.Startup
             public void CreateKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Create, OperationTarget.key);
+                Assert.AreEqual(result.CreateOperation, OperationTarget.key);
             }
 
             private static string[][] createSignature = {
@@ -140,7 +142,7 @@ namespace Ui.Console.Test.Startup
             public void CreateSignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Create, OperationTarget.signature);
+                Assert.AreEqual(result.CreateOperation, OperationTarget.signature);
             }
 
             private static string[][] verifyKey = {
@@ -152,7 +154,7 @@ namespace Ui.Console.Test.Startup
             public void VerifyKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Verify, OperationTarget.key);
+                Assert.AreEqual(result.VerifyOperation, OperationTarget.key);
             }
 
             private static string[][] verifySignature = {
@@ -164,11 +166,11 @@ namespace Ui.Console.Test.Startup
             public void VerifySignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.Verify, OperationTarget.signature);
+                Assert.AreEqual(result.VerifyOperation, OperationTarget.signature);
             }
 
             private static string[][] keySize = {
-                new []{"-k", "2048"},
+                new []{"-b", "2048"},
                 new []{"--keysize", "2048"}
             };
 
@@ -177,6 +179,13 @@ namespace Ui.Console.Test.Startup
             {
                 var result = commandLineParser.ParseArguments(input);
                 Assert.AreEqual(2048, result.KeySize);
+            }
+
+            [Test]
+            public void KeyType()
+            {
+                var result = commandLineParser.ParseArguments(new []{"-k", "ec"});
+                Assert.AreEqual(CipherType.Ec, result.KeyType);
             }
 
             private static string[][] password = {

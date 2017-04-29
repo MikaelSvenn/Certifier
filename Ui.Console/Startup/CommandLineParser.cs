@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Core.Model;
 using Fclp;
 
 namespace Ui.Console.Startup
@@ -12,8 +13,12 @@ namespace Ui.Console.Startup
             parser.SetupHelp("?", "h", "help");
 
             parser.Setup(argument => argument.KeySize)
-                .As('k', "keysize")
+                .As('b', "keysize")
                 .SetDefault(4096);
+
+            parser.Setup(argument => argument.KeyType)
+                .As('k')
+                .SetDefault(CipherType.Rsa);
 
             parser.Setup(argument => argument.Password)
                 .As('p', "password")
@@ -35,11 +40,13 @@ namespace Ui.Console.Startup
                 .As('s', "signature")
                 .SetDefault(string.Empty);
 
-            parser.Setup(argument => argument.Create)
-                .As('c', "create");
+            parser.Setup(argument => argument.CreateOperation)
+                .As('c', "create")
+                .SetDefault(OperationTarget.none);
 
-            parser.Setup(argument => argument.Verify)
-                .As('v', "verify");
+            parser.Setup(argument => argument.VerifyOperation)
+                .As('v', "verify")
+                .SetDefault(OperationTarget.none);
 
             var result = parser.Parse(arguments);
             if (result.HasErrors || result.EmptyArgs || result.HelpCalled || result.AdditionalOptionsFound.Any())

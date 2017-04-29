@@ -66,11 +66,18 @@
     <Compile Include="Decorator\Pkcs8FormattingDecorator.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />
+    <Compile Include="Provider\CommandActivationProvider.cs" />
+    <Compile Include="Provider\ICommandActivationProvider.cs" />
+    <Compile Include="Provider\RsaKeyCommandProvider.cs" />
+    <Compile Include="Provider\WriteToFileCommandProvider.cs" />
     <Compile Include="Startup\ApplicationArguments.cs" />
+    <Compile Include="Startup\CommandActivator.cs" />
+    <Compile Include="Startup\CommandExecutor.cs" />
     <Compile Include="Startup\CommandLineParser.cs" />
     <Compile Include="Startup\Bootstrap.cs" />
     <Compile Include="Certifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup\ICommandExecutor.cs" />
     <Compile Include="Startup\OperationTarget.cs" />
   </ItemGroup>
   <ItemGroup>
