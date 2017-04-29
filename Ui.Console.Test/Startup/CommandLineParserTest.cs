@@ -33,6 +33,18 @@ namespace Ui.Console.Test.Startup
             }
 
             [Test]
+            public void KeyType()
+            {
+                Assert.AreEqual(CipherType.Rsa, arguments.KeyType);
+            }
+
+            [Test]
+            public void EncryptionType()
+            {
+                Assert.AreEqual(KeyEncryptionType.None, arguments.EncryptionType);
+            }
+
+            [Test]
             public void Password()
             {
                 Assert.IsEmpty(arguments.Password);
@@ -104,6 +116,7 @@ namespace Ui.Console.Test.Startup
             private static string[][] validArguments = {
                 new []{"-c", "key", "-b", "2048"},
                 new []{"-c", "key", "-k", "dsa", "-b", "2048"},
+                new []{"-c", "key", "-k", "rsa", "-e", "pkcs", "-b", "2048"},
                 new []{"-c", "signature", "--privatekey", "foo", "-f", "bar"},
                 new []{"--privatekey", "foo"},
                 new []{"--verify", "signature", "-s", "foobarbaz", "-f", "foofile"},
@@ -186,6 +199,13 @@ namespace Ui.Console.Test.Startup
             {
                 var result = commandLineParser.ParseArguments(new []{"-k", "ec"});
                 Assert.AreEqual(CipherType.Ec, result.KeyType);
+            }
+
+            [Test]
+            public void EncryptionType()
+            {
+                var result = commandLineParser.ParseArguments(new []{"-e", "pkcs"});
+                Assert.AreEqual(KeyEncryptionType.Pkcs, result.EncryptionType);
             }
 
             private static string[][] password = {

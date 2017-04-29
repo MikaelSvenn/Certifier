@@ -17,8 +17,12 @@ namespace Ui.Console.Startup
                 .SetDefault(4096);
 
             parser.Setup(argument => argument.KeyType)
-                .As('k')
+                .As('k', "keytype")
                 .SetDefault(CipherType.Rsa);
+
+            parser.Setup(argument => argument.EncryptionType)
+                .As('e', "encryption")
+                .SetDefault(KeyEncryptionType.None);
 
             parser.Setup(argument => argument.Password)
                 .As('p', "password")
