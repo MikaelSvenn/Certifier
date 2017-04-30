@@ -63,6 +63,7 @@
     <Compile Include="Command\ICreateAsymmetricKeyCommand.cs" />
     <Compile Include="Command\WriteToTextFileCommand.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
+    <Compile Include="Decorator\WriteKeyToFilePathValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8FormattingDecorator.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />
