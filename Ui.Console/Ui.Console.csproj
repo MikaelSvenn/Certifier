@@ -57,14 +57,18 @@
   <ItemGroup>
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandler.cs" />
     <Compile Include="CommandHandler\ICommandHandler.cs" />
-    <Compile Include="CommandHandler\WriteToTextFileCommandHandler.cs" />
+    <Compile Include="CommandHandler\ReadKeyFromTextFileCommandHandler.cs" />
+    <Compile Include="CommandHandler\WriteKeyToTextFileCommandHandler.cs" />
     <Compile Include="Command\CreateRsaKeyCommand.cs" />
+    <Compile Include="Command\CreateSignatureCommand.cs" />
     <Compile Include="Command\ICommandWithResult.cs" />
     <Compile Include="Command\ICreateAsymmetricKeyCommand.cs" />
+    <Compile Include="Command\ReadFromTextFileCommand.cs" />
     <Compile Include="Command\WriteToTextFileCommand.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
+    <Compile Include="Decorator\Pkcs8ReadFormattingDecorator.cs" />
     <Compile Include="Decorator\WriteKeyToFilePathValidationDecorator.cs" />
-    <Compile Include="Decorator\Pkcs8FormattingDecorator.cs" />
+    <Compile Include="Decorator\Pkcs8WriteFormattingDecorator.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />
     <Compile Include="Provider\CommandActivationProvider.cs" />

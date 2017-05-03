@@ -31,29 +31,29 @@ namespace Ui.Console.Test.Decorator
         public void ShouldExecuteDecoratedHandler()
         {
             command.Destination = "foo";
-            decorator.Excecute(command);
-            decoratedHandler.Verify(h => h.Excecute(command));
+            decorator.Execute(command);
+            decoratedHandler.Verify(h => h.Execute(command));
         }
 
         [Test]
         public void ShouldNotExecuteDecoratedHandlerWhenExceptionIsThrown()
         {
-            Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
-            decoratedHandler.Verify(h => h.Excecute(command), Times.Never);
+            Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
+            decoratedHandler.Verify(h => h.Execute(command), Times.Never);
         }
 
         [Test]
         public void ShouldIndicatePrivateKeyTypeInThrownException()
         {
             command.Content = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
-            var exception = Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
+            var exception = Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             Assert.IsTrue(exception.Message.StartsWith("Private"));
         }
 
         [Test]
         public void ShouldIndicatePublicKeyTypeInThrownException()
         {
-            var exception = Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
+            var exception = Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             Assert.IsTrue(exception.Message.StartsWith("Public"));
         }
 
@@ -64,21 +64,21 @@ namespace Ui.Console.Test.Decorator
             public void DestinationIsNull()
             {
                 command.Destination = null;
-                Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
+                Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
             public void DestinationIsEmptyString()
             {
                 command.Destination = "";
-                Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
+                Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
             public void DestinationIsWhitespace()
             {
                 command.Destination = " ";
-                Assert.Throws<ArgumentException>(() => { decorator.Excecute(command); });
+                Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
         }
     }

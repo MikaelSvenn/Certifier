@@ -8,5 +8,10 @@ namespace Core.SystemWrappers
         {
             File.WriteAllText(path, content);
         }
+
+        public virtual string ReadAllText(string filePath)
+        {
+            return File.ReadAllText(filePath);
+        }
     }
 }

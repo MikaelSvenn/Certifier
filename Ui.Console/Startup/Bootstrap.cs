@@ -44,7 +44,9 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
 
             container.RegisterDecorator(typeof(ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>), typeof(WriteKeyToFilePathValidationDecorator));
-            container.RegisterDecorator(typeof(ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>), typeof(Pkcs8FormattingDecorator));
+            container.RegisterDecorator(typeof(ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>), typeof(Pkcs8WriteFormattingDecorator));
+
+            container.RegisterDecorator(typeof(ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>), typeof(Pkcs8ReadFormattingDecorator));
 
             container.Verify();
 

@@ -14,14 +14,14 @@ namespace Ui.Console.Decorator
             this.decoratedCommand = decoratedCommand;
         }
 
-        public void Excecute(T createKeyCommand)
+        public void Execute(T createKeyCommand)
         {
             if (createKeyCommand.EncryptionType != KeyEncryptionType.None && string.IsNullOrEmpty(createKeyCommand.Password))
             {
                 throw new ArgumentException("Password is required for encryption.");
             }
 
-            decoratedCommand.Excecute(createKeyCommand);
+            decoratedCommand.Execute(createKeyCommand);
         }
     }
 }

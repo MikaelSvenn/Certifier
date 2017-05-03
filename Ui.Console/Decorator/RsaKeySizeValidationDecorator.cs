@@ -13,14 +13,14 @@ namespace Ui.Console.Decorator
             this.decoratedCommand = decoratedCommand;
         }
 
-        public void Excecute(T createKeyCommand)
+        public void Execute(T createKeyCommand)
         {
             if (createKeyCommand.KeySize < 2048)
             {
                 throw new ArgumentException("RSA key size too small. At least 2048 bit keys are required.");
             }
 
-            decoratedCommand.Excecute(createKeyCommand);
+            decoratedCommand.Execute(createKeyCommand);
         }
     }
 }

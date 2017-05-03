@@ -64,7 +64,7 @@ namespace Ui.Console.Test.Startup
             this.index = index;
         }
 
-        public void Excecute(TestCommand command)
+        public void Execute(TestCommand command)
         {
             command.Result = index;
         }

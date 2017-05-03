@@ -2,6 +2,6 @@
 {
     public interface ICommandHandler<in T>
     {
-        void Excecute(T createKeyCommand);
+        void Execute(T command);
     }
 }

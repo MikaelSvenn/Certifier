@@ -16,9 +16,9 @@ namespace Ui.Console.Decorator
             this.keyEncryptionProvider = keyEncryptionProvider;
         }
 
-        public void Excecute(T createKeyCommand)
+        public void Execute(T createKeyCommand)
         {
-            decoratedCommandHandler.Excecute(createKeyCommand);
+            decoratedCommandHandler.Execute(createKeyCommand);
 
             if (createKeyCommand.EncryptionType != KeyEncryptionType.Pkcs)
             {

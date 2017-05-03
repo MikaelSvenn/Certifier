@@ -8,9 +8,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class Pkcs8FormattingDecoratorTest
+    public class Pkcs8WriteFormattingDecoratorTest
     {
-        private Pkcs8FormattingDecorator decorator;
+        private Pkcs8WriteFormattingDecorator decorator;
         private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedCommand;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
 
@@ -20,7 +20,7 @@ namespace Ui.Console.Test.Decorator
             decoratedCommand = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
 
-            decorator = new Pkcs8FormattingDecorator(decoratedCommand.Object, formattingProvider.Object);
+            decorator = new Pkcs8WriteFormattingDecorator(decoratedCommand.Object, formattingProvider.Object);
         }
 
         [Test]
@@ -35,8 +35,8 @@ namespace Ui.Console.Test.Decorator
             formattingProvider.Setup(f => f.GetAsPem(key))
                 .Returns("pemFormattedFoo");
 
-            decorator.Excecute(command);
-            decoratedCommand.Verify(d => d.Excecute(It.Is<WriteToTextFileCommand<IAsymmetricKey>>(k => k.ToFile == "pemFormattedFoo")));
+            decorator.Execute(command);
+            decoratedCommand.Verify(d => d.Execute(It.Is<WriteToTextFileCommand<IAsymmetricKey>>(k => k.ContentToFile == "pemFormattedFoo")));
         }
     }
 }

@@ -28,16 +28,16 @@ namespace Ui.Console.Test.Decorator
         public void ShouldExecuteDecoratedCommandHandler()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>();
-            decorator.Excecute(command);
+            decorator.Execute(command);
 
-            decorated.Verify(d => d.Excecute(command));
+            decorated.Verify(d => d.Execute(command));
         }
 
         [Test]
         public void ShouldNotEncryptPrivateKeyWhenEncryptionTypeIsNotPkcs()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.None);
-            decorator.Excecute(command);
+            decorator.Execute(command);
 
             keyEncryptionProvider.Verify(k => k.EncryptPrivateKey(It.IsAny<IAsymmetricKey>(), It.IsAny<string>()), Times.Never());
         }
@@ -69,21 +69,21 @@ namespace Ui.Console.Test.Decorator
             [Test]
             public void ShouldEncryptPrivateKeyWithGivenPassword()
             {
-                decorator.Excecute(command);
+                decorator.Execute(command);
                 keyEncryptionProvider.Verify(kep => kep.EncryptPrivateKey(privateKey, "fooPassword"));
             }
 
             [Test]
             public void ShouldReplacePrivateKeyWithEncryptedPrivateKey()
             {
-                decorator.Excecute(command);
+                decorator.Execute(command);
                 Assert.AreEqual(encryptedPrivateKey, command.Result.PrivateKey);
             }
 
             [Test]
             public void ShouldNotReplacePublicKey()
             {
-                decorator.Excecute(command);
+                decorator.Execute(command);
                 Assert.AreEqual(publicKey, command.Result.PublicKey);
             }
         }

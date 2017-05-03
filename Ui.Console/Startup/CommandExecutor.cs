@@ -21,7 +21,7 @@ namespace Ui.Console.Startup
             Type commandHandlerInstanceType = commandHandlerType.MakeGenericType(commandType);
 
             var commandHander = (dynamic)container.GetInstance(commandHandlerInstanceType);
-            commandHander.Excecute(command);
+            commandHander.Execute(command);
         }
 
         public void ExecuteSequence(IEnumerable<dynamic> commands)

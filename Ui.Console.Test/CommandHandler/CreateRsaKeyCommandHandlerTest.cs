@@ -34,7 +34,7 @@ namespace Ui.Console.Test.CommandHandler
                 KeySize = 4096
             };
 
-            commandHandler.Excecute(command);
+            commandHandler.Execute(command);
             Assert.AreEqual(keyPair, command.Result);
         }
     }

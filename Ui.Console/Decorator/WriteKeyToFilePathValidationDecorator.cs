@@ -14,7 +14,7 @@ namespace Ui.Console.Decorator
             this.decoratedCommandHandler = decoratedCommandHandler;
         }
 
-        public void Excecute(WriteToTextFileCommand<IAsymmetricKey> command)
+        public void Execute(WriteToTextFileCommand<IAsymmetricKey> command)
         {
             if (string.IsNullOrWhiteSpace(command.Destination))
             {
@@ -22,7 +22,7 @@ namespace Ui.Console.Decorator
                 throw new ArgumentException($"{keyType} key file or path is required.");
             }
 
-            decoratedCommandHandler.Excecute(command);
+            decoratedCommandHandler.Execute(command);
         }
     }
 }

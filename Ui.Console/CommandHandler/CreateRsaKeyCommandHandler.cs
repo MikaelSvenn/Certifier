@@ -13,7 +13,7 @@ using Ui.Console.Command;
              this.rsaKeyProvider = rsaKeyProvider;
          }
 
-         public void Excecute(CreateRsaKeyCommand createKeyCommand)
+         public void Execute(CreateRsaKeyCommand createKeyCommand)
          {
              createKeyCommand.Result = rsaKeyProvider.CreateKeyPair(createKeyCommand.KeySize);
          }

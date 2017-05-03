@@ -28,7 +28,7 @@ namespace Ui.Console.Test.Decorator
                 KeySize = 2048
             };
 
-            Assert.DoesNotThrow(() => decorator.Excecute(command));
+            Assert.DoesNotThrow(() => decorator.Execute(command));
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Ui.Console.Test.Decorator
                 KeySize = 9999
             };
 
-            Assert.DoesNotThrow(() => decorator.Excecute(command));
+            Assert.DoesNotThrow(() => decorator.Execute(command));
         }
 
         [Test]
@@ -50,8 +50,8 @@ namespace Ui.Console.Test.Decorator
                 KeySize = 2048
             };
 
-            decorator.Excecute(command);
-            decoratedCommand.Verify(d => d.Excecute(command));
+            decorator.Execute(command);
+            decoratedCommand.Verify(d => d.Execute(command));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Ui.Console.Test.Decorator
                 KeySize = 1024
             };
 
-            Assert.Throws<ArgumentException>(() => decorator.Excecute(command));
+            Assert.Throws<ArgumentException>(() => decorator.Execute(command));
         }
     }
 }

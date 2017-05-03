@@ -52,9 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\ReadKeyFromTextFileCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
-    <Compile Include="Decorator\Pkcs8FormattingDecoratorTest.cs" />
+    <Compile Include="Decorator\Pkcs8WriteFormattingDecoratorTest.cs" />
+    <Compile Include="Decorator\Pkcs8ReadFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecoratorTest.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\WriteKeyToFilePathValidationDecoratorTest.cs" />

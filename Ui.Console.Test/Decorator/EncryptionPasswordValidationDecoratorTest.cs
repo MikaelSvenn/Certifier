@@ -25,30 +25,30 @@ namespace Ui.Console.Test.Decorator
         public void ShouldNotThrowExceptionWhenCommandHasPassword()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.Password == "foo");
-            Assert.DoesNotThrow(() => decorator.Excecute(command));
+            Assert.DoesNotThrow(() => decorator.Execute(command));
         }
 
         [Test]
         public void ShouldInvokeDecoratedCommand()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.Password == "foo");
-            decorator.Excecute(command);
+            decorator.Execute(command);
 
-            decoratedCommand.Verify(d => d.Excecute(command));
+            decoratedCommand.Verify(d => d.Execute(command));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenEncryptionIsSpecifiedAndNoPasswordIsGiven()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.Pkcs);
-            Assert.Throws<ArgumentException>(() => decorator.Excecute(command));
+            Assert.Throws<ArgumentException>(() => decorator.Execute(command));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenEncryptionIsSpecifiedAndEmptyPasswordIsGiven()
         {
             var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.Pkcs && c.Password == "");
-            Assert.Throws<ArgumentException>(() => decorator.Excecute(command));
+            Assert.Throws<ArgumentException>(() => decorator.Execute(command));
         }
     }
 }

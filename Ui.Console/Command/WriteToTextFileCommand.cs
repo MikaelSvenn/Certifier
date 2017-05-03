@@ -4,6 +4,6 @@
     {
         public string Destination { get; set; }
         public T Content { get; set; }
-        public string ToFile { get; set; }
+        public string ContentToFile { get; set; }
     }
 }
