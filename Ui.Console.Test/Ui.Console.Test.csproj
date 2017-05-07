@@ -60,7 +60,7 @@
     <Compile Include="Decorator\PkcsKeyDecryptionDecoratorTest.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecoratorTest.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
-    <Compile Include="Decorator\WriteKeyToFilePathValidationDecoratorTest.cs" />
+    <Compile Include="Decorator\KeyFilePathValidationDecoratorTest.cs" />
     <Compile Include="Provider\CommandActivationProviderTest.cs" />
     <Compile Include="Provider\RsaKeyCommandProviderTest.cs" />
     <Compile Include="Provider\FileCommandProviderTest.cs" />

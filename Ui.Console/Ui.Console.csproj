@@ -69,7 +69,7 @@
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8ReadFormattingDecorator.cs" />
     <Compile Include="Decorator\PkcsKeyDecryptionDecorator.cs" />
-    <Compile Include="Decorator\WriteKeyToFilePathValidationDecorator.cs" />
+    <Compile Include="Decorator\KeyFilePathValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8WriteFormattingDecorator.cs" />
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />

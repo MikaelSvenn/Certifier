@@ -5,11 +5,11 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class WriteKeyToFilePathValidationDecorator<T>: ICommandHandler<T> where T : WriteToTextFileCommand<IAsymmetricKey>
+    public class KeyFilePathValidationDecorator<T>: ICommandHandler<T> where T : FileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
 
-        public WriteKeyToFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
+        public KeyFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
         {
             this.decoratedCommandHandler = decoratedCommandHandler;
         }

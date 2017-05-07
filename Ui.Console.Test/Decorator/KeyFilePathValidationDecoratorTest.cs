@@ -9,9 +9,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class WriteKeyToFilePathValidationDecoratorTest
+    public class KeyFilePathValidationDecoratorTest
     {
-        private WriteKeyToFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
+        private KeyFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedHandler;
         private WriteToTextFileCommand<IAsymmetricKey> command;
 
@@ -19,7 +19,7 @@ namespace Ui.Console.Test.Decorator
         public void Setup()
         {
             decoratedHandler = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
-            decorator = new WriteKeyToFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
+            decorator = new KeyFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
 
             command = new WriteToTextFileCommand<IAsymmetricKey>
             {
@@ -58,7 +58,7 @@ namespace Ui.Console.Test.Decorator
         }
 
         [TestFixture]
-        public class ShouldThrowExceptionWhen : WriteKeyToFilePathValidationDecoratorTest
+        public class ShouldThrowExceptionWhen : KeyFilePathValidationDecoratorTest
         {
             [Test]
             public void FilePathIsNull()
