@@ -4,7 +4,6 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Providers;
 using SimpleInjector;
-using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 using Ui.Console.Decorator;
 using Ui.Console.Provider;
