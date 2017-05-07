@@ -5,16 +5,16 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class WriteKeyToFilePathValidationDecorator: ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>
+    public class WriteKeyToFilePathValidationDecorator<T>: ICommandHandler<T> where T : WriteToTextFileCommand<IAsymmetricKey>
     {
-        private readonly ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>> decoratedCommandHandler;
+        private readonly ICommandHandler<T> decoratedCommandHandler;
 
-        public WriteKeyToFilePathValidationDecorator(ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>> decoratedCommandHandler)
+        public WriteKeyToFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
         {
             this.decoratedCommandHandler = decoratedCommandHandler;
         }
 
-        public void Execute(WriteToTextFileCommand<IAsymmetricKey> command)
+        public void Execute(T command)
         {
             if (string.IsNullOrWhiteSpace(command.FilePath))
             {

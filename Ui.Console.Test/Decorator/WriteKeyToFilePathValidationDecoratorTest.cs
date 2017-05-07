@@ -11,7 +11,7 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class WriteKeyToFilePathValidationDecoratorTest
     {
-        private WriteKeyToFilePathValidationDecorator decorator;
+        private WriteKeyToFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedHandler;
         private WriteToTextFileCommand<IAsymmetricKey> command;
 
@@ -19,7 +19,7 @@ namespace Ui.Console.Test.Decorator
         public void Setup()
         {
             decoratedHandler = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
-            decorator = new WriteKeyToFilePathValidationDecorator(decoratedHandler.Object);
+            decorator = new WriteKeyToFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
 
             command = new WriteToTextFileCommand<IAsymmetricKey>
             {

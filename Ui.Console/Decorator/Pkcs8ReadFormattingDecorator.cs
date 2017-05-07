@@ -4,21 +4,21 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class Pkcs8ReadFormattingDecorator : ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>
+    public class Pkcs8ReadFormattingDecorator<T> : ICommandHandler<T> where T : ReadFromTextFileCommand<IAsymmetricKey>
     {
-        private readonly ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>> decoratedCommand;
+        private readonly ICommandHandler<T> decoratedCommand;
         private readonly IPkcsFormattingProvider<IAsymmetricKey> formattingProvider;
 
-        public Pkcs8ReadFormattingDecorator(ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>> decoratedCommand, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider)
+        public Pkcs8ReadFormattingDecorator(ICommandHandler<T> decoratedCommand, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider)
         {
             this.decoratedCommand = decoratedCommand;
             this.formattingProvider = formattingProvider;
         }
 
-        public void Execute(ReadFromTextFileCommand<IAsymmetricKey> readFromFileCommand)
+        public void Execute(T command)
         {
-            decoratedCommand.Execute(readFromFileCommand);
-            readFromFileCommand.Result = formattingProvider.GetAsDer(readFromFileCommand.FileContent);
+            decoratedCommand.Execute(command);
+            command.Result = formattingProvider.GetAsDer(command.FileContent);
         }
     }
 }

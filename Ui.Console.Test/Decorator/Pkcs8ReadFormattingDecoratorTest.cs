@@ -11,7 +11,7 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class Pkcs8ReadFormattingDecoratorTest
     {
-        private Pkcs8ReadFormattingDecorator decorator;
+        private Pkcs8ReadFormattingDecorator<ReadFromTextFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>> decoratedHandler;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncryptedKey resultingKey;
@@ -22,7 +22,7 @@ namespace Ui.Console.Test.Decorator
         {
             decoratedHandler = new Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
-            decorator = new Pkcs8ReadFormattingDecorator(decoratedHandler.Object, formattingProvider.Object);
+            decorator = new Pkcs8ReadFormattingDecorator<ReadFromTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object, formattingProvider.Object);
 
             resultingKey = new EncryptedKey(null, CipherType.Pkcs12Encrypted);
             formattingProvider.Setup(fp => fp.GetAsDer("fileContent"))

@@ -10,7 +10,7 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class Pkcs8WriteFormattingDecoratorTest
     {
-        private Pkcs8WriteFormattingDecorator decorator;
+        private Pkcs8WriteFormattingDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedCommand;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
 
@@ -20,7 +20,7 @@ namespace Ui.Console.Test.Decorator
             decoratedCommand = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
 
-            decorator = new Pkcs8WriteFormattingDecorator(decoratedCommand.Object, formattingProvider.Object);
+            decorator = new Pkcs8WriteFormattingDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object);
         }
 
         [Test]
