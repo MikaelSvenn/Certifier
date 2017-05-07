@@ -18,7 +18,7 @@ namespace Ui.Console.Decorator
         public void Execute(ReadFromTextFileCommand<IAsymmetricKey> readFromFileCommand)
         {
             decoratedCommand.Execute(readFromFileCommand);
-            readFromFileCommand.Result = formattingProvider.GetAsDer(readFromFileCommand.ContentFromFile);
+            readFromFileCommand.Result = formattingProvider.GetAsDer(readFromFileCommand.FileContent);
         }
     }
 }

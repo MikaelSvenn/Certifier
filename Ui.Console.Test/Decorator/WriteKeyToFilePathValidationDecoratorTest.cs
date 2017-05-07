@@ -23,14 +23,14 @@ namespace Ui.Console.Test.Decorator
 
             command = new WriteToTextFileCommand<IAsymmetricKey>
             {
-                Content = Mock.Of<IAsymmetricKey>()
+                Result = Mock.Of<IAsymmetricKey>()
             };
         }
 
         [Test]
         public void ShouldExecuteDecoratedHandler()
         {
-            command.Destination = "foo";
+            command.FilePath = "foo";
             decorator.Execute(command);
             decoratedHandler.Verify(h => h.Execute(command));
         }
@@ -45,7 +45,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldIndicatePrivateKeyTypeInThrownException()
         {
-            command.Content = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+            command.Result = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
             var exception = Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             Assert.IsTrue(exception.Message.StartsWith("Private"));
         }
@@ -61,23 +61,23 @@ namespace Ui.Console.Test.Decorator
         public class ShouldThrowExceptionWhen : WriteKeyToFilePathValidationDecoratorTest
         {
             [Test]
-            public void DestinationIsNull()
+            public void FilePathIsNull()
             {
-                command.Destination = null;
+                command.FilePath = null;
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
-            public void DestinationIsEmptyString()
+            public void FilePathIsEmptyString()
             {
-                command.Destination = "";
+                command.FilePath = "";
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
-            public void DestinationIsWhitespace()
+            public void FilePathIsWhitespace()
             {
-                command.Destination = " ";
+                command.FilePath = " ";
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
         }

@@ -8,13 +8,13 @@ namespace Ui.Console.Provider
     {
         private readonly ICommandExecutor commandExecutor;
         private readonly RsaKeyCommandProvider rsaKeyCommandProvider;
-        private readonly WriteToFileCommandProvider writeToFileCommandProvider;
+        private readonly FileCommandProvider fileCommandProvider;
 
-        public CommandActivationProvider(ICommandExecutor commandExecutor, RsaKeyCommandProvider rsaKeyCommandProvider, WriteToFileCommandProvider writeToFileCommandProvider)
+        public CommandActivationProvider(ICommandExecutor commandExecutor, RsaKeyCommandProvider rsaKeyCommandProvider, FileCommandProvider fileCommandProvider)
         {
             this.commandExecutor = commandExecutor;
             this.rsaKeyCommandProvider = rsaKeyCommandProvider;
-            this.writeToFileCommandProvider = writeToFileCommandProvider;
+            this.fileCommandProvider = fileCommandProvider;
         }
 
         public void CreateKey(ApplicationArguments arguments)
@@ -22,8 +22,8 @@ namespace Ui.Console.Provider
             ICreateAsymmetricKeyCommand createKeyCommand = rsaKeyCommandProvider.GetCreateRsaKeyCommand(arguments);
             commandExecutor.Execute(createKeyCommand);
 
-            var writePrivateKeyToFile = writeToFileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
-            var writePublicKeyToFile = writeToFileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
+            var writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
+            var writePublicKeyToFile = fileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
             commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
         }
 

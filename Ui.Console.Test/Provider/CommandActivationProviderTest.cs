@@ -21,7 +21,7 @@ namespace Ui.Console.Test.Provider
         public void SetupCommandActivationProviderTest()
         {
             commandExecutor = new Mock<ICommandExecutor>();
-            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new WriteToFileCommandProvider());
+            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider());
         }
 
         [TestFixture]
@@ -60,15 +60,15 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldWriteCreatedPrivateKeyToTextFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.First().Content == privateKey &&
-                                                                                                                                w.First().Destination == "private.pem")));
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.First().Result == privateKey &&
+                                                                                                                                w.First().FilePath == "private.pem")));
             }
 
             [Test]
             public void ShouldWriteCreatedPublicKeyToTextFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.Last().Content == publicKey &&
-                                                                                                                                w.Last().Destination == "public.pem")));
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.Last().Result == publicKey &&
+                                                                                                                                w.Last().FilePath == "public.pem")));
             }
         }
     }

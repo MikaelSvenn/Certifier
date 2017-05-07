@@ -15,7 +15,7 @@ namespace Ui.Console.CommandHandler
 
         public void Execute(WriteToTextFileCommand<IAsymmetricKey> createKeyCommand)
         {
-            file.WriteAllText(createKeyCommand.Destination, createKeyCommand.ContentToFile);
+            file.WriteAllText(createKeyCommand.FilePath, createKeyCommand.FileContent);
         }
     }
 }

@@ -16,9 +16,9 @@ namespace Ui.Console.Decorator
 
         public void Execute(WriteToTextFileCommand<IAsymmetricKey> command)
         {
-            if (string.IsNullOrWhiteSpace(command.Destination))
+            if (string.IsNullOrWhiteSpace(command.FilePath))
             {
-                var keyType = command.Content.IsPrivateKey ? "Private" : "Public";
+                var keyType = command.Result.IsPrivateKey ? "Private" : "Public";
                 throw new ArgumentException($"{keyType} key file or path is required.");
             }
 

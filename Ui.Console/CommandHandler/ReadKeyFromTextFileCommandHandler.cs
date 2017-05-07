@@ -15,7 +15,7 @@ namespace Ui.Console.CommandHandler
 
         public void Execute(ReadFromTextFileCommand<IAsymmetricKey> createKeyCommand)
         {
-            createKeyCommand.ContentFromFile = file.ReadAllText(createKeyCommand.FilePath);
+            createKeyCommand.FileContent = file.ReadAllText(createKeyCommand.FilePath);
         }
     }
 }

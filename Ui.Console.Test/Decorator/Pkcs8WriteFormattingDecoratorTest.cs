@@ -29,14 +29,14 @@ namespace Ui.Console.Test.Decorator
             var key = Mock.Of<IAsymmetricKey>();
             var command = new WriteToTextFileCommand<IAsymmetricKey>
             {
-                Content = key
+                Result = key
             };
 
             formattingProvider.Setup(f => f.GetAsPem(key))
                 .Returns("pemFormattedFoo");
 
             decorator.Execute(command);
-            decoratedCommand.Verify(d => d.Execute(It.Is<WriteToTextFileCommand<IAsymmetricKey>>(k => k.ContentToFile == "pemFormattedFoo")));
+            decoratedCommand.Verify(d => d.Execute(It.Is<WriteToTextFileCommand<IAsymmetricKey>>(k => k.FileContent == "pemFormattedFoo")));
         }
     }
 }

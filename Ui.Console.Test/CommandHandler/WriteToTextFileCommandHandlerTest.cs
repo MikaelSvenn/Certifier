@@ -21,8 +21,8 @@ namespace Ui.Console.Test.CommandHandler
 
             var command = new WriteToTextFileCommand<IAsymmetricKey>
             {
-                Destination = "fooDestination",
-                ContentToFile = "barContent"
+                FilePath = "fooDestination",
+                FileContent = "barContent"
             };
 
             commandHandler.Execute(command);

@@ -39,7 +39,7 @@ namespace Ui.Console.Test.CommandHandler
         [Test]
         public void ShouldSetFileContentToFromFileFieldOfGivenCommand()
         {
-            Assert.AreEqual("file content", command.ContentFromFile);
+            Assert.AreEqual("file content", command.FileContent);
         }
     }
 }

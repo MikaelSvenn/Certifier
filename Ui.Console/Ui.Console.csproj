@@ -61,6 +61,7 @@
     <Compile Include="CommandHandler\WriteKeyToTextFileCommandHandler.cs" />
     <Compile Include="Command\CreateRsaKeyCommand.cs" />
     <Compile Include="Command\CreateSignatureCommand.cs" />
+    <Compile Include="Command\FileCommand.cs" />
     <Compile Include="Command\ICommandWithResult.cs" />
     <Compile Include="Command\ICreateAsymmetricKeyCommand.cs" />
     <Compile Include="Command\ReadFromTextFileCommand.cs" />
@@ -74,7 +75,7 @@
     <Compile Include="Provider\CommandActivationProvider.cs" />
     <Compile Include="Provider\ICommandActivationProvider.cs" />
     <Compile Include="Provider\RsaKeyCommandProvider.cs" />
-    <Compile Include="Provider\WriteToFileCommandProvider.cs" />
+    <Compile Include="Provider\FileCommandProvider.cs" />
     <Compile Include="Startup\ApplicationArguments.cs" />
     <Compile Include="Startup\CommandActivator.cs" />
     <Compile Include="Startup\CommandExecutor.cs" />

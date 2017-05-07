@@ -62,7 +62,7 @@
     <Compile Include="Decorator\WriteKeyToFilePathValidationDecoratorTest.cs" />
     <Compile Include="Provider\CommandActivationProviderTest.cs" />
     <Compile Include="Provider\RsaKeyCommandProviderTest.cs" />
-    <Compile Include="Provider\WriteToFileCommandProviderTest.cs" />
+    <Compile Include="Provider\FileCommandProviderTest.cs" />
     <Compile Include="Startup\ApplicationArgumentsTest.cs" />
     <Compile Include="Startup\CommandActivatorTest.cs" />
     <Compile Include="Startup\CommandExecutorTest.cs" />

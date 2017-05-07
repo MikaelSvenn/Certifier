@@ -30,7 +30,7 @@ namespace Ui.Console.Test.Decorator
 
             command = new ReadFromTextFileCommand<IAsymmetricKey>();
             decoratedHandler.Setup(dh => dh.Execute(command))
-                .Callback<ReadFromTextFileCommand<IAsymmetricKey>>(c => c.ContentFromFile = "fileContent");
+                .Callback<ReadFromTextFileCommand<IAsymmetricKey>>(c => c.FileContent = "fileContent");
 
             decorator.Execute(command);
         }

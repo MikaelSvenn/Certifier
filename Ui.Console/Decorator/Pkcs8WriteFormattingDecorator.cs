@@ -17,7 +17,7 @@ namespace Ui.Console.Decorator
 
         public void Execute(WriteToTextFileCommand<IAsymmetricKey> writeToFileCommand)
         {
-            writeToFileCommand.ContentToFile = formattingProvider.GetAsPem(writeToFileCommand.Content);
+            writeToFileCommand.FileContent = formattingProvider.GetAsPem(writeToFileCommand.Result);
             decoratedCommand.Execute(writeToFileCommand);
         }
     }
