@@ -4,6 +4,5 @@
     {
         public string FilePath { get; set; }
         public T Result { get; set; }
-        public string FileContent { get; set; }
     }
 }

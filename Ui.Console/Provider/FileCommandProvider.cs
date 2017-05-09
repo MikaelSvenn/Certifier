@@ -1,4 +1,5 @@
 ﻿using Core.Interfaces;
+using Core.Model;
 using Ui.Console.Command;
 
 namespace Ui.Console.Provider
@@ -14,11 +15,29 @@ namespace Ui.Console.Provider
             };
         }
 
-        public ReadFromTextFileCommand<IAsymmetricKey> GetReadKeyFromTextFileCommand(string targetPath)
+        public ReadFromTextFileCommand<IAsymmetricKey> GetReadKeyFromTextFileCommand(string targetPath, string password)
         {
             return new ReadFromTextFileCommand<IAsymmetricKey>
             {
-                FilePath = targetPath
+                FilePath = targetPath,
+                Password = password
+            };
+        }
+
+        public ReadFromFileCommand GetReadFormFileCommand(string filePath)
+        {
+            return new ReadFromFileCommand
+            {
+                FilePath = filePath
+            };
+        }
+
+        public WriteToTextFileCommand<Signature> GetWriteSignatureToTextFileCommand(Signature signature, string filePath)
+        {
+            return new WriteToTextFileCommand<Signature>
+            {
+                Result = signature,
+                FilePath = $"{filePath}.signature"
             };
         }
     }

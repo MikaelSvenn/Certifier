@@ -13,5 +13,10 @@ namespace Core.SystemWrappers
         {
             return File.ReadAllText(filePath);
         }
+
+        public virtual byte[] ReadAllBytes(string filePath)
+        {
+            return File.ReadAllBytes(filePath);
+        }
     }
 }

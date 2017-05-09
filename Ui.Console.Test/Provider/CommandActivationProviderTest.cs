@@ -21,7 +21,7 @@ namespace Ui.Console.Test.Provider
         public void SetupCommandActivationProviderTest()
         {
             commandExecutor = new Mock<ICommandExecutor>();
-            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider());
+            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider(), new SignatureCommandProvider());
         }
 
         [TestFixture]
@@ -69,6 +69,80 @@ namespace Ui.Console.Test.Provider
             {
                 commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.Last().Result == publicKey &&
                                                                                                                                 w.Last().FilePath == "public.pem")));
+            }
+        }
+
+        [TestFixture]
+        public class CreateSignature : CommandActivationProviderTest
+        {
+            private IAsymmetricKey key;
+            private byte[] fileContent;
+            private object[] sequenceExecutedCommands;
+            private Signature signature;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+                fileContent = new byte[] { 0x07 };
+                arguments = new ApplicationArguments
+                {
+                    PrivateKeyPath = "private.pem",
+                    Password = "kensentme",
+                    DataPath = "file"
+                };
+
+                commandExecutor.Setup(ce => ce.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
+                    .Callback<IEnumerable<object>>(sequence =>
+                    {
+                        var commands = sequence.ToArray();
+                        var readKey = (ReadFromTextFileCommand<IAsymmetricKey>) commands[0];
+                        readKey.Result = key;
+
+                        var readFile = (ReadFromFileCommand) commands[1];
+                        readFile.Result = fileContent;
+
+                        sequenceExecutedCommands = commands;
+                    });
+
+                signature = new Signature();
+                commandExecutor.Setup(c => c.Execute(It.IsAny<object>()))
+                    .Callback<object>(c =>
+                    {
+                        var command = c as CreateSignatureCommand;
+                        if (command != null)
+                        {
+                            command.Result = signature;
+                        }
+                    });
+
+                provider.CreateSignature(arguments);
+            }
+
+            [Test]
+            public void ShouldReadPrivateKey()
+            {
+                var readPrivateKeyCommand = (ReadFromTextFileCommand<IAsymmetricKey>)sequenceExecutedCommands[0];
+                Assert.IsTrue(readPrivateKeyCommand.FilePath == "private.pem" && readPrivateKeyCommand.Password == "kensentme");
+            }
+
+            [Test]
+            public void ShouldReadFileToBeSigned()
+            {
+                var readFileCommand = (ReadFromFileCommand)sequenceExecutedCommands[1];
+                Assert.IsTrue(readFileCommand.FilePath == "file");
+            }
+
+            [Test]
+            public void ShouldCreateSignatureForGivenFileWithGivenKey()
+            {
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateSignatureCommand>(c => c.PrivateKey == key && c.ContentToSign == fileContent)));
+            }
+
+            [Test]
+            public void ShouldWriteCreatedSignatureToTextFile()
+            {
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToTextFileCommand<Signature>>(c => c.Result == signature && c.FilePath == "file.signature")));
             }
         }
     }

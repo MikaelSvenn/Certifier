@@ -10,16 +10,16 @@ namespace Ui.Console.Test.CommandHandler
     [TestFixture]
     public class WriteToTextFileCommandHandlerTest
     {
-        private WriteKeyToTextFileCommandHandler commandHandler;
+        private WriteToTextFileCommandHandler<object> commandHandler;
         private Mock<FileWrapper> file;
 
         [OneTimeSetUp]
         public void Setup()
         {
             file = new Mock<FileWrapper>();
-            commandHandler = new WriteKeyToTextFileCommandHandler(file.Object);
+            commandHandler = new WriteToTextFileCommandHandler<object>(file.Object);
 
-            var command = new WriteToTextFileCommand<IAsymmetricKey>
+            var command = new WriteToTextFileCommand<object>
             {
                 FilePath = "fooDestination",
                 FileContent = "barContent"
