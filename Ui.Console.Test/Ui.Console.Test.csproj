@@ -64,6 +64,7 @@
     <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\KeyFilePathValidationDecoratorTest.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecoratorTest.cs" />
+    <Compile Include="Integration\CreateRsaKeyTest.cs" />
     <Compile Include="Provider\CommandActivationProviderTest.cs" />
     <Compile Include="Provider\RsaKeyCommandProviderTest.cs" />
     <Compile Include="Provider\FileCommandProviderTest.cs" />

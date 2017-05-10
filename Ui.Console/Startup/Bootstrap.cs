@@ -15,7 +15,7 @@ namespace Ui.Console.Startup
     {
         public static Container Initialize(string[] applicationArguments)
         {
-            var container = new Container();
+            Container container = ContainerProvider.GetContainer();
 
             container.Register<IConfiguration, PbeConfiguration>();
 

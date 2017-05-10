@@ -3,7 +3,7 @@ using Ui.Console.Startup;
 
 namespace Ui.Console
 {
-    internal class Certifier
+    public class Certifier
     {
         public static void Main(string[] commandLineArguments)
         {

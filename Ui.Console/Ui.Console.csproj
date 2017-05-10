@@ -79,6 +79,7 @@
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />
     <Compile Include="Provider\CommandActivationProvider.cs" />
+    <Compile Include="Provider\ContainerProvider.cs" />
     <Compile Include="Provider\ICommandActivationProvider.cs" />
     <Compile Include="Provider\RsaKeyCommandProvider.cs" />
     <Compile Include="Provider\FileCommandProvider.cs" />
