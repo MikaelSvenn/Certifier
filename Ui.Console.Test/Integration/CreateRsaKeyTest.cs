@@ -14,8 +14,8 @@ namespace Ui.Console.Test.Integration
     [TestFixture]
     public class CreateRsaKeyTest
     {
-        private Mock<FileWrapper> file;
         private Dictionary<string, string> fileOutput;
+        private Mock<FileWrapper> file;
 
         [SetUp]
         public void SetupCreateRsaKeyTest()
@@ -34,7 +34,7 @@ namespace Ui.Console.Test.Integration
         }
 
         [TearDown]
-        public void Teardown()
+        public void TeardownCreateRsaKeyTest()
         {
             ContainerProvider.ClearContainer();
         }
