@@ -1,13 +1,11 @@
 using System;
-using System.Threading;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
+using Crypto.Mappers;
 using Crypto.Providers;
 using Moq;
 using NUnit.Framework;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Providers
 {
@@ -15,12 +13,13 @@ namespace Crypto.Test.Providers
     public class RsaKeyProviderTest
     {
         private RsaKeyProvider keyProvider;
+        private IConfiguration configuration;
 
         [OneTimeSetUp]
         public void SetupRsaKeyProviderTest()
         {
-            var config = Mock.Of<IConfiguration>(m => m.Get<int>("KeyDerivationIterationCount") == 10 &&
-                m.Get<int>("SaltLengthInBytes") == 100);
+            configuration = Mock.Of<IConfiguration>(c => c.Get<int>("KeyDerivationIterationCount") == 10 &&
+                c.Get<int>("SaltLengthInBytes") == 100);
 
             var secureRandomGenerator = new SecureRandomGenerator();
             var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
@@ -78,13 +77,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldCreateValidUnencryptedKeyPair()
             {
-                var privateKey = PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
-                var publicKey = PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
-
-                var privateKeyModulus = ((RsaKeyParameters) privateKey).Modulus;
-                var publicKeyModulus = ((RsaKeyParameters) publicKey).Modulus;
-
-                Assert.AreEqual(0, privateKeyModulus.CompareTo(publicKeyModulus));
+                Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
         }
 
@@ -140,6 +133,68 @@ namespace Crypto.Test.Providers
                 {
                     keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Public);
                 });
+            }
+        }
+
+        [TestFixture]
+        public class VerifyKeyPairTest : RsaKeyProviderTest
+        {
+            private IAsymmetricKeyPair keyPair;
+            private PkcsEncryptionProvider encryptionProvider;
+
+            [OneTimeSetUp]
+            public void SetupVerifyKeyPairTest()
+            {
+                keyPair = keyProvider.CreateKeyPair(1024);
+            }
+
+            [TestFixture]
+            public class ShouldReturnFalseWhen : VerifyKeyPairTest
+            {
+                [OneTimeSetUp]
+                public void Setup()
+                {
+                    var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider);
+                    encryptionProvider = new PkcsEncryptionProvider(configuration, new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+                }
+
+                [Test]
+                public void PublicKeyIsNotGiven()
+                {
+                    bool result = keyProvider.VerifyKeyPair(new AsymmetricKeyPair(keyPair.PrivateKey, null));
+                    Assert.IsFalse(result);
+                }
+
+                [Test]
+                public void PrivateKeyIsNotGiven()
+                {
+                    bool result = keyProvider.VerifyKeyPair(new AsymmetricKeyPair(null, keyPair.PublicKey));
+                    Assert.IsFalse(result);
+                }
+
+                [Test]
+                public void PrivateKeyIsEncrypted()
+                {
+                    var encryptedKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foo");
+                    bool result = keyProvider.VerifyKeyPair(new AsymmetricKeyPair(encryptedKey, keyPair.PublicKey));
+
+                    Assert.IsFalse(result);
+                }
+
+                [Test]
+                public void GivenKeysAreNotKeyPair()
+                {
+                    IAsymmetricKeyPair invalidKeyPair = new AsymmetricKeyPair(keyPair.PrivateKey, keyProvider.CreateKeyPair(1024).PublicKey);
+
+                    bool result = keyProvider.VerifyKeyPair(invalidKeyPair);
+                    Assert.IsFalse(result);
+                }
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenGivenKeysAreKeyPair()
+            {
+                Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
         }
     }

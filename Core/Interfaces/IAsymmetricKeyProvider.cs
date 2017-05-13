@@ -7,5 +7,6 @@ namespace Core.Interfaces
     {
         IAsymmetricKeyPair CreateKeyPair(int keySize);
         T GetKey(byte[] content, AsymmetricKeyType keyType);
+        bool VerifyKeyPair(IAsymmetricKeyPair keyPair);
     }
 }

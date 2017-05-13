@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.IO;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -52,7 +54,7 @@ namespace Crypto.Providers
         {
             if (keyType == AsymmetricKeyType.Encrypted)
             {
-                throw new InvalidOperationException("Unable to access encrypted key content");
+                throw new InvalidOperationException("Unable to access encrypted key content. Key must be decrypted first.");
             }
 
             AsymmetricKeyParameter key;
@@ -64,11 +66,37 @@ namespace Crypto.Providers
             }
             catch (ArgumentException)
             {
-                throw new ArgumentException("Key type mismatch");
+                throw new ArgumentException("Key type mismatch.");
             }
 
             var keyLength = GetKeyLength(key);
             return new RsaKey(content, keyType, keyLength);
+        }
+
+        public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)
+        {
+            RsaKeyParameters privateKey;
+            RsaKeyParameters publicKey;
+
+            try
+            {
+                AsymmetricKeyParameter publicKeyContent = PublicKeyFactory.CreateKey(keyPair.PublicKey?.Content);
+                AsymmetricKeyParameter privateKeyContent = PrivateKeyFactory.CreateKey(keyPair.PrivateKey?.Content);
+
+                publicKey = (RsaKeyParameters) publicKeyContent;
+                privateKey = (RsaKeyParameters) privateKeyContent;
+            }
+            catch (Exception exception) when (exception is ArgumentNullException ||
+                                              exception is IOException ||
+                                              exception is ArgumentException ||
+                                              exception is SecurityUtilityException ||
+                                              exception is NullReferenceException ||
+                                              exception is InvalidCastException)
+            {
+                return false;
+            }
+
+            return privateKey.Modulus.Equals(publicKey.Modulus);
         }
     }
 }
