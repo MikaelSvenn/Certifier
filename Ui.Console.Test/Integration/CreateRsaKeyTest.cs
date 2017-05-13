@@ -74,11 +74,15 @@ namespace Ui.Console.Test.Integration
         [TestFixture]
         public class CreateKeyPair : CreateRsaKeyTest
         {
+            [SetUp]
+            public void Setup()
+            {
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
+            }
+
             [Test]
             public void ShouldWritePkcs8FormattedPrivateKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
-
                 var content = fileOutput["private.pem"];
 
                 Assert.IsTrue(content.Length > 1600 && content.Length < 1800);
@@ -89,8 +93,6 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
-
                 var content = fileOutput["public.pem"];
 
                 Assert.IsTrue(content.Length > 400 && content.Length < 500);
@@ -101,8 +103,6 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidKeyPair()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
-
                 var privateKeyContent = fileOutput["private.pem"];
                 var publicKeyContent = fileOutput["public.pem"];
 
@@ -113,7 +113,55 @@ namespace Ui.Console.Test.Integration
                 IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
                 IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
 
-                Assert.IsTrue(rsaKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey,publicKey)));
+                Assert.IsTrue(rsaKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+            }
+        }
+
+        [TestFixture]
+        public class CreatePkcsEncryptedKeyPair : CreateRsaKeyTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
+            }
+
+            [Test]
+            public void ShouldWritePkcs8FormattedEncryptedPrivateKeyToGivenFile()
+            {
+                var content = fileOutput["private.pem"];
+
+                Assert.IsTrue(content.Length > 3100 && content.Length < 3300);
+                Assert.IsTrue(content.StartsWith($"-----BEGIN ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
+                Assert.IsTrue(content.EndsWith($"-----END ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
+            }
+
+            [Test]
+            public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
+            {
+                var content = fileOutput["public.pem"];
+
+                Assert.IsTrue(content.Length > 400 && content.Length < 500);
+                Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
+                Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
+            }
+
+            [Test]
+            public void ShouldCreateValidKeyPair()
+            {
+                var privateKeyContent = fileOutput["private.pem"];
+                var publicKeyContent = fileOutput["public.pem"];
+
+                var container = ContainerProvider.GetContainer();
+                var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
+                var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+
+                IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
+                IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
+                IAsymmetricKey decryptedPrivateKey = encryptionProvider.DecryptPrivateKey(privateKey, "foobar");
+
+                Assert.IsTrue(rsaKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(decryptedPrivateKey, publicKey)));
             }
         }
     }
