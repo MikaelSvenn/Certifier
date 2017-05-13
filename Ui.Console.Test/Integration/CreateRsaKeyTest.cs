@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Core.Interfaces;
+using Core.Model;
 using Core.SystemWrappers;
+using Crypto.Providers;
 using Moq;
 using NUnit.Framework;
 using SimpleInjector;
@@ -106,9 +108,12 @@ namespace Ui.Console.Test.Integration
 
                 var container = ContainerProvider.GetContainer();
                 var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
 
-                Assert.DoesNotThrow(() => pkcs8FormattingProvider.GetAsDer(privateKeyContent));
-                Assert.DoesNotThrow(() => pkcs8FormattingProvider.GetAsDer(publicKeyContent));
+                IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
+                IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
+
+                Assert.IsTrue(rsaKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey,publicKey)));
             }
         }
     }
