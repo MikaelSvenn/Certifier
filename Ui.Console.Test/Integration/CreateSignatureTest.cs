@@ -47,35 +47,42 @@ namespace Ui.Console.Test.Integration
             ContainerProvider.ClearContainer();
         }
 
+        protected IAsymmetricKeyPair SetupWithRsaKey()
+        {
+            var rsaKeyPairGenerator = new RsaKeyPairGenerator(new SecureRandomGenerator());
+            var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
+            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider);
+            var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+
+            var keyPair = rsaKeyProvider.CreateKeyPair(2048);
+            var rsaKey = keyPair.PrivateKey;
+            privateKey = pkcs8Formatter.GetAsPem(rsaKey);
+
+            file.Setup(f => f.ReadAllText("private.pem"))
+                .Returns(privateKey);
+
+            file.Setup(f => f.ReadAllBytes("foo.file"))
+                .Returns(fileContent);
+
+            return keyPair;
+        }
+
         [TestFixture]
-        public class CreateSignatureWithRsaKey : CreateSignatureTest
+        public class CreateWithRsaSignature : CreateSignatureTest
         {
             private IAsymmetricKeyPair keyPair;
 
             [SetUp]
-            public void Setup()
+            public void SetupCreateRsaSignature()
             {
-                var rsaKeyPairGenerator = new RsaKeyPairGenerator(new SecureRandomGenerator());
-                var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
-                var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider);
-                var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
-
-                keyPair = rsaKeyProvider.CreateKeyPair(2048);
-                var rsaKey = keyPair.PrivateKey;
-                privateKey = pkcs8Formatter.GetAsPem(rsaKey);
-
-                file.Setup(f => f.ReadAllText("private.pem"))
-                    .Returns(privateKey);
-
-                file.Setup(f => f.ReadAllBytes("foo.file"))
-                    .Returns(fileContent);
-
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+                keyPair = SetupWithRsaKey();
             }
 
             [Test]
             public void ShouldWriteBase64EncodedSignatureToFile()
             {
+                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+
                 string signature = fileOutput["foo.file.signature"];
 
                 Assert.IsNotEmpty(signature);
@@ -85,6 +92,8 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidSignature()
             {
+                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+
                 Container container = ContainerProvider.GetContainer();
                 var signatureProvider = container.GetInstance<SignatureProvider>();
 
@@ -96,6 +105,38 @@ namespace Ui.Console.Test.Integration
                 };
 
                 Assert.IsTrue(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
+            }
+        }
+
+        [TestFixture]
+        public class ErrorCases : CreateSignatureTest
+        {
+            [SetUp]
+            public void SetupErrorCases()
+            {
+                SetupWithRsaKey();
+            }
+
+            [Test]
+            public void ShouldIndicateMissingPrivateKey()
+            {
+                var exception = Assert.Throws<ArgumentException>(() =>
+                {
+                    Certifier.Main(new []{"-c", "signature", "-f", "foo.file"});
+                });
+
+                Assert.AreEqual("Private key file or path is required.", exception.Message);
+            }
+
+            [Test]
+            public void ShouldIndicateMissingTargetFile()
+            {
+                var exception = Assert.Throws<ArgumentException>(() =>
+                {
+                    Certifier.Main(new []{"-c", "signature", "--privatekey", "private.pem"});
+                });
+
+                Assert.AreEqual("Target file is required.", exception.Message);
             }
         }
     }
