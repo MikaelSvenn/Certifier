@@ -80,6 +80,13 @@ namespace Ui.Console.Test.Decorator
                 command.FilePath = " ";
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
+
+            [Test]
+            public void CommandHasNoResult()
+            {
+                command.Result = null;
+                Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Ui.Console.Decorator
         {
             if (string.IsNullOrWhiteSpace(command.FilePath))
             {
-                var keyType = command.Result.IsPrivateKey ? "Private" : "Public";
+                var keyType = command.Result == null || command.Result.IsPrivateKey ? "Private" : "Public";
                 throw new ArgumentException($"{keyType} key file or path is required.");
             }
 
