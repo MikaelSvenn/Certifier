@@ -44,6 +44,7 @@ namespace Ui.Console.Startup
 
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(RsaKeySizeValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(FilePathValidationDecorator<,>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(KeyFilePathValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8ReadFormattingDecorator<>));

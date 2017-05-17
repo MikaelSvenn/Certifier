@@ -69,8 +69,8 @@
     <Compile Include="Command\ITextFileCommand.cs" />
     <Compile Include="Command\ReadFromFileCommand.cs" />
     <Compile Include="Command\ReadFromTextFileCommand.cs" />
-    <Compile Include="Command\VerifyKeyPairCommand.cs" />
     <Compile Include="Command\WriteToTextFileCommand.cs" />
+    <Compile Include="Decorator\FilePathValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecorator.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8ReadFormattingDecorator.cs" />
