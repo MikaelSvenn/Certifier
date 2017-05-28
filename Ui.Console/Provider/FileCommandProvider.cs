@@ -6,25 +6,25 @@ namespace Ui.Console.Provider
 {
     public class FileCommandProvider
     {
-        public WriteToTextFileCommand<IAsymmetricKey> GetWriteKeyToTextFileCommand(IAsymmetricKey key, string targetPath)
+        public WriteToFileCommand<IAsymmetricKey> GetWriteKeyToFileCommand(IAsymmetricKey key, string targetPath)
         {
-            return new WriteToTextFileCommand<IAsymmetricKey>
+            return new WriteToFileCommand<IAsymmetricKey>
             {
                 Result = key,
                 FilePath = targetPath
             };
         }
 
-        public ReadFromTextFileCommand<IAsymmetricKey> GetReadKeyFromTextFileCommand(string targetPath, string password)
+        public ReadKeyFromFileCommand GetReadKeyFromFileCommand(string targetPath, string password = "")
         {
-            return new ReadFromTextFileCommand<IAsymmetricKey>
+            return new ReadKeyFromFileCommand
             {
                 FilePath = targetPath,
                 Password = password
             };
         }
 
-        public ReadFromFileCommand GetReadFormFileCommand(string filePath)
+        public ReadFromFileCommand GetReadFromFileCommand(string filePath)
         {
             return new ReadFromFileCommand
             {
@@ -32,9 +32,9 @@ namespace Ui.Console.Provider
             };
         }
 
-        public WriteToTextFileCommand<Signature> GetWriteSignatureToTextFileCommand(Signature signature, string filePath)
+        public WriteToFileCommand<Signature> GetWriteSignatureToFileCommand(Signature signature, string filePath)
         {
-            return new WriteToTextFileCommand<Signature>
+            return new WriteToFileCommand<Signature>
             {
                 Result = signature,
                 FilePath = $"{filePath}.signature"

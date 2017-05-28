@@ -1,4 +1,6 @@
 ﻿using System;
+using Core.Interfaces;
+using Core.Model;
 using Ui.Console.Command;
 using Ui.Console.Startup;
 
@@ -24,21 +26,21 @@ namespace Ui.Console.Provider
             ICreateAsymmetricKeyCommand createKeyCommand = rsaKeyCommandProvider.GetCreateRsaKeyCommand(arguments);
             commandExecutor.Execute(createKeyCommand);
 
-            var writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
-            var writePublicKeyToFile = fileCommandProvider.GetWriteKeyToTextFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
+            WriteToFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
+            WriteToFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
             commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
         }
 
         public void CreateSignature(ApplicationArguments arguments)
         {
-            var readPrivateKeyFromFile = fileCommandProvider.GetReadKeyFromTextFileCommand(arguments.PrivateKeyPath, arguments.Password);
-            var readFileToSign = fileCommandProvider.GetReadFormFileCommand(arguments.DataPath);
+            ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
+            ReadFromFileCommand readFileToSign = fileCommandProvider.GetReadFromFileCommand(arguments.Input);
             commandExecutor.ExecuteSequence(new dynamic[]{readPrivateKeyFromFile, readFileToSign});
 
-            var createSignature = signatureCommandProvider.GetCreateSignatureCommand(readPrivateKeyFromFile.Result, readFileToSign.Result);
+            CreateSignatureCommand createSignature = signatureCommandProvider.GetCreateSignatureCommand(readPrivateKeyFromFile.Result, readFileToSign.Result);
             commandExecutor.Execute(createSignature);
 
-            var writeSignatureTofile = fileCommandProvider.GetWriteSignatureToTextFileCommand(createSignature.Result, readFileToSign.FilePath);
+            WriteToFileCommand<Signature> writeSignatureTofile = fileCommandProvider.GetWriteSignatureToFileCommand(createSignature.Result, readFileToSign.FilePath);
             commandExecutor.Execute(writeSignatureTofile);
         }
 

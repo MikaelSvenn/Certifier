@@ -60,14 +60,14 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldWriteCreatedPrivateKeyToTextFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.First().Result == privateKey &&
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToFileCommand<IAsymmetricKey>>>(w => w.First().Result == privateKey &&
                                                                                                                                 w.First().FilePath == "private.pem")));
             }
 
             [Test]
             public void ShouldWriteCreatedPublicKeyToTextFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToTextFileCommand<IAsymmetricKey>>>(w => w.Last().Result == publicKey &&
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToFileCommand<IAsymmetricKey>>>(w => w.Last().Result == publicKey &&
                                                                                                                                 w.Last().FilePath == "public.pem")));
             }
         }
@@ -89,14 +89,14 @@ namespace Ui.Console.Test.Provider
                 {
                     PrivateKeyPath = "private.pem",
                     Password = "kensentme",
-                    DataPath = "file"
+                    Input = "file"
                 };
 
                 commandExecutor.Setup(ce => ce.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
                     .Callback<IEnumerable<object>>(sequence =>
                     {
                         var commands = sequence.ToArray();
-                        var readKey = (ReadFromTextFileCommand<IAsymmetricKey>) commands[0];
+                        var readKey = (ReadKeyFromFileCommand) commands[0];
                         readKey.Result = key;
 
                         var readFile = (ReadFromFileCommand) commands[1];
@@ -122,7 +122,7 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldReadPrivateKey()
             {
-                var readPrivateKeyCommand = (ReadFromTextFileCommand<IAsymmetricKey>)sequenceExecutedCommands[0];
+                var readPrivateKeyCommand = (ReadKeyFromFileCommand)sequenceExecutedCommands[0];
                 Assert.IsTrue(readPrivateKeyCommand.FilePath == "private.pem" && readPrivateKeyCommand.Password == "kensentme");
             }
 
@@ -142,7 +142,7 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldWriteCreatedSignatureToTextFile()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToTextFileCommand<Signature>>(c => c.Result == signature && c.FilePath == "file.signature")));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToFileCommand<Signature>>(c => c.Result == signature && c.FilePath == "file.signature")));
             }
         }
     }

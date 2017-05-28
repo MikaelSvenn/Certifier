@@ -4,16 +4,11 @@ namespace Core.SystemWrappers
 {
     public class FileWrapper
     {
-        public virtual void WriteAllText(string path, string content)
+        public virtual void WriteAllBytes(string path, byte[] content)
         {
-            File.WriteAllText(path, content);
+            File.WriteAllBytes(path, content);
         }
-
-        public virtual string ReadAllText(string filePath)
-        {
-            return File.ReadAllText(filePath);
-        }
-
+        
         public virtual byte[] ReadAllBytes(string filePath)
         {
             return File.ReadAllBytes(filePath);

@@ -11,7 +11,7 @@ namespace Ui.Console.Startup
             var parser = new FluentCommandLineParser<ApplicationArguments>();
 
             parser.SetupHelp("?", "h", "help");
-
+            
             parser.Setup(argument => argument.KeySize)
                 .As('b', "keysize")
                 .SetDefault(4096);
@@ -36,21 +36,26 @@ namespace Ui.Console.Startup
                 .As("publickey")
                 .SetDefault(string.Empty);
 
-            parser.Setup(argument => argument.DataPath)
-                .As('f', "file")
+            parser.Setup(argument => argument.Input)
+                .As('i', "in")
                 .SetDefault(string.Empty);
 
+            parser.Setup(argument => argument.Output)
+                .As('o', "out")
+                .SetDefault(string.Empty);
+            
             parser.Setup(argument => argument.Signature)
                 .As('s', "signature")
                 .SetDefault(string.Empty);
 
             parser.Setup(argument => argument.CreateOperation)
                 .As('c', "create")
-                .SetDefault(OperationTarget.none);
+                .SetDefault(OperationTarget.None);
 
             parser.Setup(argument => argument.VerifyOperation)
                 .As('v', "verify")
-                .SetDefault(OperationTarget.none);
+                .SetDefault(OperationTarget.None);
+
 
             var result = parser.Parse(arguments);
             if (result.HasErrors || result.EmptyArgs || result.HelpCalled || result.AdditionalOptionsFound.Any())

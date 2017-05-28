@@ -11,18 +11,18 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class PkcsKeyDecryptionDecoratorTest
     {
-        private PkcsKeyDecryptionDecorator<ReadFromTextFileCommand<IAsymmetricKey>> decorator;
-        private Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>> decoratedCommandHandler;
+        private PkcsKeyDecryptionDecorator<ReadKeyFromFileCommand> decorator;
+        private Mock<ICommandHandler<ReadKeyFromFileCommand>> decoratedCommandHandler;
         private Mock<IKeyEncryptionProvider> keyEncryptionProvider;
-        private ReadFromTextFileCommand<IAsymmetricKey> command;
+        private ReadKeyFromFileCommand command;
 
         [SetUp]
         public void SetupPkcsKeyDecryptionDecoratorTest()
         {
-            decoratedCommandHandler = new Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>>();
+            decoratedCommandHandler = new Mock<ICommandHandler<ReadKeyFromFileCommand>>();
             keyEncryptionProvider = new Mock<IKeyEncryptionProvider>();
-            decorator = new PkcsKeyDecryptionDecorator<ReadFromTextFileCommand<IAsymmetricKey>>(decoratedCommandHandler.Object, keyEncryptionProvider.Object);
-            command = new ReadFromTextFileCommand<IAsymmetricKey>();
+            decorator = new PkcsKeyDecryptionDecorator<ReadKeyFromFileCommand>(decoratedCommandHandler.Object, keyEncryptionProvider.Object);
+            command = new ReadKeyFromFileCommand();
         }
 
         [Test]

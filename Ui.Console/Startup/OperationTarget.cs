@@ -2,8 +2,8 @@
 {
     public enum OperationTarget
     {
-        none,
-        key,
-        signature
+        None,
+        Key,
+        Signature
     }
 }

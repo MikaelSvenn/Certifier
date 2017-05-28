@@ -25,7 +25,7 @@ namespace Ui.Console.Test.CommandHandler
         }
 
         [Test]
-        public void ShouldSetReadFileAsCommandResult()
+        public void ShouldSetReadFileAsFileContent()
         {
             var readFileCommand = new ReadFromFileCommand
             {

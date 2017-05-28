@@ -27,20 +27,20 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void NoneShouldThrowException()
             {
-                Assert.Throws<InvalidOperationException>(() => { activator.Create[OperationTarget.none](arguments); });
+                Assert.Throws<InvalidOperationException>(() => { activator.Create[OperationTarget.None](arguments); });
             }
 
             [Test]
             public void KeyShouldInvokeCreateKey()
             {
-                activator.Create[OperationTarget.key](arguments);
+                activator.Create[OperationTarget.Key](arguments);
                 activationProvider.Verify(ap => ap.CreateKey(arguments));
             }
 
             [Test]
             public void SignatureShouldInvokeCreateSignature()
             {
-                activator.Create[OperationTarget.signature](arguments);
+                activator.Create[OperationTarget.Signature](arguments);
                 activationProvider.Verify(ap => ap.CreateSignature(arguments));
             }
         }
@@ -51,20 +51,20 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void NoneShouldThrowException()
             {
-                Assert.Throws<InvalidOperationException>(() => { activator.Verify[OperationTarget.none](arguments); });
+                Assert.Throws<InvalidOperationException>(() => { activator.Verify[OperationTarget.None](arguments); });
             }
 
             [Test]
             public void KeyShouldInvokeVerifyKeyPair()
             {
-                activator.Verify[OperationTarget.key](arguments);
+                activator.Verify[OperationTarget.Key](arguments);
                 activationProvider.Verify(ap => ap.VerifyKeyPair(arguments));
             }
 
             [Test]
             public void SignatureShouldInvokeVerifySignature()
             {
-                activator.Verify[OperationTarget.signature](arguments);
+                activator.Verify[OperationTarget.Signature](arguments);
                 activationProvider.Verify(ap => ap.VerifySignature(arguments));
             }
         }

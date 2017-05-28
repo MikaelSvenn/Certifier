@@ -39,9 +39,9 @@ namespace Ui.Console.Startup
 
             // Commands
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });
-            container.Register<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>, WriteToTextFileCommandHandler<IAsymmetricKey>>();
-            container.Register<ICommandHandler<WriteToTextFileCommand<Signature>>, WriteToTextFileCommandHandler<Signature>>();
-
+            container.Register<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>, WriteToFileCommandHandler<IAsymmetricKey>>();
+            container.Register<ICommandHandler<WriteToFileCommand<Signature>>, WriteToFileCommandHandler<Signature>>();
+            
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(RsaKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(FilePathValidationDecorator<,>));

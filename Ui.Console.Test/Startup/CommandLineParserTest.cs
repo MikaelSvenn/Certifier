@@ -65,7 +65,7 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void DataPath()
             {
-                Assert.IsEmpty(arguments.DataPath);
+                Assert.IsEmpty(arguments.Input);
             }
 
             [Test]
@@ -77,13 +77,13 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void CreateTarget()
             {
-                Assert.AreEqual(OperationTarget.none, arguments.CreateOperation);
+                Assert.AreEqual(OperationTarget.None, arguments.CreateOperation);
             }
 
             [Test]
             public void VerifyTarget()
             {
-                Assert.AreEqual(OperationTarget.none, arguments.VerifyOperation);
+                Assert.AreEqual(OperationTarget.None, arguments.VerifyOperation);
             }
         }
 
@@ -117,10 +117,9 @@ namespace Ui.Console.Test.Startup
                 new []{"-c", "key", "-b", "2048"},
                 new []{"-c", "key", "-k", "dsa", "-b", "2048"},
                 new []{"-c", "key", "-k", "rsa", "-e", "pkcs", "-b", "2048"},
-                new []{"-c", "signature", "--privatekey", "foo", "-f", "bar"},
+                new []{"-c", "signature", "--privatekey", "foo", "-i", "bar"},
                 new []{"--privatekey", "foo"},
-                new []{"--verify", "signature", "-s", "foobarbaz", "-f", "foofile"},
-
+                new []{"--verify", "signature", "-s", "foobarbaz", "-i", "foofile"},
             };
 
             [Test, TestCaseSource("validArguments")]
@@ -143,7 +142,7 @@ namespace Ui.Console.Test.Startup
             public void CreateKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.CreateOperation, OperationTarget.key);
+                Assert.AreEqual(result.CreateOperation, OperationTarget.Key);
             }
 
             private static string[][] createSignature = {
@@ -155,7 +154,7 @@ namespace Ui.Console.Test.Startup
             public void CreateSignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.CreateOperation, OperationTarget.signature);
+                Assert.AreEqual(result.CreateOperation, OperationTarget.Signature);
             }
 
             private static string[][] verifyKey = {
@@ -167,7 +166,7 @@ namespace Ui.Console.Test.Startup
             public void VerifyKey(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.VerifyOperation, OperationTarget.key);
+                Assert.AreEqual(result.VerifyOperation, OperationTarget.Key);
             }
 
             private static string[][] verifySignature = {
@@ -179,7 +178,7 @@ namespace Ui.Console.Test.Startup
             public void VerifySignature(string[] input)
             {
                 var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(result.VerifyOperation, OperationTarget.signature);
+                Assert.AreEqual(result.VerifyOperation, OperationTarget.Signature);
             }
 
             private static string[][] keySize = {
@@ -234,23 +233,36 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual(@"c:\temp\public", result.PublicKeyPath);
             }
 
-            private static string[][] filePath = {
-                new []{"-f", @"c:\temp\file"},
-                new []{"--file", @"c:\temp\file"}
-            };
-
-            [Test, TestCaseSource("filePath")]
-            public void DataPath(string[] input)
-            {
-                var result = commandLineParser.ParseArguments(input);
-                Assert.AreEqual(@"c:\temp\file", result.DataPath);
-            }
 
             [Test]
             public void Signature()
             {
                 var result = commandLineParser.ParseArguments(new []{"--signature", "foobarbaz"});
                 Assert.AreEqual("foobarbaz", result.Signature);
+            }
+            
+            private static string[][] input = {
+                new []{"-i", "inputcontent"},
+                new []{"--in", "inputcontent"}
+            };
+
+            [Test, TestCaseSource("input")]
+            public void Input(string[] inputTarget)
+            {
+                var result = commandLineParser.ParseArguments(inputTarget);
+                Assert.AreEqual("inputcontent", result.Input);
+            }
+            
+            private static string[][] output = {
+                new []{"-o", "outputcontent"},
+                new []{"--out", "outputcontent"}
+            };
+
+            [Test, TestCaseSource("output")]
+            public void Output(string[] outputTarget)
+            {
+                var result = commandLineParser.ParseArguments(outputTarget);
+                Assert.AreEqual("outputcontent", result.Output);
             }
         }
     }

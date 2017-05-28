@@ -1,4 +1,4 @@
-using Core.Interfaces;
+using System.Text;
 using Core.SystemWrappers;
 using Moq;
 using NUnit.Framework;
@@ -8,21 +8,21 @@ using Ui.Console.CommandHandler;
 namespace Ui.Console.Test.CommandHandler
 {
     [TestFixture]
-    public class ReadKeyFromTextFileCommandHandlerTest
+    public class ReadKeyFromFileCommandHandlerTest
     {
         private Mock<FileWrapper> file;
-        private ReadKeyFromTextFileCommandHandler commandHandler;
-        private ReadFromTextFileCommand<IAsymmetricKey> command;
+        private ReadKeyFromFileCommandHandler commandHandler;
+        private ReadKeyFromFileCommand command;
 
         [OneTimeSetUp]
         public void Setup()
         {
             file = new Mock<FileWrapper>();
-            file.Setup(f => f.ReadAllText("fromFile"))
-                .Returns("file content");
+            file.Setup(f => f.ReadAllBytes("fromFile"))
+                .Returns(Encoding.UTF8.GetBytes("file content"));
 
-            commandHandler = new ReadKeyFromTextFileCommandHandler(file.Object);
-            command = new ReadFromTextFileCommand<IAsymmetricKey>
+            commandHandler = new ReadKeyFromFileCommandHandler(file.Object);
+            command = new ReadKeyFromFileCommand
             {
                 FilePath = "fromFile"
             };
@@ -33,13 +33,13 @@ namespace Ui.Console.Test.CommandHandler
         [Test]
         public void ShouldReadGivenFile()
         {
-            file.Verify(f => f.ReadAllText("fromFile"));
+            file.Verify(f => f.ReadAllBytes("fromFile"));
         }
 
         [Test]
         public void ShouldSetFileContentToFromFileFieldOfGivenCommand()
         {
-            Assert.AreEqual("file content", command.FileContent);
+            Assert.AreEqual(Encoding.UTF8.GetBytes("file content"), command.FileContent);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Text;
 using Core.Interfaces;
 using Core.Model;
 using Moq;
@@ -11,26 +12,27 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class Pkcs8ReadFormattingDecoratorTest
     {
-        private Pkcs8ReadFormattingDecorator<ReadFromTextFileCommand<IAsymmetricKey>> decorator;
-        private Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>> decoratedHandler;
+        private Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand> decorator;
+        private Mock<ICommandHandler<ReadKeyFromFileCommand>> decoratedHandler;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncryptedKey resultingKey;
-        private ReadFromTextFileCommand<IAsymmetricKey> command;
+        private ReadKeyFromFileCommand command;
 
         [SetUp]
         public void Setup()
         {
-            decoratedHandler = new Mock<ICommandHandler<ReadFromTextFileCommand<IAsymmetricKey>>>();
+            decoratedHandler = new Mock<ICommandHandler<ReadKeyFromFileCommand>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
-            decorator = new Pkcs8ReadFormattingDecorator<ReadFromTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object, formattingProvider.Object);
+            decorator = new Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, formattingProvider.Object);
 
             resultingKey = new EncryptedKey(null, CipherType.Pkcs12Encrypted);
+            
             formattingProvider.Setup(fp => fp.GetAsDer("fileContent"))
                 .Returns(resultingKey);
 
-            command = new ReadFromTextFileCommand<IAsymmetricKey>();
+            command = new ReadKeyFromFileCommand();
             decoratedHandler.Setup(dh => dh.Execute(command))
-                .Callback<ReadFromTextFileCommand<IAsymmetricKey>>(c => c.FileContent = "fileContent");
+                .Callback<ReadKeyFromFileCommand>(c => c.FileContent = Encoding.UTF8.GetBytes("fileContent"));
 
             decorator.Execute(command);
         }

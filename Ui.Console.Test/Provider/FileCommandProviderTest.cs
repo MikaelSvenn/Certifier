@@ -22,13 +22,13 @@ namespace Ui.Console.Test.Provider
         public class GetWriteKeyToTextFile : FileCommandProviderTest
         {
             private IAsymmetricKey key;
-            private WriteToTextFileCommand<IAsymmetricKey> result;
+            private WriteToFileCommand<IAsymmetricKey> result;
 
             [SetUp]
             public void Setup()
             {
                 key = Mock.Of<IAsymmetricKey>();
-                result = provider.GetWriteKeyToTextFileCommand(key, "fooPath");
+                result = provider.GetWriteKeyToFileCommand(key, "fooPath");
             }
 
             [Test]
@@ -47,12 +47,12 @@ namespace Ui.Console.Test.Provider
         [TestFixture]
         public class GetReadKeyFromTextFile : FileCommandProviderTest
         {
-            private ReadFromTextFileCommand<IAsymmetricKey> result;
+            private ReadKeyFromFileCommand result;
 
             [SetUp]
             public void Setup()
             {
-                result = provider.GetReadKeyFromTextFileCommand("barPath", "fooPassword");
+                result = provider.GetReadKeyFromFileCommand("barPath", "fooPassword");
             }
 
             [Test]
@@ -76,7 +76,7 @@ namespace Ui.Console.Test.Provider
             [SetUp]
             public void Setup()
             {
-                result = provider.GetReadFormFileCommand("bazPath");
+                result = provider.GetReadFromFileCommand("bazPath");
             }
 
             [Test]
@@ -89,14 +89,14 @@ namespace Ui.Console.Test.Provider
         [TestFixture]
         public class GetWriteSignatureToTextFileCommand : FileCommandProviderTest
         {
-            private WriteToTextFileCommand<Signature> result;
+            private WriteToFileCommand<Signature> result;
             private Signature signature;
 
             [SetUp]
             public void Setup()
             {
                 signature = Mock.Of<Signature>();
-                result = provider.GetWriteSignatureToTextFileCommand(signature, "signedfile.extension");
+                result = provider.GetWriteSignatureToFileCommand(signature, "signedfile.extension");
             }
 
             [Test]

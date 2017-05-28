@@ -2,6 +2,6 @@
 {
     public class ReadFromFileCommand : FileCommand<byte[]>
     {
-
+        
     }
 }

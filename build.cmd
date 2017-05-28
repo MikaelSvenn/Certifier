@@ -6,7 +6,7 @@ packages\NUnit.ConsoleRunner.3.6.0\tools\nunit3-console.exe Core.Test\bin\Releas
 if %errorlevel% NEQ 0 (goto fail)
 
 :success
-echo Build OK!
+echo Build Succeeded!
 exit /b
 
 :fail

@@ -8,7 +8,8 @@ namespace Ui.Console.Startup
         public string Password { get; set; }
         public string PrivateKeyPath { get; set; }
         public string PublicKeyPath { get; set; }
-        public string DataPath { get; set; }
+        public string Input { get; set; }
+        public string Output { get; set; }
         public string Signature { get; set; }
         public bool ShowHelp { get; set; }
         public KeyEncryptionType EncryptionType { get; set; }
@@ -18,9 +19,11 @@ namespace Ui.Console.Startup
         public OperationTarget VerifyOperation { get; set; }
 
         public bool IsValid => !ShowHelp &&
-                                 !(CreateOperation == OperationTarget.none && VerifyOperation == OperationTarget.none) &&
-                                 !(CreateOperation != OperationTarget.none && VerifyOperation != OperationTarget.none);
+                                 !(CreateOperation == OperationTarget.None && VerifyOperation == OperationTarget.None) &&
+                                 !(CreateOperation != OperationTarget.None && VerifyOperation != OperationTarget.None);
 
-        public bool IsCreate => CreateOperation != OperationTarget.none;
+        public bool IsCreate => CreateOperation != OperationTarget.None;
+
+        public bool HasSignature => !string.IsNullOrWhiteSpace(Signature);
     }
 }

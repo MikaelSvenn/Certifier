@@ -10,17 +10,17 @@ namespace Ui.Console.Startup
         {
             Create = new Dictionary<OperationTarget, Action<ApplicationArguments>>
             {
-                {OperationTarget.none, arguments => { throw new InvalidOperationException("Create operation not specified."); }},
-                {OperationTarget.key, activationProvider.CreateKey},
-                {OperationTarget.signature, activationProvider.CreateSignature}
+                {OperationTarget.None, arguments => { throw new InvalidOperationException("Create operation not specified."); }},
+                {OperationTarget.Key, activationProvider.CreateKey},
+                {OperationTarget.Signature, activationProvider.CreateSignature}
             };
 
 
             Verify = new Dictionary<OperationTarget, Action<ApplicationArguments>>
             {
-                {OperationTarget.none, arguments => { throw new InvalidOperationException("Verify operation not specified."); }},
-                {OperationTarget.key, activationProvider.VerifyKeyPair},
-                {OperationTarget.signature, activationProvider.VerifySignature}
+                {OperationTarget.None, arguments => { throw new InvalidOperationException("Verify operation not specified."); }},
+                {OperationTarget.Key, activationProvider.VerifyKeyPair},
+                {OperationTarget.Signature, activationProvider.VerifySignature}
             };
         }
 

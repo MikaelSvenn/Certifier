@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -19,7 +20,7 @@ namespace Ui.Console.Test.Integration
         private string privateKey;
         private byte[] fileContent;
         private Mock<FileWrapper> file;
-        private Dictionary<string, string> fileOutput;
+        private Dictionary<string, byte[]> fileOutput;
 
         [SetUp]
         public void SetupCreateSignatureTest()
@@ -28,11 +29,11 @@ namespace Ui.Console.Test.Integration
             fileContent = random.NextBytes(10000);
 
             file = new Mock<FileWrapper>();
-            fileOutput = new Dictionary<string, string>();
+            fileOutput = new Dictionary<string, byte[]>();
 
             file = new Mock<FileWrapper>();
-            file.Setup(f => f.WriteAllText(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback<string, string>((path, content) =>
+            file.Setup(f => f.WriteAllBytes(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((path, content) =>
                 {
                     fileOutput.Add(path, content);
                 });
@@ -58,8 +59,8 @@ namespace Ui.Console.Test.Integration
             var rsaKey = keyPair.PrivateKey;
             privateKey = pkcs8Formatter.GetAsPem(rsaKey);
 
-            file.Setup(f => f.ReadAllText("private.pem"))
-                .Returns(privateKey);
+            file.Setup(f => f.ReadAllBytes("private.pem"))
+                .Returns(Encoding.UTF8.GetBytes(privateKey));
 
             file.Setup(f => f.ReadAllBytes("foo.file"))
                 .Returns(fileContent);
@@ -81,9 +82,10 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWriteBase64EncodedSignatureToFile()
             {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foo.file"});
 
-                string signature = fileOutput["foo.file.signature"];
+                byte[] signatureContent = fileOutput["foo.file.signature"];
+                var signature = Encoding.UTF8.GetString(signatureContent);
 
                 Assert.IsNotEmpty(signature);
                 Assert.DoesNotThrow(() => Convert.FromBase64String(signature));
@@ -92,12 +94,14 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidSignature()
             {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foo.file"});
 
                 Container container = ContainerProvider.GetContainer();
                 var signatureProvider = container.GetInstance<SignatureProvider>();
 
-                string encodedSignature = fileOutput["foo.file.signature"];
+                byte[] encodedSignatureFile = fileOutput["foo.file.signature"];
+                var encodedSignature = Encoding.UTF8.GetString(encodedSignatureFile);
+                
                 var signature = new Signature
                 {
                     Content = Convert.FromBase64String(encodedSignature),
@@ -122,7 +126,7 @@ namespace Ui.Console.Test.Integration
             {
                 var exception = Assert.Throws<ArgumentException>(() =>
                 {
-                    Certifier.Main(new []{"-c", "signature", "-f", "foo.file"});
+                    Certifier.Main(new []{"-c", "signature", "-i", "foo.file"});
                 });
 
                 Assert.AreEqual("Private key file or path is required.", exception.Message);

@@ -5,7 +5,7 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class PkcsKeyDecryptionDecorator<T> : ICommandHandler<T> where T : ReadFromTextFileCommand<IAsymmetricKey>
+    public class PkcsKeyDecryptionDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
         private readonly IKeyEncryptionProvider keyEncryptionProvider;

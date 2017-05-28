@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -14,17 +15,17 @@ namespace Ui.Console.Test.Integration
     [TestFixture]
     public class CreateRsaKeyTest
     {
-        private Dictionary<string, string> fileOutput;
+        private Dictionary<string, byte[]> fileOutput;
         private Mock<FileWrapper> file;
 
         [SetUp]
         public void SetupCreateRsaKeyTest()
         {
-            fileOutput = new Dictionary<string, string>();
+            fileOutput = new Dictionary<string, byte[]>();
 
             file = new Mock<FileWrapper>();
-            file.Setup(f => f.WriteAllText(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback<string, string>((path, content) =>
+            file.Setup(f => f.WriteAllBytes(It.IsAny<string>(), It.IsAny<byte[]>()))
+                .Callback<string, byte[]>((path, content) =>
                 {
                     fileOutput.Add(path, content);
                 });
@@ -83,8 +84,9 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPrivateKeyToGivenFile()
             {
-                var content = fileOutput["private.pem"];
-
+                byte[] fileContent = fileOutput["private.pem"];
+                var content = Encoding.UTF8.GetString(fileContent);
+                
                 Assert.IsTrue(content.Length > 1600 && content.Length < 1800);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
                 Assert.IsTrue(content.EndsWith($"-----END PRIVATE KEY-----{Environment.NewLine}"));
@@ -93,8 +95,9 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
-                var content = fileOutput["public.pem"];
-
+                byte[] fileContent = fileOutput["public.pem"];
+                var content = Encoding.UTF8.GetString(fileContent);
+                
                 Assert.IsTrue(content.Length > 400 && content.Length < 500);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
                 Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
@@ -103,9 +106,12 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidKeyPair()
             {
-                var privateKeyContent = fileOutput["private.pem"];
-                var publicKeyContent = fileOutput["public.pem"];
+                byte[] privateKeyFileContent = fileOutput["private.pem"];
+                byte[] publicKeyFileContent = fileOutput["public.pem"];
 
+                var privateKeyContent = Encoding.UTF8.GetString(privateKeyFileContent);
+                var publicKeyContent = Encoding.UTF8.GetString(publicKeyFileContent);
+                
                 var container = ContainerProvider.GetContainer();
                 var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
                 var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
@@ -129,8 +135,9 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedEncryptedPrivateKeyToGivenFile()
             {
-                var content = fileOutput["private.pem"];
-
+                byte[] fileContent = fileOutput["private.pem"];
+                var content = Encoding.UTF8.GetString(fileContent);
+                
                 Assert.IsTrue(content.Length > 3100 && content.Length < 3300);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
                 Assert.IsTrue(content.EndsWith($"-----END ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
@@ -139,8 +146,9 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
-                var content = fileOutput["public.pem"];
-
+                byte[] fileContent = fileOutput["public.pem"];
+                var content = Encoding.UTF8.GetString(fileContent);
+                
                 Assert.IsTrue(content.Length > 400 && content.Length < 500);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
                 Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
@@ -149,9 +157,12 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidKeyPair()
             {
-                var privateKeyContent = fileOutput["private.pem"];
-                var publicKeyContent = fileOutput["public.pem"];
+                byte[] privateKeyFileContent = fileOutput["private.pem"];
+                byte[] publicKeyFileContent = fileOutput["public.pem"];
 
+                var privateKeyContent = Encoding.UTF8.GetString(privateKeyFileContent);
+                var publicKeyContent = Encoding.UTF8.GetString(publicKeyFileContent);
+    
                 var container = ContainerProvider.GetContainer();
                 var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
                 var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();

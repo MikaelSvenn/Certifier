@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Text;
 using Core.Interfaces;
 using Moq;
 using NUnit.Framework;
@@ -10,24 +12,24 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class Pkcs8WriteFormattingDecoratorTest
     {
-        private Pkcs8WriteFormattingDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
-        private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedCommand;
+        private Pkcs8WriteFormattingDecorator<WriteToFileCommand<IAsymmetricKey>> decorator;
+        private Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>> decoratedCommand;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
-
+        
         [SetUp]
         public void Setup()
         {
-            decoratedCommand = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
+            decoratedCommand = new Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
 
-            decorator = new Pkcs8WriteFormattingDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object);
+            decorator = new Pkcs8WriteFormattingDecorator<WriteToFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object);
         }
 
         [Test]
         public void ShouldInvokeDecoratedCommandWithPemFormattedContent()
         {
             var key = Mock.Of<IAsymmetricKey>();
-            var command = new WriteToTextFileCommand<IAsymmetricKey>
+            var command = new WriteToFileCommand<IAsymmetricKey>
             {
                 Result = key
             };
@@ -36,7 +38,7 @@ namespace Ui.Console.Test.Decorator
                 .Returns("pemFormattedFoo");
 
             decorator.Execute(command);
-            decoratedCommand.Verify(d => d.Execute(It.Is<WriteToTextFileCommand<IAsymmetricKey>>(k => k.FileContent == "pemFormattedFoo")));
+            decoratedCommand.Verify(d => d.Execute(It.Is<WriteToFileCommand<IAsymmetricKey>>(k => k.FileContent.SequenceEqual(Encoding.UTF8.GetBytes("pemFormattedFoo")))));
         }
     }
 }

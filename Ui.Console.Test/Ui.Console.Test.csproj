@@ -54,7 +54,7 @@
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateSignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadFromFileCommandHandlerTest.cs" />
-    <Compile Include="CommandHandler\ReadKeyFromTextFileCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\ReadKeyFromFileCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
     <Compile Include="Decorator\Pkcs8WriteFormattingDecoratorTest.cs" />

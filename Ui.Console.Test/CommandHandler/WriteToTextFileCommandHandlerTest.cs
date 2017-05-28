@@ -1,3 +1,4 @@
+using System.Text;
 using Core.Interfaces;
 using Core.SystemWrappers;
 using Moq;
@@ -10,19 +11,21 @@ namespace Ui.Console.Test.CommandHandler
     [TestFixture]
     public class WriteToTextFileCommandHandlerTest
     {
-        private WriteToTextFileCommandHandler<object> commandHandler;
+        private WriteToFileCommandHandler<object> commandHandler;
         private Mock<FileWrapper> file;
-
+        private byte[] fileContent;
+        
         [OneTimeSetUp]
         public void Setup()
         {
             file = new Mock<FileWrapper>();
-            commandHandler = new WriteToTextFileCommandHandler<object>(file.Object);
-
-            var command = new WriteToTextFileCommand<object>
+            commandHandler = new WriteToFileCommandHandler<object>(file.Object);
+            fileContent = Encoding.UTF8.GetBytes("barContent");
+            
+            var command = new WriteToFileCommand<object>
             {
                 FilePath = "fooDestination",
-                FileContent = "barContent"
+                FileContent = fileContent
             };
 
             commandHandler.Execute(command);
@@ -31,7 +34,7 @@ namespace Ui.Console.Test.CommandHandler
         [Test]
         public void ShouldWriteContentToGivenFileDestination()
         {
-            file.Verify(f => f.WriteAllText("fooDestination", "barContent"));
+            file.Verify(f => f.WriteAllBytes("fooDestination", fileContent));
         }
     }
 }

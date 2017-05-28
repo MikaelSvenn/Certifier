@@ -11,17 +11,17 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class KeyFilePathValidationDecoratorTest
     {
-        private KeyFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>> decorator;
-        private Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>> decoratedHandler;
-        private WriteToTextFileCommand<IAsymmetricKey> command;
+        private KeyFilePathValidationDecorator<WriteToFileCommand<IAsymmetricKey>> decorator;
+        private Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>> decoratedHandler;
+        private WriteToFileCommand<IAsymmetricKey> command;
 
         [SetUp]
         public void Setup()
         {
-            decoratedHandler = new Mock<ICommandHandler<WriteToTextFileCommand<IAsymmetricKey>>>();
-            decorator = new KeyFilePathValidationDecorator<WriteToTextFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
+            decoratedHandler = new Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>>();
+            decorator = new KeyFilePathValidationDecorator<WriteToFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
 
-            command = new WriteToTextFileCommand<IAsymmetricKey>
+            command = new WriteToFileCommand<IAsymmetricKey>
             {
                 Result = Mock.Of<IAsymmetricKey>()
             };
