@@ -2,14 +2,7 @@
 {
     public class Base64Wrapper
     {
-        public string ToBase64String(byte[] content)
-        {
-            return System.Convert.ToBase64String(content);
-        }
-
-        public byte[] FromBase64String(string content)
-        {
-            return System.Convert.FromBase64String(content);
-        }
+        public virtual string ToBase64String(byte[] content) => System.Convert.ToBase64String(content);
+        public virtual byte[] FromBase64String(string content) => System.Convert.FromBase64String(content);
     }
 }

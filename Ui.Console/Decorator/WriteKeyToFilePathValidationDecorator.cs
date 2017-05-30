@@ -5,11 +5,11 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class KeyFilePathValidationDecorator<T>: ICommandHandler<T> where T : FileCommand<IAsymmetricKey>
+    public class WriteKeyToFilePathValidationDecorator<T>: ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
 
-        public KeyFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
+        public WriteKeyToFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
         {
             this.decoratedCommandHandler = decoratedCommandHandler;
         }
@@ -18,7 +18,7 @@ namespace Ui.Console.Decorator
         {
             if (string.IsNullOrWhiteSpace(command.FilePath))
             {
-                var keyType = command.Result == null || command.Result.IsPrivateKey ? "Private" : "Public";
+                var keyType = command.Out == null || command.Out.IsPrivateKey ? "Private" : "Public";
                 throw new ArgumentException($"{keyType} key file or path is required.");
             }
 

@@ -9,21 +9,21 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class KeyFilePathValidationDecoratorTest
+    public class WriteKeyToFilePathValidationDecoratorTest
     {
-        private KeyFilePathValidationDecorator<WriteToFileCommand<IAsymmetricKey>> decorator;
-        private Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>> decoratedHandler;
-        private WriteToFileCommand<IAsymmetricKey> command;
+        private WriteKeyToFilePathValidationDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedHandler;
+        private WriteFileCommand<IAsymmetricKey> command;
 
         [SetUp]
         public void Setup()
         {
-            decoratedHandler = new Mock<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>>();
-            decorator = new KeyFilePathValidationDecorator<WriteToFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
+            decoratedHandler = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
+            decorator = new WriteKeyToFilePathValidationDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedHandler.Object);
 
-            command = new WriteToFileCommand<IAsymmetricKey>
+            command = new WriteFileCommand<IAsymmetricKey>
             {
-                Result = Mock.Of<IAsymmetricKey>()
+                Out = Mock.Of<IAsymmetricKey>()
             };
         }
 
@@ -45,7 +45,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldIndicatePrivateKeyTypeInThrownException()
         {
-            command.Result = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+            command.Out = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
             var exception = Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             Assert.IsTrue(exception.Message.StartsWith("Private"));
         }
@@ -58,7 +58,7 @@ namespace Ui.Console.Test.Decorator
         }
 
         [TestFixture]
-        public class ShouldThrowExceptionWhen : KeyFilePathValidationDecoratorTest
+        public class ShouldThrowExceptionWhen : WriteKeyToFilePathValidationDecoratorTest
         {
             [Test]
             public void FilePathIsNull()
@@ -82,9 +82,9 @@ namespace Ui.Console.Test.Decorator
             }
 
             [Test]
-            public void CommandHasNoResult()
+            public void CommandHasNoOutput()
             {
-                command.Result = null;
+                command.Out = null;
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
         }

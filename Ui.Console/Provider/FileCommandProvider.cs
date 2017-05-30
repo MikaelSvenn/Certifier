@@ -1,43 +1,41 @@
-﻿using Core.Interfaces;
-using Core.Model;
-using Ui.Console.Command;
+﻿using Ui.Console.Command;
 
 namespace Ui.Console.Provider
 {
     public class FileCommandProvider
     {
-        public WriteToFileCommand<IAsymmetricKey> GetWriteKeyToFileCommand(IAsymmetricKey key, string targetPath)
-        {
-            return new WriteToFileCommand<IAsymmetricKey>
-            {
-                Result = key,
-                FilePath = targetPath
-            };
-        }
-
-        public ReadKeyFromFileCommand GetReadKeyFromFileCommand(string targetPath, string password = "")
+        public ReadKeyFromFileCommand GetReadPrivateKeyFromFileCommand(string targetPath, string password = "")
         {
             return new ReadKeyFromFileCommand
             {
                 FilePath = targetPath,
-                Password = password
+                Password = password,
+                IsPrivateKey = true
             };
         }
 
-        public ReadFromFileCommand GetReadFromFileCommand(string filePath)
+        public ReadFileCommand<T> GetReadFileCommand<T>(string filePath)
         {
-            return new ReadFromFileCommand
+            return new ReadFileCommand<T>()
             {
                 FilePath = filePath
             };
         }
 
-        public WriteToFileCommand<Signature> GetWriteSignatureToFileCommand(Signature signature, string filePath)
+        public WriteFileCommand<T> GetWriteToFileCommand<T>(T input, string output)
         {
-            return new WriteToFileCommand<Signature>
+            return new WriteFileCommand<T>
             {
-                Result = signature,
-                FilePath = $"{filePath}.signature"
+                Out = input,
+                FilePath = output
+            };
+        }
+
+        public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T result)
+        {
+            return new WriteToStdOutCommand<T>
+            {
+                Out = result
             };
         }
     }

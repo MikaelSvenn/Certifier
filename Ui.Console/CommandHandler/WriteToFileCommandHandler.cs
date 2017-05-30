@@ -3,7 +3,7 @@ using Ui.Console.Command;
 
 namespace Ui.Console.CommandHandler
 {
-    public class WriteToFileCommandHandler<T> : ICommandHandler<WriteToFileCommand<T>>
+    public class WriteToFileCommandHandler<T> : ICommandHandler<WriteFileCommand<T>>
     {
         private readonly FileWrapper file;
 
@@ -12,7 +12,7 @@ namespace Ui.Console.CommandHandler
             this.file = file;
         }
 
-        public void Execute(WriteToFileCommand<T> createKeyCommand)
+        public void Execute(WriteFileCommand<T> createKeyCommand)
         {
             file.WriteAllBytes(createKeyCommand.FilePath, createKeyCommand.FileContent);
         }

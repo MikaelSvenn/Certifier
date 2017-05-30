@@ -9,7 +9,7 @@ namespace Ui.Console.Test.CommandHandler
     [TestFixture]
     public class ReadFromFileCommandHandlerTest
     {
-        private ReadFromFileCommandHandler commandHandler;
+        private ReadFileCommandHandler<byte[]> commandHandler;
         private Mock<FileWrapper> file;
         private byte[] fileContent;
 
@@ -21,13 +21,13 @@ namespace Ui.Console.Test.CommandHandler
             file.Setup(f => f.ReadAllBytes("foo"))
                 .Returns(fileContent);
 
-            commandHandler = new ReadFromFileCommandHandler(file.Object);
+            commandHandler = new ReadFileCommandHandler<byte[]>(file.Object);
         }
 
         [Test]
         public void ShouldSetReadFileAsFileContent()
         {
-            var readFileCommand = new ReadFromFileCommand
+            var readFileCommand = new ReadFileCommand<byte[]>
             {
                 FilePath = "foo"
             };

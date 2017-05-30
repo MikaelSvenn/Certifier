@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Interfaces;
@@ -58,16 +59,16 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
-            public void ShouldWriteCreatedPrivateKeyToTextFile()
+            public void ShouldWriteCreatedPrivateKeyToFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToFileCommand<IAsymmetricKey>>>(w => w.First().Result == privateKey &&
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.First().Out == privateKey &&
                                                                                                                                 w.First().FilePath == "private.pem")));
             }
 
             [Test]
-            public void ShouldWriteCreatedPublicKeyToTextFile()
+            public void ShouldWriteCreatedPublicKeyToFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteToFileCommand<IAsymmetricKey>>>(w => w.Last().Result == publicKey &&
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.Last().Out == publicKey &&
                                                                                                                                 w.Last().FilePath == "public.pem")));
             }
         }
@@ -80,7 +81,7 @@ namespace Ui.Console.Test.Provider
             private object[] sequenceExecutedCommands;
             private Signature signature;
 
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
@@ -89,7 +90,8 @@ namespace Ui.Console.Test.Provider
                 {
                     PrivateKeyPath = "private.pem",
                     Password = "kensentme",
-                    Input = "file"
+                    Input = "file",
+                    Output = "file.signature"
                 };
 
                 commandExecutor.Setup(ce => ce.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
@@ -99,7 +101,7 @@ namespace Ui.Console.Test.Provider
                         var readKey = (ReadKeyFromFileCommand) commands[0];
                         readKey.Result = key;
 
-                        var readFile = (ReadFromFileCommand) commands[1];
+                        var readFile = (ReadFileCommand<byte[]>) commands[1];
                         readFile.Result = fileContent;
 
                         sequenceExecutedCommands = commands;
@@ -115,13 +117,13 @@ namespace Ui.Console.Test.Provider
                             command.Result = signature;
                         }
                     });
-
-                provider.CreateSignature(arguments);
             }
 
             [Test]
             public void ShouldReadPrivateKey()
             {
+                provider.CreateSignature(arguments);
+                
                 var readPrivateKeyCommand = (ReadKeyFromFileCommand)sequenceExecutedCommands[0];
                 Assert.IsTrue(readPrivateKeyCommand.FilePath == "private.pem" && readPrivateKeyCommand.Password == "kensentme");
             }
@@ -129,20 +131,47 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldReadFileToBeSigned()
             {
-                var readFileCommand = (ReadFromFileCommand)sequenceExecutedCommands[1];
+                provider.CreateSignature(arguments);
+                
+                var readFileCommand = (ReadFileCommand<byte[]>)sequenceExecutedCommands[1];
                 Assert.IsTrue(readFileCommand.FilePath == "file");
             }
 
             [Test]
             public void ShouldCreateSignatureForGivenFileWithGivenKey()
             {
+                provider.CreateSignature(arguments);
                 commandExecutor.Verify(ce => ce.Execute(It.Is<CreateSignatureCommand>(c => c.PrivateKey == key && c.ContentToSign == fileContent)));
             }
 
             [Test]
-            public void ShouldWriteCreatedSignatureToTextFile()
+            public void ShouldWriteCreatedSignatureToTextFileWhenOutputIsSpecified()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToFileCommand<Signature>>(c => c.Result == signature && c.FilePath == "file.signature")));
+                provider.CreateSignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<Signature>>(c => c.Out == signature && c.FilePath == "file.signature")));
+            }
+
+            [Test]
+            public void ShouldNotWriteCreatedSignatureToTextFileWhenoutputIsNotSpecified()
+            {
+                arguments.Output = string.Empty;
+                provider.CreateSignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<Signature>>(c => c.Out == signature && c.FilePath == "file.signature")), Times.Never());
+            }
+            
+            [Test]
+            public void ShouldWriteCreatedSignatureToStdOutWhenOutputIsNotSpecified()
+            {
+                arguments.Output = string.Empty;
+                provider.CreateSignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToStdOutCommand<Signature>>(c => c.Out == signature)));
+            }
+
+            [Test]
+            public void ShouldNotWriteCreatedSignatureToStdOutwhenOutputIsSpecified()
+            {
+                provider.CreateSignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToStdOutCommand<Signature>>(c => c.Out == signature)), Times.Never());
             }
         }
     }

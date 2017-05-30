@@ -1,4 +1,3 @@
-using Core.Interfaces;
 using Core.Model;
 using Moq;
 using NUnit.Framework;
@@ -19,32 +18,6 @@ namespace Ui.Console.Test.Provider
         }
 
         [TestFixture]
-        public class GetWriteKeyToTextFile : FileCommandProviderTest
-        {
-            private IAsymmetricKey key;
-            private WriteToFileCommand<IAsymmetricKey> result;
-
-            [SetUp]
-            public void Setup()
-            {
-                key = Mock.Of<IAsymmetricKey>();
-                result = provider.GetWriteKeyToFileCommand(key, "fooPath");
-            }
-
-            [Test]
-            public void ShouldMapContent()
-            {
-                Assert.AreEqual(key, result.Result);
-            }
-
-            [Test]
-            public void ShouldMapFilePath()
-            {
-                Assert.AreEqual("fooPath", result.FilePath);
-            }
-        }
-
-        [TestFixture]
         public class GetReadKeyFromTextFile : FileCommandProviderTest
         {
             private ReadKeyFromFileCommand result;
@@ -52,7 +25,7 @@ namespace Ui.Console.Test.Provider
             [SetUp]
             public void Setup()
             {
-                result = provider.GetReadKeyFromFileCommand("barPath", "fooPassword");
+                result = provider.GetReadPrivateKeyFromFileCommand("barPath", "fooPassword");
             }
 
             [Test]
@@ -69,14 +42,14 @@ namespace Ui.Console.Test.Provider
         }
 
         [TestFixture]
-        public class GetReadFromFileCommand : FileCommandProviderTest
+        public class GetReadFileCommand : FileCommandProviderTest
         {
-            private ReadFromFileCommand result;
+            private ReadFileCommand<object> result;
 
             [SetUp]
             public void Setup()
             {
-                result = provider.GetReadFromFileCommand("bazPath");
+                result = provider.GetReadFileCommand<object>("bazPath");
             }
 
             [Test]
@@ -87,28 +60,28 @@ namespace Ui.Console.Test.Provider
         }
 
         [TestFixture]
-        public class GetWriteSignatureToTextFileCommand : FileCommandProviderTest
+        public class GetWriteFileCommand : FileCommandProviderTest
         {
-            private WriteToFileCommand<Signature> result;
+            private WriteFileCommand<Signature> result;
             private Signature signature;
 
             [SetUp]
             public void Setup()
             {
                 signature = Mock.Of<Signature>();
-                result = provider.GetWriteSignatureToFileCommand(signature, "signedfile.extension");
+                result = provider.GetWriteToFileCommand(signature, "signedfile.extension");
             }
 
             [Test]
-            public void ShouldMapResult()
+            public void ShouldMapOutput()
             {
-                Assert.AreEqual(signature, result.Result);
+                Assert.AreEqual(signature, result.Out);
             }
 
             [Test]
-            public void ShouldExtendGivenFilePathWithSignatureSuffix()
+            public void ShouldExtendGivenFilePath()
             {
-                Assert.AreEqual("signedfile.extension.signature", result.FilePath);
+                Assert.AreEqual("signedfile.extension", result.FilePath);
             }
         }
     }

@@ -10,21 +10,21 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class FilePathValidationDecoratorTest
     {
-        private FilePathValidationDecorator<FileCommand<object>, object> decorator;
-        private Mock<ICommandHandler<FileCommand<object>>> decoratedHandler;
-        private FileCommand<object> command;
+        private FilePathValidationDecorator<ReadFileCommand<object>, object> decorator;
+        private Mock<ICommandHandler<ReadFileCommand<object>>> decoratedHandler;
+        private ReadFileCommand<object> command;
 
         [SetUp]
         public void Setup()
         {
-            decoratedHandler = new Mock<ICommandHandler<FileCommand<object>>>();
-            decorator = new FilePathValidationDecorator<FileCommand<object>, object>(decoratedHandler.Object);
+            decoratedHandler = new Mock<ICommandHandler<ReadFileCommand<object>>>();
+            decorator = new FilePathValidationDecorator<ReadFileCommand<object>, object>(decoratedHandler.Object);
         }
 
         [Test]
         public void ShouldExecuteDecoratedHandler()
         {
-            command = Mock.Of<FileCommand<object>>(c => c.FilePath == "file.path");
+            command = Mock.Of<ReadFileCommand<object>>(c => c.FilePath == "file.path");
             decorator.Execute(command);
             decoratedHandler.Verify(h => h.Execute(command));
         }
@@ -32,7 +32,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldNotExecuteDecoratedHandlerWhenExceptionIsThrown()
         {
-            command = Mock.Of<FileCommand<object>>();
+            command = Mock.Of<ReadFileCommand<object>>();
             Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             decoratedHandler.Verify(h => h.Execute(command), Times.Never);
         }
@@ -43,21 +43,21 @@ namespace Ui.Console.Test.Decorator
             [Test]
             public void FilePathIsNull()
             {
-                command = Mock.Of<FileCommand<object>>(c => c.FilePath == null);
+                command = Mock.Of<ReadFileCommand<object>>(c => c.FilePath == null);
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
             public void FilePathIsEmptyString()
             {
-                command = Mock.Of<FileCommand<object>>(c => c.FilePath == "");
+                command = Mock.Of<ReadFileCommand<object>>(c => c.FilePath == "");
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
 
             [Test]
             public void FilePathIsWhitespace()
             {
-                command = Mock.Of<FileCommand<object>>(c => c.FilePath == " ");
+                command = Mock.Of<ReadFileCommand<object>>(c => c.FilePath == " ");
                 Assert.Throws<ArgumentException>(() => { decorator.Execute(command); });
             }
         }

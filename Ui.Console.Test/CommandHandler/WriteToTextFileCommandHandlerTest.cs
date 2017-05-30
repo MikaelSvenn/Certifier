@@ -1,5 +1,3 @@
-using System.Text;
-using Core.Interfaces;
 using Core.SystemWrappers;
 using Moq;
 using NUnit.Framework;
@@ -20,9 +18,11 @@ namespace Ui.Console.Test.CommandHandler
         {
             file = new Mock<FileWrapper>();
             commandHandler = new WriteToFileCommandHandler<object>(file.Object);
-            fileContent = Encoding.UTF8.GetBytes("barContent");
+
+            var encoding = new EncodingWrapper();
+            fileContent = encoding.GetBytes("barContent");
             
-            var command = new WriteToFileCommand<object>
+            var command = new WriteFileCommand<object>
             {
                 FilePath = "fooDestination",
                 FileContent = fileContent

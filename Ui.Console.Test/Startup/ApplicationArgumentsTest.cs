@@ -128,5 +128,33 @@ namespace Ui.Console.Test.Startup
             }
 
         }
+
+        [TestFixture]
+        public class HasOutput : ApplicationArgumentsTest
+        {
+            [Test]
+            public void ShouldBeTrueWhenOutputHasContent()
+            {
+                arguments = new ApplicationArguments
+                {
+                    Output = "foo"
+                };
+                
+                Assert.IsTrue(arguments.HasOutput);
+            }
+            
+            [TestCase(null, TestName = "Null")]
+            [TestCase("", TestName = "Empty")]
+            [TestCase(" ", TestName = "Whitespace")]
+            public void ShouldBeFalseWhenOutputHasNoContent(string output)
+            {
+                arguments = new ApplicationArguments
+                {
+                    Output = output
+                };
+
+                Assert.IsFalse(arguments.HasOutput);
+            }
+        }
     }
 }

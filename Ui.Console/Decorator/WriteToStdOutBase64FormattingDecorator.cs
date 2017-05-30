@@ -5,23 +5,20 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class WriteToFileBase64FormattingDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<Signature>
+    public class WriteToStdOutBase64FormattingDecorator<T> : ICommandHandler<T> where T : WriteToStdOutCommand<Signature>
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
         private readonly Base64Wrapper base64;
-        private readonly EncodingWrapper encoding;
 
-        public WriteToFileBase64FormattingDecorator(ICommandHandler<T> decoratedCommandHandler, Base64Wrapper base64, EncodingWrapper encoding)
+        public WriteToStdOutBase64FormattingDecorator(ICommandHandler<T> decoratedCommandHandler, Base64Wrapper base64)
         {
             this.decoratedCommandHandler = decoratedCommandHandler;
             this.base64 = base64;
-            this.encoding = encoding;
         }
 
         public void Execute(T command)
         {
-            var base64Formatted = base64.ToBase64String(command.Out.Content);
-            command.FileContent = encoding.GetBytes(base64Formatted);
+            command.ContentToStdOut = base64.ToBase64String(command.Out.Content);
             decoratedCommandHandler.Execute(command);
         }
     }

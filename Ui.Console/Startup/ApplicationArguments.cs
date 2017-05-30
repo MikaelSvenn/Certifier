@@ -23,7 +23,8 @@ namespace Ui.Console.Startup
                                  !(CreateOperation != OperationTarget.None && VerifyOperation != OperationTarget.None);
 
         public bool IsCreate => CreateOperation != OperationTarget.None;
-
         public bool HasSignature => !string.IsNullOrWhiteSpace(Signature);
+        public bool HasOutput => !string.IsNullOrWhiteSpace(Output);
+        
     }
 }

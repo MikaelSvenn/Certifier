@@ -1,4 +1,3 @@
-using System.Text;
 using Core.SystemWrappers;
 using Moq;
 using NUnit.Framework;
@@ -13,13 +12,15 @@ namespace Ui.Console.Test.CommandHandler
         private Mock<FileWrapper> file;
         private ReadKeyFromFileCommandHandler commandHandler;
         private ReadKeyFromFileCommand command;
-
+        private EncodingWrapper encoding;
+        
         [OneTimeSetUp]
         public void Setup()
         {
+            encoding = new EncodingWrapper();
             file = new Mock<FileWrapper>();
             file.Setup(f => f.ReadAllBytes("fromFile"))
-                .Returns(Encoding.UTF8.GetBytes("file content"));
+                .Returns(encoding.GetBytes("file content"));
 
             commandHandler = new ReadKeyFromFileCommandHandler(file.Object);
             command = new ReadKeyFromFileCommand
@@ -39,7 +40,7 @@ namespace Ui.Console.Test.CommandHandler
         [Test]
         public void ShouldSetFileContentToFromFileFieldOfGivenCommand()
         {
-            Assert.AreEqual(Encoding.UTF8.GetBytes("file content"), command.FileContent);
+            Assert.AreEqual(encoding.GetBytes("file content"), command.FileContent);
         }
     }
 }

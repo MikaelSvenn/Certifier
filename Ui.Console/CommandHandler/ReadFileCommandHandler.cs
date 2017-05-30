@@ -3,16 +3,16 @@ using Ui.Console.Command;
 
 namespace Ui.Console.CommandHandler
 {
-    public class ReadFromFileCommandHandler : ICommandHandler<ReadFromFileCommand>
+    public class ReadFileCommandHandler<T> : ICommandHandler<ReadFileCommand<byte[]>>
     {
         private readonly FileWrapper file;
 
-        public ReadFromFileCommandHandler(FileWrapper file)
+        public ReadFileCommandHandler(FileWrapper file)
         {
             this.file = file;
         }
 
-        public void Execute(ReadFromFileCommand command)
+        public void Execute(ReadFileCommand<byte[]> command)
         {
             command.Result = file.ReadAllBytes(command.FilePath);
         }

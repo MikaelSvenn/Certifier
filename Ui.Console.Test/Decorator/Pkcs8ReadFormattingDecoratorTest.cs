@@ -1,6 +1,6 @@
-using System.Text;
 using Core.Interfaces;
 using Core.Model;
+using Core.SystemWrappers;
 using Moq;
 using NUnit.Framework;
 using Ui.Console.Command;
@@ -21,9 +21,10 @@ namespace Ui.Console.Test.Decorator
         [SetUp]
         public void Setup()
         {
+            var encoding = new EncodingWrapper();
             decoratedHandler = new Mock<ICommandHandler<ReadKeyFromFileCommand>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
-            decorator = new Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, formattingProvider.Object);
+            decorator = new Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, formattingProvider.Object, encoding);
 
             resultingKey = new EncryptedKey(null, CipherType.Pkcs12Encrypted);
             
@@ -32,7 +33,7 @@ namespace Ui.Console.Test.Decorator
 
             command = new ReadKeyFromFileCommand();
             decoratedHandler.Setup(dh => dh.Execute(command))
-                .Callback<ReadKeyFromFileCommand>(c => c.FileContent = Encoding.UTF8.GetBytes("fileContent"));
+                .Callback<ReadKeyFromFileCommand>(c => c.FileContent = encoding.GetBytes("fileContent"));
 
             decorator.Execute(command);
         }

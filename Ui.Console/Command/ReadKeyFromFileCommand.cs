@@ -2,9 +2,9 @@
 
 namespace Ui.Console.Command
 {
-    public class ReadKeyFromFileCommand : FileCommand<IAsymmetricKey>
+    public class ReadKeyFromFileCommand : ReadFileCommand<IAsymmetricKey>
     {
         public string Password { get; set; }
-        public byte[] FileContent { get; set; }
+        public bool IsPrivateKey { get; set; }
     }
 }

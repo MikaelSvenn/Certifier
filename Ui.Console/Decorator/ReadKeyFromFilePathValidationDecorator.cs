@@ -4,11 +4,11 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class FilePathValidationDecorator<T, TFile> : ICommandHandler<T> where T : ReadFileCommand<TFile>
+    public class ReadKeyFromFilePathValidationDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
 
-        public FilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
+        public ReadKeyFromFilePathValidationDecorator(ICommandHandler<T> decoratedCommandHandler)
         {
             this.decoratedCommandHandler = decoratedCommandHandler;
         }
@@ -17,7 +17,8 @@ namespace Ui.Console.Decorator
         {
             if (string.IsNullOrWhiteSpace(command.FilePath))
             {
-                throw new ArgumentException($"Target file is required.");
+                var keyType = command.IsPrivateKey ? "Private" : "Public";
+                throw new ArgumentException($"{keyType} key file or path is required.");
             }
 
             decoratedCommandHandler.Execute(command);

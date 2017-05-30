@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -17,10 +16,12 @@ namespace Ui.Console.Test.Integration
     {
         private Dictionary<string, byte[]> fileOutput;
         private Mock<FileWrapper> file;
+        private EncodingWrapper encoding;
 
         [SetUp]
         public void SetupCreateRsaKeyTest()
         {
+            encoding = new EncodingWrapper();
             fileOutput = new Dictionary<string, byte[]>();
 
             file = new Mock<FileWrapper>();
@@ -85,7 +86,7 @@ namespace Ui.Console.Test.Integration
             public void ShouldWritePkcs8FormattedPrivateKeyToGivenFile()
             {
                 byte[] fileContent = fileOutput["private.pem"];
-                var content = Encoding.UTF8.GetString(fileContent);
+                var content = encoding.GetString(fileContent);
                 
                 Assert.IsTrue(content.Length > 1600 && content.Length < 1800);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
@@ -96,7 +97,7 @@ namespace Ui.Console.Test.Integration
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
                 byte[] fileContent = fileOutput["public.pem"];
-                var content = Encoding.UTF8.GetString(fileContent);
+                var content = encoding.GetString(fileContent);
                 
                 Assert.IsTrue(content.Length > 400 && content.Length < 500);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
@@ -109,8 +110,8 @@ namespace Ui.Console.Test.Integration
                 byte[] privateKeyFileContent = fileOutput["private.pem"];
                 byte[] publicKeyFileContent = fileOutput["public.pem"];
 
-                var privateKeyContent = Encoding.UTF8.GetString(privateKeyFileContent);
-                var publicKeyContent = Encoding.UTF8.GetString(publicKeyFileContent);
+                var privateKeyContent = encoding.GetString(privateKeyFileContent);
+                var publicKeyContent = encoding.GetString(publicKeyFileContent);
                 
                 var container = ContainerProvider.GetContainer();
                 var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
@@ -136,7 +137,7 @@ namespace Ui.Console.Test.Integration
             public void ShouldWritePkcs8FormattedEncryptedPrivateKeyToGivenFile()
             {
                 byte[] fileContent = fileOutput["private.pem"];
-                var content = Encoding.UTF8.GetString(fileContent);
+                var content = encoding.GetString(fileContent);
                 
                 Assert.IsTrue(content.Length > 3100 && content.Length < 3300);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
@@ -147,7 +148,7 @@ namespace Ui.Console.Test.Integration
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
                 byte[] fileContent = fileOutput["public.pem"];
-                var content = Encoding.UTF8.GetString(fileContent);
+                var content = encoding.GetString(fileContent);
                 
                 Assert.IsTrue(content.Length > 400 && content.Length < 500);
                 Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
@@ -160,8 +161,8 @@ namespace Ui.Console.Test.Integration
                 byte[] privateKeyFileContent = fileOutput["private.pem"];
                 byte[] publicKeyFileContent = fileOutput["public.pem"];
 
-                var privateKeyContent = Encoding.UTF8.GetString(privateKeyFileContent);
-                var publicKeyContent = Encoding.UTF8.GetString(publicKeyFileContent);
+                var privateKeyContent = encoding.GetString(privateKeyFileContent);
+                var publicKeyContent = encoding.GetString(publicKeyFileContent);
     
                 var container = ContainerProvider.GetContainer();
                 var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();

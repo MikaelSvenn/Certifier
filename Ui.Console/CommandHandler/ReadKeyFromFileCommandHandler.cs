@@ -1,5 +1,4 @@
-﻿using Core.Interfaces;
-using Core.SystemWrappers;
+﻿using Core.SystemWrappers;
 using Ui.Console.Command;
 
 namespace Ui.Console.CommandHandler

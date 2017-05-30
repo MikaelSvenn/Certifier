@@ -39,18 +39,22 @@ namespace Ui.Console.Startup
 
             // Commands
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });
-            container.Register<ICommandHandler<WriteToFileCommand<IAsymmetricKey>>, WriteToFileCommandHandler<IAsymmetricKey>>();
-            container.Register<ICommandHandler<WriteToFileCommand<Signature>>, WriteToFileCommandHandler<Signature>>();
+            container.Register<ICommandHandler<WriteFileCommand<IAsymmetricKey>>, WriteToFileCommandHandler<IAsymmetricKey>>();
+            container.Register<ICommandHandler<WriteFileCommand<Signature>>, WriteToFileCommandHandler<Signature>>();
+            container.Register<ICommandHandler<WriteToStdOutCommand<Signature>>, WriteToStdOutCommandHandler<Signature>>();
+            container.Register<ICommandHandler<ReadFileCommand<byte[]>>, ReadFileCommandHandler<byte[]>>();
             
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(RsaKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(FilePathValidationDecorator<,>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(KeyFilePathValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteKeyToFilePathValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyFromFilePathValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8ReadFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyDecryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8WriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToFileBase64FormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToStdOutBase64FormattingDecorator<>));
 
             container.Verify();
 

@@ -12,27 +12,27 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class WriteToFileBase64FormattingDecoratorTest
     {
-        private WriteToFileBase64FormattingDecorator<WriteToFileCommand<Signature>> decorator;
-        private Mock<ICommandHandler<WriteToFileCommand<Signature>>> decoratedCommandHandler;
+        private WriteToFileBase64FormattingDecorator<WriteFileCommand<Signature>> decorator;
+        private Mock<ICommandHandler<WriteFileCommand<Signature>>> decoratedCommandHandler;
         private Base64Wrapper base64;
         private Signature signature;
-        private WriteToFileCommand<Signature> command;
+        private WriteFileCommand<Signature> command;
 
         [OneTimeSetUp]
         public void Setup()
         {
-            decoratedCommandHandler = new Mock<ICommandHandler<WriteToFileCommand<Signature>>>();
-            base64 = new Base64Wrapper();
-            decorator = new WriteToFileBase64FormattingDecorator<WriteToFileCommand<Signature>>(decoratedCommandHandler.Object, base64);
+            decoratedCommandHandler = new Mock<ICommandHandler<WriteFileCommand<Signature>>>();
+            base64 = new Base64Wrapper();            
+            decorator = new WriteToFileBase64FormattingDecorator<WriteFileCommand<Signature>>(decoratedCommandHandler.Object, base64, new EncodingWrapper());
 
             signature = new Signature
             {
                 Content = Encoding.Default.GetBytes("foobar")
             };
 
-            command = new WriteToFileCommand<Signature>
+            command = new WriteFileCommand<Signature>
             {
-                Result = signature
+                Out = signature
             };
 
             decorator.Execute(command);
