@@ -40,7 +40,11 @@ namespace Ui.Console.Startup
                 .As('i', "in")
                 .SetDefault(string.Empty);
 
-            parser.Setup(argument => argument.Output)
+            parser.Setup(argument => argument.FileInput)
+                  .As('f', "file")
+                  .SetDefault(string.Empty);
+            
+            parser.Setup(argument => argument.FileOutput)
                 .As('o', "out")
                 .SetDefault(string.Empty);
             

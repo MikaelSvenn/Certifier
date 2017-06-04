@@ -63,9 +63,21 @@ namespace Ui.Console.Test.Startup
             }
 
             [Test]
-            public void DataPath()
+            public void Input()
             {
                 Assert.IsEmpty(arguments.Input);
+            }
+
+            [Test]
+            public void FileInput()
+            {
+                Assert.IsEmpty(arguments.FileInput);
+            }
+
+            [Test]
+            public void FileOutput()
+            {
+                Assert.IsEmpty(arguments.FileOutput);
             }
 
             [Test]
@@ -233,7 +245,6 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual(@"c:\temp\public", result.PublicKeyPath);
             }
 
-
             [Test]
             public void Signature()
             {
@@ -253,16 +264,28 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual("inputcontent", result.Input);
             }
             
-            private static string[][] output = {
+            private static string[][] fileInput = {
+                new []{"-f", @"c:\temp\foo.bar"},
+                new []{"--file", @"c:\temp\foo.bar"}
+            };
+
+            [Test, TestCaseSource("fileInput")]
+            public void FileInput(string[] fileInput)
+            {
+                var result = commandLineParser.ParseArguments(fileInput);
+                Assert.AreEqual(@"c:\temp\foo.bar", result.FileInput);
+            }
+            
+            private static string[][] fileOutput = {
                 new []{"-o", "outputcontent"},
                 new []{"--out", "outputcontent"}
             };
 
-            [Test, TestCaseSource("output")]
-            public void Output(string[] outputTarget)
+            [Test, TestCaseSource("fileOutput")]
+            public void FileOutput(string[] outputTarget)
             {
                 var result = commandLineParser.ParseArguments(outputTarget);
-                Assert.AreEqual("outputcontent", result.Output);
+                Assert.AreEqual("outputcontent", result.FileOutput);
             }
         }
     }

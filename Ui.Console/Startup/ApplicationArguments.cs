@@ -9,7 +9,8 @@ namespace Ui.Console.Startup
         public string PrivateKeyPath { get; set; }
         public string PublicKeyPath { get; set; }
         public string Input { get; set; }
-        public string Output { get; set; }
+        public string FileInput { get; set; }
+        public string FileOutput { get; set; }
         public string Signature { get; set; }
         public bool ShowHelp { get; set; }
         public KeyEncryptionType EncryptionType { get; set; }
@@ -24,7 +25,7 @@ namespace Ui.Console.Startup
 
         public bool IsCreate => CreateOperation != OperationTarget.None;
         public bool HasSignature => !string.IsNullOrWhiteSpace(Signature);
-        public bool HasOutput => !string.IsNullOrWhiteSpace(Output);
-        
+        public bool HasFileOutput => !string.IsNullOrWhiteSpace(FileOutput);
+        public bool HasFileInput => !string.IsNullOrWhiteSpace(FileInput);
     }
 }

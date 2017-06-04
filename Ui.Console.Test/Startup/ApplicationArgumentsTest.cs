@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using NUnit.Framework;
 using Ui.Console.Startup;
 
@@ -99,7 +101,6 @@ namespace Ui.Console.Test.Startup
             }
         }
 
-
         [TestFixture]
         public class HasSignature : ApplicationArgumentsTest
         {
@@ -114,9 +115,9 @@ namespace Ui.Console.Test.Startup
                 Assert.IsTrue(arguments.HasSignature);
             }
 
-            [TestCase(null, TestName = "Null")]
-            [TestCase("", TestName = "Empty")]
-            [TestCase(" ", TestName = "Whitespace")]
+            [TestCase(null, TestName = "null")]
+            [TestCase("", TestName = "empty")]
+            [TestCase(" ", TestName = "whitespace")]
             public void ShouldBeFalseWhenSignatureHasNoContent(string signature)
             {
                 arguments = new ApplicationArguments
@@ -126,34 +127,61 @@ namespace Ui.Console.Test.Startup
 
                 Assert.IsFalse(arguments.HasSignature);
             }
-
         }
 
         [TestFixture]
-        public class HasOutput : ApplicationArgumentsTest
+        public class HasFileOutput : ApplicationArgumentsTest
         {
             [Test]
-            public void ShouldBeTrueWhenOutputHasContent()
+            public void ShouldBeTrueWhenFileOutputHasContent()
             {
                 arguments = new ApplicationArguments
                 {
-                    Output = "foo"
+                    FileOutput = "foo"
                 };
                 
-                Assert.IsTrue(arguments.HasOutput);
+                Assert.IsTrue(arguments.HasFileOutput);
             }
             
-            [TestCase(null, TestName = "Null")]
-            [TestCase("", TestName = "Empty")]
-            [TestCase(" ", TestName = "Whitespace")]
-            public void ShouldBeFalseWhenOutputHasNoContent(string output)
+            [TestCase(null, TestName = "null")]
+            [TestCase("", TestName = "empty")]
+            [TestCase(" ", TestName = "whitespace")]
+            public void ShouldBeFalseWhenFileOutputHasNoContent(string output)
             {
                 arguments = new ApplicationArguments
                 {
-                    Output = output
+                    FileOutput = output
                 };
 
-                Assert.IsFalse(arguments.HasOutput);
+                Assert.IsFalse(arguments.HasFileOutput);
+            }
+        }
+
+        [TestFixture]
+        public class HasFileInput : ApplicationArgumentsTest
+        {
+            [Test]
+            public void ShouldBeTrueWhenFileInputHasContent()
+            {
+                arguments = new ApplicationArguments
+                {
+                    FileInput = "foobar"
+                };
+                
+                Assert.IsTrue(arguments.HasFileInput);
+            }
+            
+            [TestCase(null, TestName = "null")]
+            [TestCase("", TestName = "empty")]
+            [TestCase(" ", TestName = "whitespace")]
+            public void ShouldBeFalseWhenFileInputHasNoContent(string input)
+            {
+                arguments = new ApplicationArguments
+                {
+                    FileInput = input
+                };
+
+                Assert.IsFalse(arguments.HasFileInput);
             }
         }
     }

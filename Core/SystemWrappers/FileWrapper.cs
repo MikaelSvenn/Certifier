@@ -9,9 +9,6 @@ namespace Core.SystemWrappers
             File.WriteAllBytes(path, content);
         }
         
-        public virtual byte[] ReadAllBytes(string filePath)
-        {
-            return File.ReadAllBytes(filePath);
-        }
+        public virtual byte[] ReadAllBytes(string filePath) => File.ReadAllBytes(filePath);
     }
 }
