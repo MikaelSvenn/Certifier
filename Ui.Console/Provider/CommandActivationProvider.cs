@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -14,14 +15,16 @@ namespace Ui.Console.Provider
         private readonly FileCommandProvider fileCommandProvider;
         private readonly SignatureCommandProvider signatureCommandProvider;
         private readonly EncodingWrapper encoding;
+        private readonly Base64Wrapper base64;
 
-        public CommandActivationProvider(ICommandExecutor commandExecutor, RsaKeyCommandProvider rsaKeyCommandProvider, FileCommandProvider fileCommandProvider, SignatureCommandProvider signatureCommandProvider, EncodingWrapper encoding)
+        public CommandActivationProvider(ICommandExecutor commandExecutor, RsaKeyCommandProvider rsaKeyCommandProvider, FileCommandProvider fileCommandProvider, SignatureCommandProvider signatureCommandProvider, EncodingWrapper encoding, Base64Wrapper base64)
         {
             this.commandExecutor = commandExecutor;
             this.rsaKeyCommandProvider = rsaKeyCommandProvider;
             this.fileCommandProvider = fileCommandProvider;
             this.signatureCommandProvider = signatureCommandProvider;
             this.encoding = encoding;
+            this.base64 = base64;
         }
 
         public void CreateKey(ApplicationArguments arguments)
@@ -67,7 +70,37 @@ namespace Ui.Console.Provider
 
         public void VerifySignature(ApplicationArguments arguments)
         {
-            throw new NotImplementedException();
+            ReadKeyFromFileCommand readPublicKeyFromFile = fileCommandProvider.GetReadPublicKeyFromFileCommand(arguments.PublicKeyPath);
+            commandExecutor.Execute(readPublicKeyFromFile);
+
+            byte[] contentToVerify;
+            if (arguments.HasFileInput)
+            {
+                ReadFileCommand<byte[]> readFileToVerify = fileCommandProvider.GetReadFileCommand<byte[]>(arguments.FileInput);
+                commandExecutor.Execute(readFileToVerify);
+                contentToVerify = readFileToVerify.Result;
+            }
+            else
+            {
+                contentToVerify = encoding.GetBytes(arguments.Input);
+            }
+
+            byte[] signatureToVerify;
+            if (base64.IsBase64(arguments.Signature))
+            {
+                signatureToVerify = base64.FromBase64String(arguments.Signature);
+            }
+            else
+            {
+                ReadFileCommand<byte[]> readSignatureToVerify = fileCommandProvider.GetReadFileCommand<byte[]>(arguments.Signature);
+                commandExecutor.Execute(readSignatureToVerify);
+                
+                string base64Signature = encoding.GetString(readSignatureToVerify.Result);
+                signatureToVerify = base64.FromBase64String(base64Signature);
+            }
+            
+            VerifySignatureCommand verifySignature = signatureCommandProvider.GetVerifySignatureCommand(readPublicKeyFromFile.Result, contentToVerify, signatureToVerify);
+            commandExecutor.Execute(verifySignature);
         }
 
         public void VerifyKeyPair(ApplicationArguments arguments)

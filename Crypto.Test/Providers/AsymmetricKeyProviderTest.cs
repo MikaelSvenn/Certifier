@@ -4,6 +4,7 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 
@@ -71,7 +72,7 @@ namespace Crypto.Test.Providers
             {
                 var algorithmMapper = new SignatureAlgorithmIdentifierMapper();
                 var secureRandom = new SecureRandomGenerator();
-                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom);
+                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom, new SignerUtilitiesWrapper());
                 var data = secureRandom.NextBytes(100);
 
                 Signature signature = signatureProvider.CreateSignature(keyPair.PrivateKey, data);
@@ -120,7 +121,7 @@ namespace Crypto.Test.Providers
             {
                 var algorithmMapper = new SignatureAlgorithmIdentifierMapper();
                 var secureRandom = new SecureRandomGenerator();
-                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom);
+                var signatureProvider = new SignatureProvider(algorithmMapper, secureRandom, new SignerUtilitiesWrapper());
 
                 var data = secureRandom.NextBytes(100);
 

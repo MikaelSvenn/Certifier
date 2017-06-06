@@ -4,7 +4,10 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
+using Moq;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto;
 
 namespace Crypto.Test.Providers
 {
@@ -17,12 +20,12 @@ namespace Crypto.Test.Providers
         private byte[] content;
         private Dictionary<CipherType, IAsymmetricKeyPair> keys;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetupSignatureProviderTest()
         {
             algorithmIdentifierMapper = new SignatureAlgorithmIdentifierMapper();
             secureRandomGenerator = new SecureRandomGenerator();
-            signatureProvider = new SignatureProvider(algorithmIdentifierMapper, secureRandomGenerator);
+            signatureProvider = new SignatureProvider(algorithmIdentifierMapper, secureRandomGenerator, new SignerUtilitiesWrapper());
 
             content = secureRandomGenerator.NextBytes(2000);
 
@@ -71,6 +74,24 @@ namespace Crypto.Test.Providers
                 Assert.IsFalse(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
             }
 
+            [TestCase(CipherType.Rsa,  TestName="RSA")]
+            public void ShouldReturnFalseWhenDataLengthExceptionIsThrown(CipherType cipherType)
+            {
+                var keyPair = keys[cipherType];
+                var signature = signatureProvider.CreateSignature(keyPair.PrivateKey, content);
+
+                var signer = new Mock<ISigner>();
+                signer.Setup(s => s.VerifySignature(It.IsAny<byte[]>()))
+                      .Throws<DataLengthException>();
+                
+                var signerUtilities = new Mock<SignerUtilitiesWrapper>();
+                signerUtilities.Setup(w => w.GetSigner(It.IsAny<string>()))
+                               .Returns(signer.Object);
+                
+                signatureProvider = new SignatureProvider(algorithmIdentifierMapper, secureRandomGenerator, signerUtilities.Object);
+                Assert.IsFalse(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
+            }
+            
             [TestCase(CipherType.Rsa,  TestName="RSA")]
             public void ShouldReturnTrueWhenSignatureIsValid(CipherType cipherType)
             {

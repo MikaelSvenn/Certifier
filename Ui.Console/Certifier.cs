@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.SystemWrappers;
 using Ui.Console.Startup;
 
 namespace Ui.Console
@@ -15,7 +16,8 @@ namespace Ui.Console
 
             if (arguments.ShowHelp || !arguments.IsValid)
             {
-                ShowHelp();
+                var console = container.GetInstance<ConsoleWrapper>();
+                console.WriteLine("HELP!");
                 return;
             }
 
@@ -30,14 +32,9 @@ namespace Ui.Console
 
         private static void GlobalExceptionHandler(object sender, UnhandledExceptionEventArgs arguments)
         {
-            var message = ((Exception) arguments.ExceptionObject).Message;
+            string message = ((Exception) arguments.ExceptionObject).Message;
             System.Console.WriteLine($"{Environment.NewLine} Error: {message}");
             Environment.Exit(1);
-        }
-
-        public static void ShowHelp()
-        {
-            System.Console.WriteLine("HELP!");
         }
     }
 }

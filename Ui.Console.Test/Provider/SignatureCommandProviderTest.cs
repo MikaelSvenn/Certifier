@@ -1,3 +1,4 @@
+using System.Security.Policy;
 using Core.Interfaces;
 using Moq;
 using NUnit.Framework;
@@ -43,6 +44,43 @@ namespace Ui.Console.Test.Provider
             public void ShouldMapContentToSign()
             {
                 Assert.AreEqual(content, command.ContentToSign);
+            }
+        }
+        
+        [TestFixture]
+        public class GetVerifySignatureCommand : SignatureCommandProviderTest
+        {
+            private VerifySignatureCommand result;
+            private IAsymmetricKey publicKey;
+            private byte[] signedContent;
+            private byte[] signature;
+            
+            [SetUp]
+            public void Setup()
+            {
+                publicKey = Mock.Of<IAsymmetricKey>();
+                signedContent = new byte[]{0x10};
+                signature = new byte[]{0x20};
+
+                result = commandProvider.GetVerifySignatureCommand(publicKey, signedContent, signature);
+            }
+
+            [Test]
+            public void ShouldMapPublicKey()
+            {
+                Assert.AreEqual(publicKey, result.PublicKey);                
+            }
+
+            [Test]
+            public void ShouldMapSignedContent()
+            {
+                Assert.AreEqual(signedContent, result.Signature.SignedData);   
+            }
+
+            [Test]
+            public void ShouldMapSignature()
+            {
+                Assert.AreEqual(signature, result.Signature.Content);
             }
         }
     }

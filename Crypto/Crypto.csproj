@@ -53,6 +53,7 @@
     <Compile Include="Providers\Pkcs8FormattingProvider.cs" />
     <Compile Include="Providers\RsaKeyProvider.cs" />
     <Compile Include="Providers\SignatureProvider.cs" />
+    <Compile Include="Wrappers\SignerUtilitiesWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

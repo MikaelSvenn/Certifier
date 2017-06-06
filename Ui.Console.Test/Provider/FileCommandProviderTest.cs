@@ -18,7 +18,7 @@ namespace Ui.Console.Test.Provider
         }
 
         [TestFixture]
-        public class GetReadKeyFromTextFile : FileCommandProviderTest
+        public class GetReadPrivateKeyFromFileCommand : FileCommandProviderTest
         {
             private ReadKeyFromFileCommand result;
 
@@ -39,8 +39,32 @@ namespace Ui.Console.Test.Provider
             {
                 Assert.AreEqual("fooPassword", result.Password);
             }
+
+            [Test]
+            public void ShouldSetPrivateKeyTrue()
+            {
+                Assert.IsTrue(result.IsPrivateKey);
+            }
         }
 
+        [TestFixture]
+        public class GetReadPublicKeyFromFileCommand : FileCommandProviderTest
+        {
+            private ReadKeyFromFileCommand result;
+
+            [SetUp]
+            public void Setup()
+            {
+                result = provider.GetReadPublicKeyFromFileCommand("foo");
+            }
+
+            [Test]
+            public void ShouldMapFilePath()
+            {
+                Assert.AreEqual("foo", result.FilePath);
+            }
+        }
+        
         [TestFixture]
         public class GetReadFileCommand : FileCommandProviderTest
         {
@@ -60,7 +84,7 @@ namespace Ui.Console.Test.Provider
         }
 
         [TestFixture]
-        public class GetWriteFileCommand : FileCommandProviderTest
+        public class GetWriteToFileCommand : FileCommandProviderTest
         {
             private WriteFileCommand<Signature> result;
             private Signature signature;
@@ -82,6 +106,24 @@ namespace Ui.Console.Test.Provider
             public void ShouldExtendGivenFilePath()
             {
                 Assert.AreEqual("signedfile.extension", result.FilePath);
+            }
+        }
+
+        [TestFixture]
+        public class GetWriteToStdOutCommand : FileCommandProviderTest
+        {
+            private WriteToStdOutCommand<int> result;
+
+            [SetUp]
+            public void Setup()
+            {
+                result = provider.GetWriteToStdOutCommand<int>(4);
+            }
+
+            [Test]
+            public void ShouldMapGivenContent()
+            {
+                Assert.AreEqual(4, result.Out);
             }
         }
     }

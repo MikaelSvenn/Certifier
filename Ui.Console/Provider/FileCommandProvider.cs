@@ -4,39 +4,32 @@ namespace Ui.Console.Provider
 {
     public class FileCommandProvider
     {
-        public ReadKeyFromFileCommand GetReadPrivateKeyFromFileCommand(string targetPath, string password = "")
+        public ReadKeyFromFileCommand GetReadPrivateKeyFromFileCommand(string targetPath, string password = "") => new ReadKeyFromFileCommand
         {
-            return new ReadKeyFromFileCommand
-            {
-                FilePath = targetPath,
-                Password = password,
-                IsPrivateKey = true
-            };
-        }
+            FilePath = targetPath,
+            Password = password,
+            IsPrivateKey = true
+        };
 
-        public ReadFileCommand<T> GetReadFileCommand<T>(string filePath)
+        public ReadKeyFromFileCommand GetReadPublicKeyFromFileCommand(string filePath) => new ReadKeyFromFileCommand
         {
-            return new ReadFileCommand<T>()
-            {
-                FilePath = filePath
-            };
-        }
+            FilePath = filePath
+        };
 
-        public WriteFileCommand<T> GetWriteToFileCommand<T>(T input, string output)
+        public ReadFileCommand<T> GetReadFileCommand<T>(string filePath) => new ReadFileCommand<T>()
         {
-            return new WriteFileCommand<T>
-            {
-                Out = input,
-                FilePath = output
-            };
-        }
+            FilePath = filePath
+        };
 
-        public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T result)
+        public WriteFileCommand<T> GetWriteToFileCommand<T>(T input, string output) => new WriteFileCommand<T>
         {
-            return new WriteToStdOutCommand<T>
-            {
-                Out = result
-            };
-        }
+            Out = input,
+            FilePath = output
+        };
+
+        public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T content) => new WriteToStdOutCommand<T>
+        {
+            Out = content
+        };
     }
 }

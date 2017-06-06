@@ -18,13 +18,15 @@ namespace Ui.Console.Test.Provider
         private Mock<ICommandExecutor> commandExecutor;
         private ApplicationArguments arguments;
         private Mock<EncodingWrapper> encoding;
+        private Mock<Base64Wrapper> base64;
 
         [OneTimeSetUp]
         public void SetupCommandActivationProviderTest()
         {
             commandExecutor = new Mock<ICommandExecutor>();
             encoding = new Mock<EncodingWrapper>();
-            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider(), new SignatureCommandProvider(), encoding.Object);
+            base64 = new Mock<Base64Wrapper>();
+            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider(), new SignatureCommandProvider(), encoding.Object, base64.Object);
         }
 
         [TestFixture]
@@ -227,6 +229,184 @@ namespace Ui.Console.Test.Provider
                     commandExecutor.Verify(ce => ce.Execute(It.Is<WriteToStdOutCommand<Signature>>(c => c.Out == signature)));
                 }
             }            
+        }
+        
+        [TestFixture]
+        public class VerifySignature : CommandActivationProviderTest
+        {
+            private IAsymmetricKey publicKey;
+            private byte[] contentFromFile;
+            private byte[] contentFromUserInput;
+            private byte[] signatureFromFile;
+            private byte[] decodedSignatureFromFile;
+            private byte[] signatureFromUserInput;
+
+            [SetUp]
+            public void SetupVerifySignature()
+            {
+                publicKey = Mock.Of<IAsymmetricKey>();
+                
+                contentFromFile = new byte[]{0x07, 0x08};
+                contentFromUserInput = new byte[]{0x09, 0x10};
+                signatureFromFile = new byte[]{0x11, 0x12};
+                decodedSignatureFromFile = new byte[]{0x13, 0x14};
+                signatureFromUserInput = new byte[]{0x15, 0x16};
+                
+                encoding.Setup(e => e.GetBytes("userInput"))
+                        .Returns(contentFromUserInput);
+
+                encoding.Setup(e => e.GetBytes("userSignature"))
+                        .Returns(signatureFromUserInput);
+
+                encoding.Setup(e => e.GetString(signatureFromFile))
+                        .Returns("base64EncodedSignatureFromFile");
+                               
+                base64.Setup(b => b.IsBase64("base64EncodedSignature"))
+                      .Returns(true);
+                
+                base64.Setup(b => b.FromBase64String("base64EncodedSignature"))
+                      .Returns(signatureFromUserInput);
+
+                base64.Setup(b => b.FromBase64String("base64EncodedSignatureFromFile"))
+                      .Returns(decodedSignatureFromFile);
+                
+                commandExecutor.Setup(c => c.Execute(It.IsAny<object>()))
+                               .Callback<object>(c =>
+                               {
+                                   var fileCommand = c as ReadFileCommand<byte[]>;
+                                   if (fileCommand != null && fileCommand.FilePath == "foo.file")
+                                   {
+                                       fileCommand.Result = contentFromFile;
+                                   }
+                                   if (fileCommand != null && fileCommand.FilePath == "path/to/signature")
+                                   {
+                                       fileCommand.Result = signatureFromFile;
+                                   }
+                                   
+                                   var keyCommand = c as ReadKeyFromFileCommand;
+                                   if (keyCommand != null)
+                                   {
+                                       keyCommand.Result = publicKey;
+                                   }
+                               });
+                
+                arguments = new ApplicationArguments
+                {
+                    PublicKeyPath = "foopath"
+                };
+            }
+
+            [TearDown]
+            public void Teardown()
+            {
+                commandExecutor.ResetCalls();
+            }
+            
+            [Test]
+            public void ShouldReadPublicKey()
+            {
+                provider.VerifySignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<ReadKeyFromFileCommand>(rc => rc.FilePath == "foopath")));
+            }
+
+            [Test]
+            public void ShouldVerifySignatureWithGivenPublicKey()
+            {
+                provider.VerifySignature(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.PublicKey == publicKey)));
+            }
+            
+            [TestFixture]
+            public class WhenVerifyingSignatureForFileContent : VerifySignature
+            {
+                [SetUp]
+                public void Setup()
+                {
+                    arguments.FileInput = "foo.file";
+                    provider.VerifySignature(arguments);
+                }
+                
+                [Test]
+                public void ShouldReadFileToVerify()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<ReadFileCommand<byte[]>>(c => c.FilePath == "foo.file")));
+                }
+
+                [Test]
+                public void ShouldVerifySignatureForGivenFile()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.Signature.SignedData == contentFromFile)));
+                }
+            }
+
+            [TestFixture]
+            public class WhenVerifyingSignatureForUserInput : VerifySignature
+            {
+                [SetUp]
+                public void Setup()
+                {
+                    arguments.Input = "userInput";
+                    provider.VerifySignature(arguments);
+                }
+                
+                [Test]
+                public void ShouldVerifySignatureForGivenInput()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.Signature.SignedData == contentFromUserInput)));
+                }
+
+                [Test]
+                public void ShouldNotReadFileToVerify()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<ReadFileCommand<byte[]>>(c => c.FilePath == "userInput" || c.FilePath == string.Empty)), Times.Never);
+                }
+            }
+
+            [TestFixture]
+            public class WhenGivenSignatureIsBase64Encoded : VerifySignature
+            {
+                [SetUp]
+                public void Setup()
+                {
+                    arguments.Signature = "base64EncodedSignature";
+                    provider.VerifySignature(arguments);
+                }
+                
+                [Test]
+                public void ShouldVerifyGivenSignature()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.Signature.Content == signatureFromUserInput)));
+                }
+
+                [Test]
+                public void ShouldNotReadSignatureFromFile()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<ReadFileCommand<byte[]>>(c => c.FilePath == "base64EncodedSignature")), Times.Never);
+                }
+            }
+
+            [TestFixture]
+            public class WhenGivenSignatureIsNotBase64Encoded : VerifySignature
+            {
+                [SetUp]
+                public void Setup()
+                {
+                    arguments.Signature = "path/to/signature";
+                    provider.VerifySignature(arguments);
+                }
+                
+                [Test]
+                public void ShouldReadSignatureFromFile()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<ReadFileCommand<byte[]>>(c => c.FilePath == "path/to/signature")));
+                }
+
+                [Test]
+                public void ShouldVerifyGivenSignature()
+                {
+                    commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.Signature.Content == decodedSignatureFromFile)));
+                }
+            }
         }
     }
 }

@@ -1,17 +1,25 @@
 ﻿using Core.Interfaces;
+using Core.Model;
 using Ui.Console.Command;
 
 namespace Ui.Console.Provider
 {
     public class SignatureCommandProvider
     {
-        public CreateSignatureCommand GetCreateSignatureCommand(IAsymmetricKey key, byte[] content)
+        public CreateSignatureCommand GetCreateSignatureCommand(IAsymmetricKey privateKey, byte[] content) => new CreateSignatureCommand
         {
-            return new CreateSignatureCommand
+            PrivateKey = privateKey,
+            ContentToSign = content
+        };
+
+        public VerifySignatureCommand GetVerifySignatureCommand(IAsymmetricKey publicKey, byte[] signedContent, byte[] signature) => new VerifySignatureCommand
+        {
+            PublicKey = publicKey,
+            Signature = new Signature
             {
-                PrivateKey = key,
-                ContentToSign = content
-            };
-        }
-    }
+                Content = signature,
+                SignedData = signedContent
+            }
+        };
+    }   
 }

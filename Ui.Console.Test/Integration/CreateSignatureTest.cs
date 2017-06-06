@@ -35,8 +35,6 @@ namespace Ui.Console.Test.Integration
 
             file = new Mock<FileWrapper>();
             fileOutput = new Dictionary<string, byte[]>();
-
-            file = new Mock<FileWrapper>();
             file.Setup(f => f.WriteAllBytes(It.IsAny<string>(), It.IsAny<byte[]>()))
                 .Callback<string, byte[]>((path, content) =>
                 {
@@ -152,7 +150,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidSignatureForStandardInputAndConsoleOutput()
             {
-                const string input = @"It's me, Mario!";
+                const string input = "It's me, Mario!";
                 Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", input});
                 VerifySignature("", input);
             }
