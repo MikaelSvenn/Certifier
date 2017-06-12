@@ -11,7 +11,7 @@ namespace Ui.Console.Startup
             Create = new Dictionary<OperationTarget, Action<ApplicationArguments>>
             {
                 {OperationTarget.None, arguments => { throw new InvalidOperationException("Create operation not specified."); }},
-                {OperationTarget.Key, activationProvider.CreateKey},
+                {OperationTarget.Key, activationProvider.CreateKeyPair},
                 {OperationTarget.Signature, activationProvider.CreateSignature}
             };
 

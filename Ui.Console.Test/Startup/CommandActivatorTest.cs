@@ -34,7 +34,7 @@ namespace Ui.Console.Test.Startup
             public void KeyShouldInvokeCreateKey()
             {
                 activator.Create[OperationTarget.Key](arguments);
-                activationProvider.Verify(ap => ap.CreateKey(arguments));
+                activationProvider.Verify(ap => ap.CreateKeyPair(arguments));
             }
 
             [Test]

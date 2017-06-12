@@ -127,12 +127,14 @@ namespace Ui.Console.Test.Integration
             public void ShouldNotThrowExceptionWhenValidSignatureIsGivenAsParameterForFileContent()
             {
                 Assert.DoesNotThrow(() => Certifier.Main(new[]{"-v", "signature", "--publickey", "public.pem", "-f", "content.file", "-s", base64FileSignature}));
+                console.Verify(c => c.WriteLine(It.IsAny<string>()), Times.Never);
             }
 
             [Test]
             public void ShouldNotThrowExceptionWhenValidSignatureIsGivenAsParameterForUserInput()
             {
                 Assert.DoesNotThrow(() => Certifier.Main(new[]{"-v", "signature", "--publickey", "public.pem", "-i", "FooBarBaz", "-s", base64InputSignature}));
+                console.Verify(c => c.WriteLine(It.IsAny<string>()), Times.Never);
             }
         }
     }

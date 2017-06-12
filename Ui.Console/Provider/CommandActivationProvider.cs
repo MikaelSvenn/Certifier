@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Core.Interfaces;
+﻿using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
 using Ui.Console.Command;
@@ -11,25 +9,25 @@ namespace Ui.Console.Provider
     public class CommandActivationProvider : ICommandActivationProvider
     {
         private readonly ICommandExecutor commandExecutor;
-        private readonly RsaKeyCommandProvider rsaKeyCommandProvider;
+        private readonly KeyCommandProvider keyCommandProvider;
         private readonly FileCommandProvider fileCommandProvider;
         private readonly SignatureCommandProvider signatureCommandProvider;
         private readonly EncodingWrapper encoding;
         private readonly Base64Wrapper base64;
 
-        public CommandActivationProvider(ICommandExecutor commandExecutor, RsaKeyCommandProvider rsaKeyCommandProvider, FileCommandProvider fileCommandProvider, SignatureCommandProvider signatureCommandProvider, EncodingWrapper encoding, Base64Wrapper base64)
+        public CommandActivationProvider(ICommandExecutor commandExecutor, KeyCommandProvider keyCommandProvider, FileCommandProvider fileCommandProvider, SignatureCommandProvider signatureCommandProvider, EncodingWrapper encoding, Base64Wrapper base64)
         {
             this.commandExecutor = commandExecutor;
-            this.rsaKeyCommandProvider = rsaKeyCommandProvider;
+            this.keyCommandProvider = keyCommandProvider;
             this.fileCommandProvider = fileCommandProvider;
             this.signatureCommandProvider = signatureCommandProvider;
             this.encoding = encoding;
             this.base64 = base64;
         }
 
-        public void CreateKey(ApplicationArguments arguments)
+        public void CreateKeyPair(ApplicationArguments arguments)
         {
-            ICreateAsymmetricKeyCommand createKeyCommand = rsaKeyCommandProvider.GetCreateRsaKeyCommand(arguments);
+            ICreateAsymmetricKeyCommand createKeyCommand = keyCommandProvider.GetCreateKeyCommand(arguments.KeySize, arguments.EncryptionType, arguments.Password);
             commandExecutor.Execute(createKeyCommand);
 
             WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
@@ -105,7 +103,12 @@ namespace Ui.Console.Provider
 
         public void VerifyKeyPair(ApplicationArguments arguments)
         {
-            throw new NotImplementedException();
+            ReadKeyFromFileCommand readPublicKeyFromFile = fileCommandProvider.GetReadPublicKeyFromFileCommand(arguments.PublicKeyPath);
+            ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadPrivateKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
+            commandExecutor.ExecuteSequence(new []{readPrivateKeyFromFile, readPublicKeyFromFile});
+
+            IVerifyKeyPairCommand verifyKeyPairCommand = keyCommandProvider.GetVerifyKeyPairCommand(readPublicKeyFromFile.Result, readPrivateKeyFromFile.Result);
+            commandExecutor.Execute(verifyKeyPairCommand);
         }
     }
 }

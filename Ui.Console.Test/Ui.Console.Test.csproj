@@ -55,6 +55,7 @@
     <Compile Include="CommandHandler\CreateSignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadFromFileCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadKeyFromFileCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\VerifyRsaKeyPairCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\VerifySignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
@@ -71,9 +72,10 @@
     <Compile Include="Decorator\WriteToStdOutBase64FormattingDecoratorTest.cs" />
     <Compile Include="Integration\CreateRsaKeyTest.cs" />
     <Compile Include="Integration\CreateSignatureTest.cs" />
+    <Compile Include="Integration\VerifyKeyPairTest.cs" />
     <Compile Include="Integration\VerifySignatureTest.cs" />
     <Compile Include="Provider\CommandActivationProviderTest.cs" />
-    <Compile Include="Provider\RsaKeyCommandProviderTest.cs" />
+    <Compile Include="Provider\KeyCommandProviderTest.cs" />
     <Compile Include="Provider\FileCommandProviderTest.cs" />
     <Compile Include="Provider\SignatureCommandProviderTest.cs" />
     <Compile Include="Startup\ApplicationArgumentsTest.cs" />

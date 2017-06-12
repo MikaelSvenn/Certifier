@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -26,7 +27,7 @@ namespace Ui.Console.Test.Provider
             commandExecutor = new Mock<ICommandExecutor>();
             encoding = new Mock<EncodingWrapper>();
             base64 = new Mock<Base64Wrapper>();
-            provider = new CommandActivationProvider(commandExecutor.Object, new RsaKeyCommandProvider(), new FileCommandProvider(), new SignatureCommandProvider(), encoding.Object, base64.Object);
+            provider = new CommandActivationProvider(commandExecutor.Object, new KeyCommandProvider(), new FileCommandProvider(), new SignatureCommandProvider(), encoding.Object, base64.Object);
         }
 
         [TestFixture]
@@ -53,7 +54,7 @@ namespace Ui.Console.Test.Provider
                     PublicKeyPath = "public.pem"
                 };
 
-                provider.CreateKey(arguments);
+                provider.CreateKeyPair(arguments);
             }
 
             [Test]
@@ -406,6 +407,64 @@ namespace Ui.Console.Test.Provider
                 {
                     commandExecutor.Verify(ce => ce.Execute(It.Is<VerifySignatureCommand>(c => c.Signature.Content == decodedSignatureFromFile)));
                 }
+            }
+        }
+
+        [TestFixture]
+        public class VerifyKeyPair : CommandActivationProviderTest
+        {
+            private IAsymmetricKey publicKey;
+            private IAsymmetricKey privateKey;
+            
+            [SetUp]
+            public void Setup()
+            {
+                arguments = new ApplicationArguments
+                {
+                    PrivateKeyPath = "private.key",
+                    PublicKeyPath = "public.key"
+                };
+                
+                publicKey = Mock.Of<IAsymmetricKey>();
+                privateKey = Mock.Of<IAsymmetricKey>();
+                
+                commandExecutor.Setup(c => c.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
+                               .Callback<IEnumerable<object>>(commands =>
+                               {
+                                   commands.ForEach(c =>
+                                   {
+                                       var keyCommand = c as ReadKeyFromFileCommand;
+                                       if (keyCommand != null && keyCommand.FilePath == "public.key")
+                                       {
+                                           keyCommand.Result = publicKey;
+                                       }
+                                   
+                                       if (keyCommand != null && keyCommand.FilePath == "private.key")
+                                       {
+                                           keyCommand.Result = privateKey;
+                                       }                                       
+                                   });
+                               });
+                
+                provider.VerifyKeyPair(arguments);
+            }
+            
+            [Test]
+            public void ShouldReadPrivateKey()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<ReadKeyFromFileCommand>>(w => w.First().FilePath == "private.key")));
+            }
+
+            [Test]
+            public void ShouldReadPublicKey()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<ReadKeyFromFileCommand>>(w => w.Last().FilePath == "public.key")));
+            }
+
+            [Test]
+            public void ShouldVerifyKeyPairWithGivenKeys()
+            {
+                commandExecutor.Verify(ce => ce.Execute(It.Is<IVerifyKeyPairCommand>(c => c.PrivateKey == privateKey && c.PublicKey == publicKey)));
             }
         }
     }
