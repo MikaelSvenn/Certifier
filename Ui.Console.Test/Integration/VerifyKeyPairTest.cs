@@ -55,7 +55,7 @@ namespace Ui.Console.Test.Integration
         }
         
         [TearDown]
-        public void TeardownCreateSignatureTest()
+        public void TeardownVerifyKeyPairTest()
         {
             ContainerProvider.ClearContainer();
         }

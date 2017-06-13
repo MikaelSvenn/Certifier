@@ -1,4 +1,3 @@
-﻿using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
 using Ui.Console.Command;
@@ -6,35 +5,23 @@ using Ui.Console.Startup;
 
 namespace Ui.Console.Provider
 {
-    public class CommandActivationProvider : ICommandActivationProvider
+    public class SignatureCommandActivationProvider : ISignatureCommandActivationProvider
     {
         private readonly ICommandExecutor commandExecutor;
-        private readonly KeyCommandProvider keyCommandProvider;
-        private readonly FileCommandProvider fileCommandProvider;
         private readonly SignatureCommandProvider signatureCommandProvider;
+        private readonly FileCommandProvider fileCommandProvider;
         private readonly EncodingWrapper encoding;
         private readonly Base64Wrapper base64;
 
-        public CommandActivationProvider(ICommandExecutor commandExecutor, KeyCommandProvider keyCommandProvider, FileCommandProvider fileCommandProvider, SignatureCommandProvider signatureCommandProvider, EncodingWrapper encoding, Base64Wrapper base64)
+        public SignatureCommandActivationProvider(ICommandExecutor commandExecutor, SignatureCommandProvider signatureCommandProvider, FileCommandProvider fileCommandProvider, EncodingWrapper encoding, Base64Wrapper base64)
         {
             this.commandExecutor = commandExecutor;
-            this.keyCommandProvider = keyCommandProvider;
-            this.fileCommandProvider = fileCommandProvider;
             this.signatureCommandProvider = signatureCommandProvider;
+            this.fileCommandProvider = fileCommandProvider;
             this.encoding = encoding;
             this.base64 = base64;
         }
-
-        public void CreateKeyPair(ApplicationArguments arguments)
-        {
-            ICreateAsymmetricKeyCommand createKeyCommand = keyCommandProvider.GetCreateKeyCommand(arguments.KeySize, arguments.EncryptionType, arguments.Password);
-            commandExecutor.Execute(createKeyCommand);
-
-            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
-            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
-            commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
-        }
-
+        
         public void CreateSignature(ApplicationArguments arguments)
         {
             ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadPrivateKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
@@ -99,16 +86,6 @@ namespace Ui.Console.Provider
             
             VerifySignatureCommand verifySignature = signatureCommandProvider.GetVerifySignatureCommand(readPublicKeyFromFile.Result, contentToVerify, signatureToVerify);
             commandExecutor.Execute(verifySignature);
-        }
-
-        public void VerifyKeyPair(ApplicationArguments arguments)
-        {
-            ReadKeyFromFileCommand readPublicKeyFromFile = fileCommandProvider.GetReadPublicKeyFromFileCommand(arguments.PublicKeyPath);
-            ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadPrivateKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
-            commandExecutor.ExecuteSequence(new []{readPrivateKeyFromFile, readPublicKeyFromFile});
-
-            IVerifyKeyPairCommand verifyKeyPairCommand = keyCommandProvider.GetVerifyKeyPairCommand(readPublicKeyFromFile.Result, readPrivateKeyFromFile.Result);
-            commandExecutor.Execute(verifyKeyPairCommand);
         }
     }
 }

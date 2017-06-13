@@ -34,7 +34,8 @@ namespace Ui.Console.Startup
                 return parser.ParseArguments(applicationArguments);
             }, Lifestyle.Singleton);
 
-            container.Register<ICommandActivationProvider, CommandActivationProvider>();
+            container.Register<IKeyCommandActivationProvider, KeyCommandActivationProvider>();
+            container.Register<ISignatureCommandActivationProvider, SignatureCommandActivationProvider>();
             container.Register<ICommandExecutor, CommandExecutor>();
 
             // Commands

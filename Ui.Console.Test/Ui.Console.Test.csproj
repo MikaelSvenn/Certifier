@@ -74,9 +74,10 @@
     <Compile Include="Integration\CreateSignatureTest.cs" />
     <Compile Include="Integration\VerifyKeyPairTest.cs" />
     <Compile Include="Integration\VerifySignatureTest.cs" />
-    <Compile Include="Provider\CommandActivationProviderTest.cs" />
+    <Compile Include="Provider\KeyCommandActivationProviderTest.cs" />
     <Compile Include="Provider\KeyCommandProviderTest.cs" />
     <Compile Include="Provider\FileCommandProviderTest.cs" />
+    <Compile Include="Provider\SignatureCommandActivationProviderTest.cs" />
     <Compile Include="Provider\SignatureCommandProviderTest.cs" />
     <Compile Include="Startup\ApplicationArgumentsTest.cs" />
     <Compile Include="Startup\CommandActivatorTest.cs" />

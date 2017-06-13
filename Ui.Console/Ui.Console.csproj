@@ -88,11 +88,13 @@
     <Compile Include="Decorator\PkcsKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToStdOutBase64FormattingDecorator.cs" />
-    <Compile Include="Provider\CommandActivationProvider.cs" />
     <Compile Include="Provider\ContainerProvider.cs" />
-    <Compile Include="Provider\ICommandActivationProvider.cs" />
+    <Compile Include="Provider\IKeyCommandActivationProvider.cs" />
+    <Compile Include="Provider\ISignatureCommandActivationProvider.cs" />
+    <Compile Include="Provider\KeyCommandActivationProvider.cs" />
     <Compile Include="Provider\KeyCommandProvider.cs" />
     <Compile Include="Provider\FileCommandProvider.cs" />
+    <Compile Include="Provider\SignatureCommandActivationProvider.cs" />
     <Compile Include="Provider\SignatureCommandProvider.cs" />
     <Compile Include="Startup\ApplicationArguments.cs" />
     <Compile Include="Startup\CommandActivator.cs" />

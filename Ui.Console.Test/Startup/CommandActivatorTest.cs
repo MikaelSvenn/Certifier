@@ -10,14 +10,16 @@ namespace Ui.Console.Test.Startup
     public class CommandActivatorTest
     {
         private CommandActivator activator;
-        private Mock<ICommandActivationProvider> activationProvider;
+        private Mock<IKeyCommandActivationProvider> keyActivationProvider;
+        private Mock<ISignatureCommandActivationProvider> signatureActivationProvider;
         private ApplicationArguments arguments;
 
         [SetUp]
         public void SetupCommandActivatorTest()
         {
-            activationProvider = new Mock<ICommandActivationProvider>();
-            activator = new CommandActivator(activationProvider.Object);
+            keyActivationProvider = new Mock<IKeyCommandActivationProvider>();
+            signatureActivationProvider = new Mock<ISignatureCommandActivationProvider>();
+            activator = new CommandActivator(keyActivationProvider.Object, signatureActivationProvider.Object);
             arguments = new ApplicationArguments();
         }
 
@@ -34,14 +36,14 @@ namespace Ui.Console.Test.Startup
             public void KeyShouldInvokeCreateKey()
             {
                 activator.Create[OperationTarget.Key](arguments);
-                activationProvider.Verify(ap => ap.CreateKeyPair(arguments));
+                keyActivationProvider.Verify(ap => ap.CreateKeyPair(arguments));
             }
 
             [Test]
             public void SignatureShouldInvokeCreateSignature()
             {
                 activator.Create[OperationTarget.Signature](arguments);
-                activationProvider.Verify(ap => ap.CreateSignature(arguments));
+                signatureActivationProvider.Verify(ap => ap.CreateSignature(arguments));
             }
         }
 
@@ -58,14 +60,14 @@ namespace Ui.Console.Test.Startup
             public void KeyShouldInvokeVerifyKeyPair()
             {
                 activator.Verify[OperationTarget.Key](arguments);
-                activationProvider.Verify(ap => ap.VerifyKeyPair(arguments));
+                keyActivationProvider.Verify(ap => ap.VerifyKeyPair(arguments));
             }
 
             [Test]
             public void SignatureShouldInvokeVerifySignature()
             {
                 activator.Verify[OperationTarget.Signature](arguments);
-                activationProvider.Verify(ap => ap.VerifySignature(arguments));
+                signatureActivationProvider.Verify(ap => ap.VerifySignature(arguments));
             }
         }
     }
