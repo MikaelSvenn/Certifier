@@ -12,13 +12,13 @@ namespace Ui.Console.Test.CommandHandler
     public class VerifyRsaKeyPairCommandHandlerTest
     {
         private VerifyRsaKeyPairCommandHandler commandHandler;
-        private Mock<IAsymmetricKeyProvider<RsaKey>> rsaKeyProvider;
+        private Mock<IKeyProvider<RsaKey>> rsaKeyProvider;
         private VerifyRsaKeyPairCommand command;
         
         [SetUp]
         public void Setup()
         {
-            rsaKeyProvider = new Mock<IAsymmetricKeyProvider<RsaKey>>();
+            rsaKeyProvider = new Mock<IKeyProvider<RsaKey>>();
             commandHandler = new VerifyRsaKeyPairCommandHandler(rsaKeyProvider.Object);
             
             command = new VerifyRsaKeyPairCommand

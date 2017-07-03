@@ -5,6 +5,7 @@ using Core.SystemWrappers;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 using SimpleInjector;
@@ -23,7 +24,7 @@ namespace Ui.Console.Test.Integration
         public void Setup()
         {
             var keyProvider = new RsaKeyProvider(new RsaKeyPairGenerator(new SecureRandomGenerator()));
-            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider));
+            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper()));
             
             file = new Mock<FileWrapper>();
             file = new Mock<FileWrapper>();            

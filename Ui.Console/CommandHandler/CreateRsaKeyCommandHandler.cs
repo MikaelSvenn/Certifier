@@ -6,9 +6,9 @@ using Ui.Console.Command;
  {
      public class CreateRsaKeyCommandHandler : ICommandHandler<CreateRsaKeyCommand>
      {
-         private readonly IAsymmetricKeyProvider<RsaKey> rsaKeyProvider;
+         private readonly IKeyProvider<RsaKey> rsaKeyProvider;
 
-         public CreateRsaKeyCommandHandler(IAsymmetricKeyProvider<RsaKey> rsaKeyProvider)
+         public CreateRsaKeyCommandHandler(IKeyProvider<RsaKey> rsaKeyProvider)
          {
              this.rsaKeyProvider = rsaKeyProvider;
          }

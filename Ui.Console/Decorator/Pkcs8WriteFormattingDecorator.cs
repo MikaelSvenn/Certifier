@@ -2,6 +2,7 @@
 using Core.SystemWrappers;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
+using Ui.Console.Startup;
 
 namespace Ui.Console.Decorator
 {
@@ -20,8 +21,16 @@ namespace Ui.Console.Decorator
 
         public void Execute(T command)
         {
-            string pemFormatted = formattingProvider.GetAsPem(command.Out);
-            command.FileContent = encoding.GetBytes(pemFormatted);
+            if (command.ContentType == ContentType.Pem)
+            {
+                string pemFormatted = formattingProvider.GetAsPem(command.Out);
+                command.FileContent = encoding.GetBytes(pemFormatted);
+            }
+            else
+            {
+                command.FileContent = command.Out.Content;
+            }
+            
             decoratedCommand.Execute(command);
         }
     }

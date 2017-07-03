@@ -4,6 +4,7 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 
@@ -154,7 +155,7 @@ namespace Crypto.Test.Providers
                 [OneTimeSetUp]
                 public void Setup()
                 {
-                    var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider);
+                    var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper());
                     encryptionProvider = new PkcsEncryptionProvider(configuration, new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
                 }
 

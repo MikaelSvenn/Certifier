@@ -41,7 +41,7 @@ namespace Ui.Console.Test.Integration
 
             var keyProvider = new RsaKeyProvider(new RsaKeyPairGenerator(new SecureRandomGenerator()));
             var signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
-            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider));
+            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper()));
 
             IAsymmetricKeyPair keyPair = keyProvider.CreateKeyPair(2048);
             Signature fileSignature = signatureProvider.CreateSignature(keyPair.PrivateKey, fileContent);

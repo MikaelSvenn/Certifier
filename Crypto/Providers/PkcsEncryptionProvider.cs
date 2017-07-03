@@ -11,10 +11,10 @@ namespace Crypto.Providers
     {
         private readonly IConfiguration configuration;
         private readonly SecureRandomGenerator secureRandomGenerator;
-        private readonly AsymmetricKeyProvider keyProvider;
+        private readonly IAsymmetricKeyProvider keyProvider;
         private readonly PkcsEncryptionGenerator encryptionGenerator;
 
-        public PkcsEncryptionProvider(IConfiguration configuration, SecureRandomGenerator secureRandomGenerator, AsymmetricKeyProvider keyProvider, PkcsEncryptionGenerator encryptionGenerator)
+        public PkcsEncryptionProvider(IConfiguration configuration, SecureRandomGenerator secureRandomGenerator, IAsymmetricKeyProvider keyProvider, PkcsEncryptionGenerator encryptionGenerator)
         {
             this.configuration = configuration;
             this.secureRandomGenerator = secureRandomGenerator;

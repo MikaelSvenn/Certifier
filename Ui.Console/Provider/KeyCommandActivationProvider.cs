@@ -22,8 +22,8 @@ namespace Ui.Console.Provider
             ICreateAsymmetricKeyCommand createKeyCommand = keyCommandProvider.GetCreateKeyCommand(arguments.KeySize, arguments.EncryptionType, arguments.Password);
             commandExecutor.Execute(createKeyCommand);
 
-            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath);
-            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath);
+            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType);
+            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath, arguments.ContentType);
             commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
         }
         

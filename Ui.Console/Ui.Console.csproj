@@ -78,6 +78,7 @@
     <Compile Include="Command\WriteFileCommand.cs" />
     <Compile Include="Command\WriteToStdOutCommand.cs" />
     <Compile Include="Decorator\FilePathValidationDecorator.cs" />
+    <Compile Include="Decorator\ReadKeyConversionDecorator.cs" />
     <Compile Include="Decorator\ReadKeyFromFilePathValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecorator.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup\ICommandExecutor.cs" />
     <Compile Include="Startup\OperationTarget.cs" />
+    <Compile Include="Startup\ContentType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

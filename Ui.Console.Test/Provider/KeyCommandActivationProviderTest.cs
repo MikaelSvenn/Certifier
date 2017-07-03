@@ -46,7 +46,8 @@ namespace Ui.Console.Test.Provider
                     KeySize = 1024,
                     EncryptionType = KeyEncryptionType.None,
                     PrivateKeyPath = "private.pem",
-                    PublicKeyPath = "public.pem"
+                    PublicKeyPath = "public.pem",
+                    ContentType = ContentType.Pem
                 };
 
                 provider.CreateKeyPair(arguments);
@@ -55,21 +56,24 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldCreateRsaKeyPair()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.EncryptionType == KeyEncryptionType.None && c.KeySize == 1024)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.EncryptionType == KeyEncryptionType.None && 
+                                                                                        c.KeySize == 1024)));
             }
 
             [Test]
             public void ShouldWriteCreatedPrivateKeyToFile()
             {
                 commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.First().Out == privateKey && 
-                                                                                                                          w.First().FilePath == "private.pem")));
+                                                                                                                          w.First().FilePath == "private.pem" &&
+                                                                                                                          w.First().ContentType == ContentType.Pem)));
             }
 
             [Test]
             public void ShouldWriteCreatedPublicKeyToFile()
             {
                 commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.Last().Out == publicKey && 
-                                                                                                                          w.Last().FilePath == "public.pem")));
+                                                                                                                          w.Last().FilePath == "public.pem" &&
+                                                                                                                          w.Last().ContentType == ContentType.Pem)));
             }
         }
 

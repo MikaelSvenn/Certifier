@@ -46,10 +46,11 @@
     <Compile Include="Configuration\PbeConfiguration.cs" />
     <Compile Include="Interfaces\IAsymmetricKey.cs" />
     <Compile Include="Interfaces\IAsymmetricKeyPair.cs" />
+    <Compile Include="Interfaces\IAsymmetricKeyProvider.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IKeyEncryptionProvider.cs" />
     <Compile Include="Interfaces\IPkcsFormattingProvider.cs" />
-    <Compile Include="Interfaces\IAsymmetricKeyProvider.cs" />
+    <Compile Include="Interfaces\IKeyProvider.cs" />
     <Compile Include="Interfaces\ISignatureGenerator.cs" />
     <Compile Include="Interfaces\ISignatureProvider.cs" />
     <Compile Include="Model\CipherType.cs" />

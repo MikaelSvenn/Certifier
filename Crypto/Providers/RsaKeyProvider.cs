@@ -13,7 +13,7 @@ using Org.BouncyCastle.X509;
 
 namespace Crypto.Providers
 {
-    public class RsaKeyProvider : IAsymmetricKeyProvider<RsaKey>
+    public class RsaKeyProvider : IKeyProvider<RsaKey>
     {
         private readonly RsaKeyPairGenerator rsaKeyPairGenerator;
 
@@ -68,7 +68,7 @@ namespace Crypto.Providers
                 throw new ArgumentException("Key type mismatch.");
             }
 
-            var keyLength = GetKeyLength(key);
+            int keyLength = GetKeyLength(key);
             return new RsaKey(content, keyType, keyLength);
         }
 

@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using Ui.Console.Command;
 using Ui.Console.Provider;
+using Ui.Console.Startup;
 
 namespace Ui.Console.Test.Provider
 {
@@ -93,7 +94,7 @@ namespace Ui.Console.Test.Provider
             public void Setup()
             {
                 signature = Mock.Of<Signature>();
-                result = provider.GetWriteToFileCommand(signature, "signedfile.extension");
+                result = provider.GetWriteToFileCommand(signature, "signedfile.extension", ContentType.Der);
             }
 
             [Test]
@@ -103,9 +104,15 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
-            public void ShouldExtendGivenFilePath()
+            public void ShouldMapFilePath()
             {
                 Assert.AreEqual("signedfile.extension", result.FilePath);
+            }
+
+            [Test]
+            public void ShouldMapContentType()
+            {
+                Assert.AreEqual(ContentType.Der, result.ContentType);
             }
         }
 

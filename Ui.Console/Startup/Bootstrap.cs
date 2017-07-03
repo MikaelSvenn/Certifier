@@ -22,11 +22,12 @@ namespace Ui.Console.Startup
             container.Register<RsaKeyPairGenerator>();
             container.Register<SecureRandomGenerator>();
 
-            container.Register<IAsymmetricKeyProvider<RsaKey>, RsaKeyProvider>();
+            container.Register<IKeyProvider<RsaKey>, RsaKeyProvider>();
+            container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
             container.Register<IKeyEncryptionProvider, PkcsEncryptionProvider>();
             container.Register<IPkcsFormattingProvider<IAsymmetricKey>, Pkcs8FormattingProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
-
+            
             container.Register<CommandLineParser>();
             container.Register<ApplicationArguments>(() =>
             {
@@ -52,6 +53,7 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyFromFilePathValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8ReadFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyConversionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyDecryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8WriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToFileBase64FormattingDecorator<>));

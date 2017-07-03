@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 using Ui.Console.Decorator;
+using Ui.Console.Startup;
 
 namespace Ui.Console.Test.Decorator
 {
@@ -16,6 +17,8 @@ namespace Ui.Console.Test.Decorator
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommand;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncodingWrapper encoding;
+        private IAsymmetricKey key;
+        private byte[] keyContent;
         
         [SetUp]
         public void Setup()
@@ -25,22 +28,38 @@ namespace Ui.Console.Test.Decorator
 
             encoding = new EncodingWrapper();
             decorator = new Pkcs8WriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object, encoding);
+            
+            keyContent = new byte[]{0x07, 0x08, 0x09};
+            key = Mock.Of<IAsymmetricKey>(k => k.Content == keyContent);
+
+            formattingProvider.Setup(f => f.GetAsPem(key))
+                              .Returns("pemFormattedFoo");
         }
 
         [Test]
-        public void ShouldInvokeDecoratedCommandWithPemFormattedContent()
+        public void ShouldInvokeDecoratedCommandWithPemFormattedContentWhenContentTypeIsPem()
         {
-            var key = Mock.Of<IAsymmetricKey>();
             var command = new WriteFileCommand<IAsymmetricKey>
             {
-                Out = key
+                Out = key,
+                ContentType = ContentType.Pem
             };
-
-            formattingProvider.Setup(f => f.GetAsPem(key))
-                .Returns("pemFormattedFoo");
 
             decorator.Execute(command);
             decoratedCommand.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(k => k.FileContent.SequenceEqual(encoding.GetBytes("pemFormattedFoo")))));
+        }
+
+        [Test]
+        public void ShouldInvokeDecoratedCommandWithKeyContentWhenContentTypeIsNotPem()
+        {
+            var command = new WriteFileCommand<IAsymmetricKey>
+            {
+                Out = key,
+                ContentType = ContentType.Der
+            };
+
+            decorator.Execute(command);
+            decoratedCommand.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(k => k.FileContent.SequenceEqual(keyContent))));
         }
     }
 }

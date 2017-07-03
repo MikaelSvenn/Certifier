@@ -6,9 +6,9 @@ namespace Crypto.Providers
 {
     public class Pkcs8FormattingProvider : IPkcsFormattingProvider<IAsymmetricKey>
     {
-        private readonly AsymmetricKeyProvider keyProvider;
+        private readonly IAsymmetricKeyProvider keyProvider;
 
-        public Pkcs8FormattingProvider(AsymmetricKeyProvider keyProvider)
+        public Pkcs8FormattingProvider(IAsymmetricKeyProvider keyProvider)
         {
             this.keyProvider = keyProvider;
         }

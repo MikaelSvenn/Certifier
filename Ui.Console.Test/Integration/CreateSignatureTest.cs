@@ -7,6 +7,7 @@ using Core.SystemWrappers;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 using SimpleInjector;
@@ -62,7 +63,7 @@ namespace Ui.Console.Test.Integration
         {
             var rsaKeyPairGenerator = new RsaKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
-            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider);
+            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider, new KeyInfoWrapper());
             var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
 
             keyPair = rsaKeyProvider.CreateKeyPair(2048);

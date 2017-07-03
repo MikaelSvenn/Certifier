@@ -41,8 +41,8 @@ namespace Ui.Console.Startup
                 .SetDefault(string.Empty);
 
             parser.Setup(argument => argument.FileInput)
-                  .As('f', "file")
-                  .SetDefault(string.Empty);
+                .As('f', "file")
+                .SetDefault(string.Empty);
             
             parser.Setup(argument => argument.FileOutput)
                 .As('o', "out")
@@ -59,6 +59,10 @@ namespace Ui.Console.Startup
             parser.Setup(argument => argument.VerifyOperation)
                 .As('v', "verify")
                 .SetDefault(OperationTarget.None);
+
+            parser.Setup(argument => argument.ContentType)
+                .As('t', "type")
+                .SetDefault(ContentType.Pem);
 
 
             var result = parser.Parse(arguments);

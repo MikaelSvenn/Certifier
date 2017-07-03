@@ -97,6 +97,12 @@ namespace Ui.Console.Test.Startup
             {
                 Assert.AreEqual(OperationTarget.None, arguments.VerifyOperation);
             }
+
+            [Test]
+            public void Type()
+            {
+                Assert.AreEqual(ContentType.Pem, arguments.ContentType);
+            }
         }
 
         [TestFixture]
@@ -286,6 +292,18 @@ namespace Ui.Console.Test.Startup
             {
                 var result = commandLineParser.ParseArguments(outputTarget);
                 Assert.AreEqual("outputcontent", result.FileOutput);
+            }
+
+            private static string[][] contentType = {
+                new []{"-t", "der"},
+                new []{"--type", "der"}
+            };
+            
+            [TestCaseSource("contentType")]
+            public void Type(string[] contentType)
+            {
+                var result = commandLineParser.ParseArguments(contentType);
+                Assert.AreEqual(ContentType.Der, result.ContentType);
             }
         }
     }

@@ -4,6 +4,7 @@ using Core.Interfaces;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
+using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 
@@ -25,7 +26,7 @@ namespace Crypto.Test.Providers
             keyPair = rsaKeyProvider.CreateKeyPair(2048);
 
             var oidMapper = new OidToCipherTypeMapper();
-            var asymmetricKeyConverter = new AsymmetricKeyProvider(oidMapper, rsaKeyProvider);
+            var asymmetricKeyConverter = new AsymmetricKeyProvider(oidMapper, rsaKeyProvider, new KeyInfoWrapper());
             pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyConverter);
 
             var configuration = Mock.Of<IConfiguration>(m => m.Get<int>("SaltLengthInBytes") == 100 &&

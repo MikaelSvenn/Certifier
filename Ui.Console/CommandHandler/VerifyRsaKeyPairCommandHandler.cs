@@ -7,8 +7,8 @@ namespace Ui.Console.CommandHandler
 {
     public class VerifyRsaKeyPairCommandHandler : ICommandHandler<VerifyRsaKeyPairCommand>
     {
-        private readonly IAsymmetricKeyProvider<RsaKey> rsaKeyProvider;
-        public VerifyRsaKeyPairCommandHandler(IAsymmetricKeyProvider<RsaKey> rsaKeyProvider)
+        private readonly IKeyProvider<RsaKey> rsaKeyProvider;
+        public VerifyRsaKeyPairCommandHandler(IKeyProvider<RsaKey> rsaKeyProvider)
         {
             this.rsaKeyProvider = rsaKeyProvider;
         }

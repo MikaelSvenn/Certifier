@@ -27,5 +27,6 @@ namespace Ui.Console.Startup
         public bool HasSignature => !string.IsNullOrWhiteSpace(Signature);
         public bool HasFileOutput => !string.IsNullOrWhiteSpace(FileOutput);
         public bool HasFileInput => !string.IsNullOrWhiteSpace(FileInput);
+        public ContentType ContentType { get; set; }
     }
 }

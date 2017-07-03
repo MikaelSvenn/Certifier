@@ -11,7 +11,7 @@ namespace Ui.Console.Test.CommandHandler
     public class CreateRsaKeyCommandHandlerTest
     {
         private ICommandHandler<CreateRsaKeyCommand> commandHandler;
-        private Mock<IAsymmetricKeyProvider<RsaKey>> keyProvider;
+        private Mock<IKeyProvider<RsaKey>> keyProvider;
         private IAsymmetricKeyPair keyPair;
 
         [SetUp]
@@ -19,7 +19,7 @@ namespace Ui.Console.Test.CommandHandler
         {
             keyPair = Mock.Of<IAsymmetricKeyPair>();
 
-            keyProvider = new Mock<IAsymmetricKeyProvider<RsaKey>>();
+            keyProvider = new Mock<IKeyProvider<RsaKey>>();
             keyProvider.Setup(kp => kp.CreateKeyPair(4096))
                 .Returns(keyPair);
 
