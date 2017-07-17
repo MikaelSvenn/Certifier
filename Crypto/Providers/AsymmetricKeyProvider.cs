@@ -52,7 +52,8 @@ namespace Crypto.Providers
             {
                 privateKeyInfo = keyInfoWrapper.GetPrivateKeyInfo(keyContent);
             }
-            catch (ArgumentException)
+            catch (Exception exception) when (exception is ArgumentException || 
+                                              exception is InvalidCastException)
             {
                 throw new CryptographicException("Private key is not valid.");
             }

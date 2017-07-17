@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Core.Interfaces;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
@@ -25,7 +26,15 @@ namespace Ui.Console.Decorator
 
             if (command.IsPrivateKey)
             {
-                command.Result = string.IsNullOrEmpty(command.Password) ? asymmetricKeyProvider.GetPrivateKey(command.FileContent) : asymmetricKeyProvider.GetEncryptedPrivateKey(command.FileContent);
+                try
+                {
+                    command.Result = asymmetricKeyProvider.GetPrivateKey(command.FileContent);
+                }
+                catch (CryptographicException)
+                {
+                    command.Result = asymmetricKeyProvider.GetEncryptedPrivateKey(command.FileContent);
+                }
+                
                 return;
             }
 

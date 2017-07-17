@@ -48,11 +48,11 @@ namespace Crypto.Providers
             }
             catch (InvalidCipherTextException)
             {
-                throw new ArgumentException("The provided password was incorrect");
+                throw new ArgumentException("Incorrect password was provided or the key is corrupt.");
             }
 
             var privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(asymmetricKey);;
-            var privateKey = privateKeyInfo
+            byte[] privateKey = privateKeyInfo
                 .ToAsn1Object()
                 .GetDerEncoded();
 

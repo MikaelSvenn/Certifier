@@ -136,10 +136,22 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            public void ShouldThrowExceptionWhenPrivateKeyCannotBeConstructed()
+            public void ShouldThrowExceptionWhenKeyInfotTrowsArgumentException()
             {
                 keyInfoWrapper.Setup(k => k.GetPrivateKeyInfo(It.IsAny<byte[]>()))
                                .Throws<ArgumentException>();
+                
+                Assert.Throws<CryptographicException>(() =>
+                {
+                    keyProvider.GetPrivateKey(keyPair.PrivateKey.Content);
+                });
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenKeyInfoThrowsInvalidCastException()
+            {
+                keyInfoWrapper.Setup(k => k.GetPrivateKeyInfo(It.IsAny<byte[]>()))
+                               .Throws<InvalidCastException>();
                 
                 Assert.Throws<CryptographicException>(() =>
                 {

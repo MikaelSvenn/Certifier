@@ -1,4 +1,5 @@
-﻿using Core.Interfaces;
+﻿using System.Security.Cryptography;
+using Core.Interfaces;
 using Moq;
 using NUnit.Framework;
 using Ui.Console.Command;
@@ -73,12 +74,14 @@ namespace Ui.Console.Test.Decorator
         }
 
         [Test]
-        public void ShouldSetEncryptedPrivateKeyAsResultWhenPasswordIsProvidedForPrivateKey()
+        public void ShouldSetEncryptedPrivateKeyAsResultWhenReadingPrivateKeyCausesCryptographicException()
         {
+            asymmetricKeyProvider.Setup(akp => akp.GetPrivateKey(It.IsAny<byte[]>()))
+                                  .Throws<CryptographicException>();
+            
             var command = new ReadKeyFromFileCommand
             {
-                IsPrivateKey = true,
-                Password = "foo"
+                IsPrivateKey = true
             };
             
             decorator.Execute(command);
