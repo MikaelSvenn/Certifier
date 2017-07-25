@@ -38,6 +38,8 @@ namespace Ui.Console.Startup
             container.Register<IKeyCommandActivationProvider, KeyCommandActivationProvider>();
             container.Register<ISignatureCommandActivationProvider, SignatureCommandActivationProvider>();
             container.Register<ICommandExecutor, CommandExecutor>();
+            
+            container.Register<Help>();
 
             // Commands
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });

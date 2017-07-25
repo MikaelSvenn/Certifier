@@ -14,10 +14,10 @@ namespace Ui.Console
             var arguments = container.GetInstance<ApplicationArguments>();
             var activator = container.GetInstance<CommandActivator>();
 
-            if (arguments.ShowHelp || !arguments.IsValid)
+            if (!arguments.IsValid)
             {
-                var console = container.GetInstance<ConsoleWrapper>();
-                console.WriteLine("HELP!");
+                var help = container.GetInstance<Help>();
+                help.Show();
                 return;
             }
 
