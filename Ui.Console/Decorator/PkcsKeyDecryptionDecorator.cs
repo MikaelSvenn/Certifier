@@ -20,7 +20,7 @@ namespace Ui.Console.Decorator
         {
             decoratedCommandHandler.Execute(command);
 
-            var isPkcsEncrypted = command.Result.CipherType == CipherType.Pkcs5Encrypted ||
+            bool isPkcsEncrypted = command.Result.CipherType == CipherType.Pkcs5Encrypted ||
                                   command.Result.CipherType == CipherType.Pkcs12Encrypted;
 
             if (!command.Result.IsEncrypted || !isPkcsEncrypted)
@@ -29,6 +29,7 @@ namespace Ui.Console.Decorator
             }
 
             command.Result = keyEncryptionProvider.DecryptPrivateKey(command.Result, command.Password);
+            command.OriginalEncryptionType = EncryptionType.Pkcs;
         }
     }
 }

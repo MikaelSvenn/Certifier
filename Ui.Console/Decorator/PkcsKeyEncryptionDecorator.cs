@@ -5,7 +5,7 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class PkcsKeyEncryptionDecorator<T> : ICommandHandler<T> where T : ICreateAsymmetricKeyCommand
+    public class PkcsKeyEncryptionDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommandHandler;
         private readonly IKeyEncryptionProvider keyEncryptionProvider;
@@ -16,18 +16,14 @@ namespace Ui.Console.Decorator
             this.keyEncryptionProvider = keyEncryptionProvider;
         }
 
-        public void Execute(T createKeyCommand)
+        public void Execute(T writeToFileCommand)
         {
-            decoratedCommandHandler.Execute(createKeyCommand);
-
-            if (createKeyCommand.EncryptionType != KeyEncryptionType.Pkcs)
+            if (writeToFileCommand.EncryptionType == EncryptionType.Pkcs)
             {
-                return;
+                writeToFileCommand.Out = keyEncryptionProvider.EncryptPrivateKey(writeToFileCommand.Out, writeToFileCommand.Password);
             }
 
-            var keyPair = createKeyCommand.Result;
-            var encryptedPrivateKey = keyEncryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, createKeyCommand.Password);
-            createKeyCommand.Result = new AsymmetricKeyPair(encryptedPrivateKey, keyPair.PublicKey);
+            decoratedCommandHandler.Execute(writeToFileCommand);
         }
     }
 }

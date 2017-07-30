@@ -12,22 +12,22 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class PkcsKeyEncryptionDecoratorTest
     {
-        private PkcsKeyEncryptionDecorator<ICreateAsymmetricKeyCommand> decorator;
-        private Mock<ICommandHandler<ICreateAsymmetricKeyCommand>> decorated;
+        private PkcsKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decorated;
         private Mock<IKeyEncryptionProvider> keyEncryptionProvider;
 
         [SetUp]
         public void SetupPkcsKeyEncryptionDecoratorTest()
         {
-            decorated = new Mock<ICommandHandler<ICreateAsymmetricKeyCommand>>();
+            decorated = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
             keyEncryptionProvider = new Mock<IKeyEncryptionProvider>();
-            decorator = new PkcsKeyEncryptionDecorator<ICreateAsymmetricKeyCommand>(decorated.Object, keyEncryptionProvider.Object);
+            decorator = new PkcsKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>>(decorated.Object, keyEncryptionProvider.Object);
         }
 
         [Test]
         public void ShouldExecuteDecoratedCommandHandler()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>();
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>();
             decorator.Execute(command);
 
             decorated.Verify(d => d.Execute(command));
@@ -36,7 +36,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldNotEncryptPrivateKeyWhenEncryptionTypeIsNotPkcs()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.None);
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.None);
             decorator.Execute(command);
 
             keyEncryptionProvider.Verify(k => k.EncryptPrivateKey(It.IsAny<IAsymmetricKey>(), It.IsAny<string>()), Times.Never());
@@ -45,25 +45,22 @@ namespace Ui.Console.Test.Decorator
         [TestFixture]
         public class WhenEncryptionTypeIsPkcs : PkcsKeyEncryptionDecoratorTest
         {
-            private ICreateAsymmetricKeyCommand command;
+            private WriteFileCommand<IAsymmetricKey> command;
             private IAsymmetricKey privateKey;
             private IAsymmetricKey encryptedPrivateKey;
-            private IAsymmetricKey publicKey;
 
             [SetUp]
             public void Setup()
             {
                 privateKey = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
                 encryptedPrivateKey = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey && k.IsEncrypted);
-                publicKey = Mock.Of<IAsymmetricKey>(k => !k.IsPrivateKey);
 
                 keyEncryptionProvider.Setup(kep => kep.EncryptPrivateKey(privateKey, "fooPassword"))
                     .Returns(encryptedPrivateKey);
 
-                var keyPair = Mock.Of<IAsymmetricKeyPair>(kp => kp.PrivateKey == privateKey && kp.PublicKey == publicKey);
-                command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.Pkcs &&
+                command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Pkcs &&
                                                                     c.Password == "fooPassword" &&
-                                                                    c.Result == keyPair);
+                                                                    c.Out == privateKey);
             }
 
             [Test]
@@ -74,17 +71,10 @@ namespace Ui.Console.Test.Decorator
             }
 
             [Test]
-            public void ShouldReplacePrivateKeyWithEncryptedPrivateKey()
+            public void ShouldReplaceKeyWithEncryptedKey()
             {
                 decorator.Execute(command);
-                Assert.AreEqual(encryptedPrivateKey, command.Result.PrivateKey);
-            }
-
-            [Test]
-            public void ShouldNotReplacePublicKey()
-            {
-                decorator.Execute(command);
-                Assert.AreEqual(publicKey, command.Result.PublicKey);
+                Assert.AreEqual(encryptedPrivateKey, command.Out);
             }
         }
 

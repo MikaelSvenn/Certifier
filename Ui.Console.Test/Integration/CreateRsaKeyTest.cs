@@ -82,7 +82,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPrivateKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem"});
                 
                 byte[] fileContent = fileOutput["private.pem"];
                 string content = encoding.GetString(fileContent);
@@ -95,7 +95,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem"});
                 
                 byte[] fileContent = fileOutput["public.pem"];
                 string content = encoding.GetString(fileContent);
@@ -108,7 +108,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidPemFormattedKeyPair()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem"});
                 
                 byte[] privateKeyFileContent = fileOutput["private.pem"];
                 byte[] publicKeyFileContent = fileOutput["public.pem"];
@@ -151,7 +151,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedEncryptedPrivateKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
                 
                 byte[] fileContent = fileOutput["private.pem"];
                 string content = encoding.GetString(fileContent);
@@ -164,7 +164,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
                 
                 byte[] fileContent = fileOutput["public.pem"];
                 string content = encoding.GetString(fileContent);
@@ -177,7 +177,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldCreateValidPemFormattedKeyPair()
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
+                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"});
                 
                 byte[] privateKeyFileContent = fileOutput["private.pem"];
                 byte[] publicKeyFileContent = fileOutput["public.pem"];

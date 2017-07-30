@@ -70,5 +70,16 @@ namespace Ui.Console.Test.Startup
                 signatureActivationProvider.Verify(ap => ap.VerifySignature(arguments));
             }
         }
+
+        [TestFixture]
+        public class Convert : CommandActivatorTest
+        {
+            [Test]
+            public void ShouldInvokeConvertKeyPair()
+            {
+                activator.Convert(arguments);
+                keyActivationProvider.Verify(ap => ap.ConvertKeyPair(arguments));
+            }
+        }
     }
 }

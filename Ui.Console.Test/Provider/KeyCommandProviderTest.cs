@@ -26,25 +26,13 @@ namespace Ui.Console.Test.Provider
             [SetUp]
             public void Setup()
             {
-                command = provider.GetCreateKeyCommand(4096, KeyEncryptionType.Pkcs, "foopassword");
+                command = provider.GetCreateKeyCommand(4096);
             }
 
             [Test]
             public void KeySize()
             {
                 Assert.AreEqual(4096, command.KeySize);
-            }
-
-            [Test]
-            public void EncryptionType()
-            {
-                Assert.AreEqual(KeyEncryptionType.Pkcs, command.EncryptionType);
-            }
-
-            [Test]
-            public void Password()
-            {
-                Assert.AreEqual("foopassword", command.Password);
             }
         }
 

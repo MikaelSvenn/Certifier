@@ -6,5 +6,6 @@ namespace Ui.Console.Provider
     {
         void CreateKeyPair(ApplicationArguments arguments);
         void VerifyKeyPair(ApplicationArguments arguments);
+        void ConvertKeyPair(ApplicationArguments arguments);
     }
 }

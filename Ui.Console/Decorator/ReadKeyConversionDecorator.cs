@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Core.Interfaces;
+using Core.Model;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 
@@ -24,6 +25,7 @@ namespace Ui.Console.Decorator
                 return;
             }
 
+            command.OriginalContentType = ContentType.Der;
             if (command.IsPrivateKey)
             {
                 try

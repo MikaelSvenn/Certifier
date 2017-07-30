@@ -94,7 +94,7 @@ namespace Ui.Console.Test.Provider
             public void Setup()
             {
                 signature = Mock.Of<Signature>();
-                result = provider.GetWriteToFileCommand(signature, "signedfile.extension", ContentType.Der);
+                result = provider.GetWriteToFileCommand(signature, "signedfile.extension", ContentType.Der, EncryptionType.Pkcs, "foopassword");
             }
 
             [Test]
@@ -113,6 +113,18 @@ namespace Ui.Console.Test.Provider
             public void ShouldMapContentType()
             {
                 Assert.AreEqual(ContentType.Der, result.ContentType);
+            }
+
+            [Test]
+            public void ShouldMapEncryptionType()
+            {
+                Assert.AreEqual(EncryptionType.Pkcs, result.EncryptionType);
+            }
+
+            [Test]
+            public void ShouldMapPassword()
+            {
+                Assert.AreEqual("foopassword", result.Password);
             }
         }
 

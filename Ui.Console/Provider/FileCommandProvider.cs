@@ -1,4 +1,5 @@
-﻿using Ui.Console.Command;
+﻿using Core.Model;
+using Ui.Console.Command;
 using Ui.Console.Startup;
 
 namespace Ui.Console.Provider
@@ -22,11 +23,13 @@ namespace Ui.Console.Provider
             FilePath = filePath
         };
 
-        public WriteFileCommand<T> GetWriteToFileCommand<T>(T input, string output, ContentType type = ContentType.NotSpecified) => new WriteFileCommand<T>
+        public WriteFileCommand<T> GetWriteToFileCommand<T>(T input, string output, ContentType contentType = ContentType.NotSpecified, EncryptionType encryptionType = EncryptionType.None, string password = "") => new WriteFileCommand<T>
         {
             Out = input,
             FilePath = output,
-            ContentType = type
+            ContentType = contentType,
+            EncryptionType = encryptionType,
+            Password = password
         };
 
         public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T content) => new WriteToStdOutCommand<T>

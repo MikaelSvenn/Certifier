@@ -22,7 +22,7 @@ namespace Crypto.Providers
             this.encryptionGenerator = encryptionGenerator;
         }
 
-        public IAsymmetricKey EncryptPrivateKey(IAsymmetricKey key, string password)
+        public virtual IAsymmetricKey EncryptPrivateKey(IAsymmetricKey key, string password)
         {
             if (key.IsEncrypted)
             {

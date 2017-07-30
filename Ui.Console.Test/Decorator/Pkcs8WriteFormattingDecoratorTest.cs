@@ -1,5 +1,6 @@
 using System.Linq;
 using Core.Interfaces;
+using Core.Model;
 using Core.SystemWrappers;
 using Moq;
 using NUnit.Framework;

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Core.Interfaces;
+using Core.Model;
 using Moq;
 using NUnit.Framework;
 using Ui.Console.Command;
@@ -95,6 +96,27 @@ namespace Ui.Console.Test.Decorator
             
             decorator.Execute(command);
             Assert.AreSame(publicKey, command.Result);
+        }
+
+        [Test]
+        public void ShouldSetOriginalContentType()
+        {
+            var command = new ReadKeyFromFileCommand();
+            
+            decorator.Execute(command);
+            Assert.AreEqual(ContentType.Der, command.OriginalContentType);
+        }
+
+        [Test]
+        public void ShouldNotSetOriginalContentTypeWhenResultIsNotSet()
+        {
+            var command = new ReadKeyFromFileCommand
+            {
+                Result = Mock.Of<IAsymmetricKey>()
+            };
+            
+            decorator.Execute(command);
+            Assert.AreEqual(ContentType.NotSpecified, command.OriginalContentType);
         }
     }
 }

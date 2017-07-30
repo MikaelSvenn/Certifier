@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Core.Model;
 using Fclp;
+using Fclp.Internals.Extensions;
 
 namespace Ui.Console.Startup
 {
@@ -22,7 +23,7 @@ namespace Ui.Console.Startup
 
             parser.Setup(argument => argument.EncryptionType)
                 .As('e', "encryption")
-                .SetDefault(KeyEncryptionType.None);
+                .SetDefault(EncryptionType.None);
 
             parser.Setup(argument => argument.Password)
                 .As('p', "password")
@@ -62,7 +63,11 @@ namespace Ui.Console.Startup
 
             parser.Setup(argument => argument.ContentType)
                 .As('t', "type")
-                .SetDefault(ContentType.Pem);
+                .SetDefault(ContentType.NotSpecified);
+
+            parser.Setup(argument => argument.IsConvertOperation)
+                  .As("convert")
+                  .SetDefault(false);
 
 
             var result = parser.Parse(arguments);

@@ -1,4 +1,4 @@
-﻿namespace Ui.Console.Startup
+﻿namespace Core.Model
 {
     public enum ContentType
     {

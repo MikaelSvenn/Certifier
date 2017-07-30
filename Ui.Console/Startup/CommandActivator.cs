@@ -6,8 +6,11 @@ namespace Ui.Console.Startup
 {
     public class CommandActivator
     {
+        private readonly IKeyCommandActivationProvider keyCommandActivationProvider;
+
         public CommandActivator(IKeyCommandActivationProvider keyCommandActivationProvider, ISignatureCommandActivationProvider signatureCommandActivationProvider)
         {
+            this.keyCommandActivationProvider = keyCommandActivationProvider;
             Create = new Dictionary<OperationTarget, Action<ApplicationArguments>>
             {
                 {OperationTarget.None, arguments => { throw new InvalidOperationException("Create operation not specified."); }},
@@ -26,5 +29,10 @@ namespace Ui.Console.Startup
 
         public Dictionary<OperationTarget, Action<ApplicationArguments>> Create { get; }
         public Dictionary<OperationTarget, Action<ApplicationArguments>> Verify { get; }
+
+        public void Convert(ApplicationArguments arguments)
+        {
+            keyCommandActivationProvider.ConvertKeyPair(arguments);
+        }
     }
 }

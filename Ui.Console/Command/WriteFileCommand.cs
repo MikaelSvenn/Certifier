@@ -1,4 +1,5 @@
-﻿using Ui.Console.Startup;
+﻿using Core.Model;
+using Ui.Console.Startup;
 
 namespace Ui.Console.Command
 {
@@ -8,5 +9,7 @@ namespace Ui.Console.Command
         public string FilePath { get; set; }
         public T Out { get; set; }
         public ContentType ContentType { get; set; }
+        public EncryptionType EncryptionType { get; set; }
+        public string Password { get; set; }
     }
 }

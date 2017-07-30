@@ -1,11 +1,12 @@
 ﻿using System;
+using Core.Interfaces;
 using Core.Model;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class EncryptionPasswordValidationDecorator<T> : ICommandHandler<T> where T : ICreateAsymmetricKeyCommand
+    public class EncryptionPasswordValidationDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommand;
 
@@ -14,14 +15,14 @@ namespace Ui.Console.Decorator
             this.decoratedCommand = decoratedCommand;
         }
 
-        public void Execute(T createKeyCommand)
+        public void Execute(T writeToFileCommand)
         {
-            if (createKeyCommand.EncryptionType != KeyEncryptionType.None && string.IsNullOrEmpty(createKeyCommand.Password))
+            if (writeToFileCommand.EncryptionType != EncryptionType.None && string.IsNullOrEmpty(writeToFileCommand.Password))
             {
                 throw new ArgumentException("Password is required for encryption.");
             }
 
-            decoratedCommand.Execute(createKeyCommand);
+            decoratedCommand.Execute(writeToFileCommand);
         }
     }
 }

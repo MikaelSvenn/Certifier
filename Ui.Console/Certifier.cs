@@ -14,13 +14,19 @@ namespace Ui.Console
             var arguments = container.GetInstance<ApplicationArguments>();
             var activator = container.GetInstance<CommandActivator>();
 
-            if (!arguments.IsValid)
+            if (arguments.ShowHelp || !arguments.IsValidOperation)
             {
                 var help = container.GetInstance<Help>();
                 help.Show();
                 return;
             }
 
+            if (arguments.IsConvertOperation)
+            {
+                activator.Convert(arguments);
+                return;
+            }
+            
             if (arguments.IsCreate)
             {
                 activator.Create[arguments.CreateOperation](arguments);

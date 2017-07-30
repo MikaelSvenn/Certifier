@@ -72,10 +72,19 @@ namespace Ui.Console.Test.Decorator
                 decorator.Execute(command);
                 Assert.AreEqual(expectedKey, command.Result);
             }
+
+            public void ShouldSetOriginalEncryptionType()
+            {
+                var key = Mock.Of<IAsymmetricKey>(k => k.IsEncrypted && k.CipherType == CipherType.Pkcs12Encrypted);
+                command.Result = key;
+
+                decorator.Execute(command);
+                Assert.AreEqual(EncryptionType.Pkcs, command.OriginalEncryptionType);
+            }
         }
 
         [TestFixture]
-        public class ShouldNotDecryptPrivateKeyWhen : PkcsKeyDecryptionDecoratorTest
+        public class ShouldNotDecryptPrivateKey : PkcsKeyDecryptionDecoratorTest
         {
             [Test]
             public void WhenKeyIsNotEncrypted()
@@ -95,6 +104,16 @@ namespace Ui.Console.Test.Decorator
 
                 decorator.Execute(command);
                 keyEncryptionProvider.Verify(kep => kep.DecryptPrivateKey(It.IsAny<IAsymmetricKey>(), It.IsAny<string>()), Times.Never);
+            }
+
+            [Test]
+            public void ShouldNotSetOriginalEncryptionTypeWhenKeyIsNotDecrypted()
+            {
+                var key = Mock.Of<IAsymmetricKey>(k => !k.IsEncrypted);
+                command.Result = key;
+
+                decorator.Execute(command);
+                Assert.AreEqual(EncryptionType.None, command.OriginalEncryptionType);
             }
         }
     }

@@ -107,7 +107,6 @@
     <Compile Include="Startup\Help.cs" />
     <Compile Include="Startup\ICommandExecutor.cs" />
     <Compile Include="Startup\OperationTarget.cs" />
-    <Compile Include="Startup\ContentType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

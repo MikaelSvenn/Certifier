@@ -1,8 +1,8 @@
 ﻿using Core.Interfaces;
+using Core.Model;
 using Core.SystemWrappers;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
-using Ui.Console.Startup;
 
 namespace Ui.Console.Decorator
 {

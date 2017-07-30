@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Net.Mime;
+using System.Security.Policy;
 using NUnit.Framework;
 using Ui.Console.Startup;
 
@@ -9,68 +11,80 @@ namespace Ui.Console.Test.Startup
     public class ApplicationArgumentsTest
     {
         private ApplicationArguments arguments;
-
+      
         [TestFixture]
-        public class IsValid : ApplicationArgumentsTest
+        public class IsValidOperationTest : ApplicationArgumentsTest
         {
-            [Test]
-            public void ShouldBeFalseWhenHelpIsShown()
+            [TestFixture]
+            public class ShouldBeTrueWhen : IsValidOperationTest
             {
-                arguments = new ApplicationArguments
+                [SetUp]
+                public void Setup()
                 {
-                    CreateOperation = OperationTarget.Key,
-                    ShowHelp = true
-                };
+                    arguments = new ApplicationArguments
+                    {
+                        CreateOperation = OperationTarget.None,
+                        VerifyOperation = OperationTarget.None,
+                        IsConvertOperation = false
+                    };
+                }
+                
+                [TestCase(OperationTarget.Key, ExpectedResult = true)]
+                [TestCase(OperationTarget.Signature, ExpectedResult = true)]
+                public bool CreateOperationIsNotNone(OperationTarget target)
+                {
+                    arguments.CreateOperation = target;
+                    return arguments.IsValidOperation;
+                }
 
-                Assert.IsFalse(arguments.IsValid);
+                [TestCase(OperationTarget.Key, ExpectedResult = true)]
+                [TestCase(OperationTarget.Signature, ExpectedResult = true)]
+                public bool VerifyOperationIsNotNone(OperationTarget target)
+                {
+                    arguments.VerifyOperation = target;
+                    return arguments.IsValidOperation;
+                }
+
+                [Test]
+                public void IsConvertOperationIsNotFalse()
+                {
+                    arguments.IsConvertOperation = true;
+                    Assert.IsTrue(arguments.IsValidOperation);
+                }
             }
 
-            [Test]
-            public void ShouldBeFalseWhenCreateTargetAndVerifyTargetAreNone()
+            [TestFixture]
+            public class ShouldBeFalseWhen : IsValidOperationTest
             {
-                arguments = new ApplicationArguments
+                [SetUp]
+                public void Setup()
                 {
-                    CreateOperation = OperationTarget.None,
-                    VerifyOperation = OperationTarget.None
-                };
+                    arguments = new ApplicationArguments
+                    {
+                        CreateOperation = OperationTarget.Key,
+                        VerifyOperation = OperationTarget.None,
+                        IsConvertOperation = false
+                    };
+                }
 
-                Assert.IsFalse(arguments.IsValid);
-            }
-
-            [Test]
-            public void ShouldBeFalseWhenCreateTargetAndVerifyTargetAreNotNone()
-            {
-                arguments = new ApplicationArguments
+                [TestCase(OperationTarget.Key, OperationTarget.Key, ExpectedResult = false)]
+                [TestCase(OperationTarget.Key, OperationTarget.Signature, ExpectedResult = false)]
+                [TestCase(OperationTarget.Signature, OperationTarget.Key, ExpectedResult = false)]
+                [TestCase(OperationTarget.Signature, OperationTarget.Signature, ExpectedResult = false)]
+                public bool CreateAndVerifyOperationsAreNotNone(OperationTarget create, OperationTarget verify)
                 {
-                    CreateOperation = OperationTarget.Key,
-                    VerifyOperation = OperationTarget.Signature
-                };
+                    arguments.CreateOperation = create;
+                    arguments.VerifyOperation = verify;
+                    return arguments.IsValidOperation;
+                }
 
-                Assert.IsFalse(arguments.IsValid);
-            }
-
-            [Test]
-            public void ShouldBeTrueWhenCreateTargetIsNotNoneAndVerifyTargetIsNone()
-            {
-                arguments = new ApplicationArguments
+                [Test]
+                public void CreateAndVerifyOperationsAreNoneAndIsConvertIsFalse()
                 {
-                    CreateOperation = OperationTarget.Signature,
-                    VerifyOperation = OperationTarget.None
-                };
-
-                Assert.IsTrue(arguments.IsValid);
-            }
-
-            [Test]
-            public void ShouldBeTrueWhenCreateTargetIsNoneAndVerifyTargetIsNotNone()
-            {
-                arguments = new ApplicationArguments
-                {
-                    CreateOperation = OperationTarget.None,
-                    VerifyOperation = OperationTarget.Key
-                };
-
-                Assert.IsTrue(arguments.IsValid);
+                    arguments.CreateOperation = OperationTarget.None;
+                    arguments.IsConvertOperation = false;
+                    Assert.IsFalse(arguments.IsValidOperation);
+                }
             }
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Core.Interfaces;
 using Core.Model;
 using Moq;
 using NUnit.Framework;
@@ -11,27 +12,27 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class EncryptionPasswordValidationDecoratorTest
     {
-        private EncryptionPasswordValidationDecorator<ICreateAsymmetricKeyCommand> decorator;
-        private Mock<ICommandHandler<ICreateAsymmetricKeyCommand>> decoratedCommand;
+        private EncryptionPasswordValidationDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommand;
 
         [SetUp]
         public void Setup()
         {
-            decoratedCommand = new Mock<ICommandHandler<ICreateAsymmetricKeyCommand>>();
-            decorator = new EncryptionPasswordValidationDecorator<ICreateAsymmetricKeyCommand>(decoratedCommand.Object);
+            decoratedCommand = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
+            decorator = new EncryptionPasswordValidationDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object);
         }
 
         [Test]
         public void ShouldNotThrowExceptionWhenCommandHasPassword()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.Password == "foo");
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.Password == "foo");
             Assert.DoesNotThrow(() => decorator.Execute(command));
         }
 
         [Test]
         public void ShouldInvokeDecoratedCommand()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.Password == "foo");
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.Password == "foo");
             decorator.Execute(command);
 
             decoratedCommand.Verify(d => d.Execute(command));
@@ -40,14 +41,14 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldThrowExceptionWhenEncryptionIsSpecifiedAndNoPasswordIsGiven()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.Pkcs);
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Pkcs);
             Assert.Throws<ArgumentException>(() => decorator.Execute(command));
         }
 
         [Test]
         public void ShouldThrowExceptionWhenEncryptionIsSpecifiedAndEmptyPasswordIsGiven()
         {
-            var command = Mock.Of<ICreateAsymmetricKeyCommand>(c => c.EncryptionType == KeyEncryptionType.Pkcs && c.Password == "");
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Pkcs && c.Password == "");
             Assert.Throws<ArgumentException>(() => decorator.Execute(command));
         }
     }

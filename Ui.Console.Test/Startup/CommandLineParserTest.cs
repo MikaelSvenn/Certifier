@@ -41,7 +41,7 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void EncryptionType()
             {
-                Assert.AreEqual(KeyEncryptionType.None, arguments.EncryptionType);
+                Assert.AreEqual(Core.Model.EncryptionType.None, arguments.EncryptionType);
             }
 
             [Test]
@@ -101,7 +101,13 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void Type()
             {
-                Assert.AreEqual(ContentType.Pem, arguments.ContentType);
+                Assert.AreEqual(ContentType.NotSpecified, arguments.ContentType);
+            }
+
+            [Test]
+            public void Convert()
+            {
+                Assert.IsFalse(arguments.IsConvertOperation);
             }
         }
 
@@ -127,7 +133,7 @@ namespace Ui.Console.Test.Startup
             [Test]
             public void BeIndicatedWhenUnknownArgumentsAreGiven()
             {
-                var result = commandLineParser.ParseArguments(new[] {"-foo", "17"});
+                var result = commandLineParser.ParseArguments(new[] {"--foo", "17"});
                 Assert.IsTrue(result.ShowHelp);
             }
 
@@ -222,7 +228,7 @@ namespace Ui.Console.Test.Startup
             public void EncryptionType()
             {
                 var result = commandLineParser.ParseArguments(new []{"-e", "pkcs"});
-                Assert.AreEqual(KeyEncryptionType.Pkcs, result.EncryptionType);
+                Assert.AreEqual(Core.Model.EncryptionType.Pkcs, result.EncryptionType);
             }
 
             private static string[][] password = {
@@ -304,6 +310,13 @@ namespace Ui.Console.Test.Startup
             {
                 var result = commandLineParser.ParseArguments(contentType);
                 Assert.AreEqual(ContentType.Der, result.ContentType);
+            }
+
+            [Test]
+            public void Convert()
+            {
+                var result = commandLineParser.ParseArguments(new[] {"--convert"});
+                Assert.IsTrue(result.IsConvertOperation);
             }
         }
     }

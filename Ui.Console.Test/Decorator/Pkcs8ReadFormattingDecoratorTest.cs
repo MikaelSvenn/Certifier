@@ -45,6 +45,13 @@ namespace Ui.Console.Test.Decorator
         }
 
         [Test]
+        public void ShouldSetOriginalContentType()
+        {
+            decorator.Execute(command);
+            Assert.AreEqual(ContentType.Pem, command.OriginalContentType);
+        }
+        
+        [Test]
         public void ShouldNotSetCommandResultWhenContentIsNotPemFormatted()
         {
             decoratedHandler.Setup(dh => dh.Execute(command))

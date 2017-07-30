@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Internal;
@@ -44,7 +45,7 @@ namespace Ui.Console.Test.Provider
                 arguments = new ApplicationArguments
                 {
                     KeySize = 1024,
-                    EncryptionType = KeyEncryptionType.None,
+                    EncryptionType = EncryptionType.Pkcs,
                     PrivateKeyPath = "private.pem",
                     PublicKeyPath = "public.pem",
                     ContentType = ContentType.Pem
@@ -56,7 +57,7 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldCreateRsaKeyPair()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.EncryptionType == KeyEncryptionType.None && 
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.EncryptionType == EncryptionType.None && 
                                                                                         c.KeySize == 1024)));
             }
 
@@ -65,7 +66,8 @@ namespace Ui.Console.Test.Provider
             {
                 commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.First().Out == privateKey && 
                                                                                                                           w.First().FilePath == "private.pem" &&
-                                                                                                                          w.First().ContentType == ContentType.Pem)));
+                                                                                                                          w.First().ContentType == ContentType.Pem &&
+                                                                                                                          w.First().EncryptionType == EncryptionType.Pkcs)));
             }
 
             [Test]
@@ -73,7 +75,8 @@ namespace Ui.Console.Test.Provider
             {
                 commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.Last().Out == publicKey && 
                                                                                                                           w.Last().FilePath == "public.pem" &&
-                                                                                                                          w.Last().ContentType == ContentType.Pem)));
+                                                                                                                          w.Last().ContentType == ContentType.Pem &&
+                                                                                                                          w.Last().EncryptionType == EncryptionType.None)));
             }
         }
 
@@ -132,6 +135,119 @@ namespace Ui.Console.Test.Provider
             public void ShouldVerifyKeyPairWithGivenKeys()
             {
                 commandExecutor.Verify(ce => ce.Execute(It.Is<IVerifyKeyPairCommand>(c => c.PrivateKey == privateKey && c.PublicKey == publicKey)));
+            }
+        }
+
+        [TestFixture]
+        public class ConvertKeyPair : KeyCommandActivationProviderTest
+        {
+            private IAsymmetricKey publicKey;
+            private IAsymmetricKey privateKey;
+            
+            [SetUp]
+            public void Setup()
+            {
+                arguments = new ApplicationArguments
+                {
+                    PrivateKeyPath = "private.key",
+                    PublicKeyPath = "public.key",
+                    ContentType = ContentType.Der,
+                    Password = "foopassword"
+                };
+                
+                publicKey = Mock.Of<IAsymmetricKey>();
+                privateKey = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+                
+                SetupWithOriginalContentType(ContentType.Pem, ContentType.Pem);
+                provider.ConvertKeyPair(arguments);
+            }
+            
+            private void SetupWithOriginalContentType(ContentType privateKeyType, ContentType publicKeyType)
+            {
+                commandExecutor.Setup(c => c.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
+                                .Callback<IEnumerable<object>>(commands =>
+                                {
+                                    commands.ForEach(c =>
+                                    {
+                                        var keyCommand = c as ReadKeyFromFileCommand;
+                                        if (keyCommand != null && keyCommand.FilePath == "public.key")
+                                        {
+                                            keyCommand.Result = publicKey;
+                                            keyCommand.OriginalContentType = publicKeyType;
+                                        }
+
+                                        if (keyCommand != null && keyCommand.FilePath == "private.key")
+                                        {
+                                            keyCommand.Result = privateKey;
+                                            keyCommand.OriginalContentType = privateKeyType;
+                                            keyCommand.OriginalEncryptionType = EncryptionType.Pkcs;
+                                        }
+                                    });
+                                });
+            }
+            
+            [TearDown]
+            public void Teardown()
+            {
+                commandExecutor.ResetCalls();
+            }
+            
+            [Test]
+            public void ShouldReadPublicKeyFromFile()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<ReadKeyFromFileCommand>>(c => c.First().FilePath == "private.key" &&
+                                                                                                                c.First().IsPrivateKey)));
+            }
+
+            [Test]
+            public void ShouldReadPrivateKeyFromFile()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<ReadKeyFromFileCommand>>(c => c.Last().FilePath == "public.key")));
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenContentTypeIsNotGiven()
+            {
+                arguments = new ApplicationArguments
+                {
+                    PrivateKeyPath = "private.key",
+                    PublicKeyPath = "public.key",
+                    ContentType = ContentType.NotSpecified
+                };
+
+                Assert.Throws<InvalidOperationException>(() => provider.ConvertKeyPair(arguments));
+            }
+           
+            [Test]
+            public void ShouldThrowExceptionWhenPrivateKeyIsAlreadyInGivenType()
+            {
+                SetupWithOriginalContentType(ContentType.Der, ContentType.Pem);
+                Assert.Throws<InvalidOperationException>(() => provider.ConvertKeyPair(arguments));
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenPublicKeyIsAlreadyInGivenType()
+            {
+                SetupWithOriginalContentType(ContentType.Pem, ContentType.Der);
+                Assert.Throws<InvalidOperationException>(() => provider.ConvertKeyPair(arguments));
+            }
+
+            [Test]
+            public void ShouldWritePrivateKeyToFile()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(c => c.First().FilePath.Equals("private.key.der") &&
+                                                                                                                          c.First().ContentType == ContentType.Der &&
+                                                                                                                          c.First().Out == privateKey &&
+                                                                                                                          c.First().EncryptionType == EncryptionType.Pkcs &&
+                                                                                                                          c.First().Password == "foopassword")));
+            }
+
+            [Test]
+            public void ShouldWritePublicKeyToFile()
+            {
+                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(c => c.Last().FilePath.Equals("public.key.der") &&
+                                                                                                                          c.Last().ContentType == ContentType.Der &&
+                                                                                                                          c.Last().Out == publicKey)));
             }
         }
     }

@@ -6,23 +6,15 @@ namespace Ui.Console.Provider
 {
     public class KeyCommandProvider
     {
-        public ICreateAsymmetricKeyCommand GetCreateKeyCommand(int keySize, KeyEncryptionType encryptionType, string password)
+        public ICreateAsymmetricKeyCommand GetCreateKeyCommand(int keySize) => new CreateRsaKeyCommand
         {
-            return new CreateRsaKeyCommand
-            {
-                KeySize = keySize,
-                EncryptionType = encryptionType,
-                Password = password
-            };
-        }
+            KeySize = keySize
+        };
 
-        public IVerifyKeyPairCommand GetVerifyKeyPairCommand(IAsymmetricKey publicKey, IAsymmetricKey privateKey)
+        public IVerifyKeyPairCommand GetVerifyKeyPairCommand(IAsymmetricKey publicKey, IAsymmetricKey privateKey) => new VerifyRsaKeyPairCommand
         {
-            return new VerifyRsaKeyPairCommand
-            {
-                PrivateKey = privateKey,
-                PublicKey = publicKey
-            };
-        }
+            PrivateKey = privateKey,
+            PublicKey = publicKey
+        };
     }
 }

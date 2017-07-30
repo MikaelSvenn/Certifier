@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Interfaces;
+using Core.Model;
 using Core.SystemWrappers;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
@@ -23,10 +24,13 @@ namespace Ui.Console.Decorator
         {
             decoratedHandler.Execute(command);
             string keyContent = encoding.GetString(command.FileContent);
-            if (keyContent.StartsWith("-----BEGIN", StringComparison.InvariantCulture))
+            if (!keyContent.StartsWith("-----BEGIN", StringComparison.InvariantCulture))
             {
-                command.Result = formattingProvider.GetAsDer(keyContent);
+                return;
             }
+            
+            command.Result = formattingProvider.GetAsDer(keyContent);
+            command.OriginalContentType = ContentType.Pem;
         }
     }
 }
