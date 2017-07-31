@@ -43,29 +43,44 @@ namespace Ui.Console.Provider
         {
             if (arguments.ContentType == ContentType.NotSpecified)
             {
-                throw new InvalidOperationException("Key conversion type was not specified.");
+                throw new ArgumentException("Target type for key conversion was not specified.");
             }
-            
-            ReadKeyFromFileCommand readPublicKeyFromFile = fileCommandProvider.GetReadPublicKeyFromFileCommand(arguments.PublicKeyPath);
-            ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadPrivateKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
-            commandExecutor.ExecuteSequence(new []{readPrivateKeyFromFile, readPublicKeyFromFile});
 
-            string fileExtension = arguments.ContentType
-                                            .ToString()
-                                            .ToLower();
-            
-            if (readPrivateKeyFromFile.OriginalContentType == arguments.ContentType || readPublicKeyFromFile.OriginalContentType == arguments.ContentType)
+            if (!arguments.HasPrivateKey && !arguments.HasPublicKey)
             {
-                throw new InvalidOperationException($"The given key is already in {fileExtension} format.");
+                throw new ArgumentException("No keys were specified for conversion.");
+            }
+            
+            if (arguments.HasPublicKey)
+            {
+                ReadKeyFromFileCommand readPublicKeyFromFile = fileCommandProvider.GetReadPublicKeyFromFileCommand(arguments.PublicKeyPath);
+                ConvertKey(readPublicKeyFromFile, arguments);
             }
 
-            string publicKeyPath = $"{arguments.PublicKeyPath}.{fileExtension}";
-            string privateKeyPath = $"{arguments.PrivateKeyPath}.{fileExtension}";
+            if (!arguments.HasPrivateKey)
+            {
+                return;
+            }
             
-            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(readPublicKeyFromFile.Result, publicKeyPath, arguments.ContentType);
-            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(readPrivateKeyFromFile.Result, privateKeyPath, arguments.ContentType, readPrivateKeyFromFile.OriginalEncryptionType, arguments.Password);
+            ReadKeyFromFileCommand readPrivateKeyFromFile = fileCommandProvider.GetReadPrivateKeyFromFileCommand(arguments.PrivateKeyPath, arguments.Password);
+            ConvertKey(readPrivateKeyFromFile, arguments);
+        }
+
+        private void ConvertKey(ReadKeyFromFileCommand readKeyFromFile, ApplicationArguments arguments)
+        {
+            commandExecutor.Execute(readKeyFromFile);
+            string fileExtension = arguments.ContentType
+                                   .ToString()
+                                   .ToLower();
             
-            commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
+            if (readKeyFromFile.OriginalContentType == arguments.ContentType)
+            {
+                throw new InvalidOperationException($"The given key {readKeyFromFile.FilePath} is already in {fileExtension} format.");
+            }
+
+            string keyPath = $"{readKeyFromFile.FilePath}.{fileExtension}";
+            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(readKeyFromFile.Result, keyPath, arguments.ContentType, readKeyFromFile.OriginalEncryptionType, arguments.Password);
+            commandExecutor.Execute(writePublicKeyToFile);
         }
     }
 }

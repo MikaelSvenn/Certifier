@@ -11,6 +11,7 @@ using Moq;
 using NUnit.Framework;
 using SimpleInjector;
 using Ui.Console.Provider;
+using Ui.Console.Startup;
 
 namespace Ui.Console.Test.Integration
 {
@@ -23,7 +24,7 @@ namespace Ui.Console.Test.Integration
         private PkcsEncryptionProvider encryptionProvider;
         private Pkcs8FormattingProvider pkcs8FormattingProvider;
         private EncodingWrapper encodingWrapper;
-
+        
         [SetUp]
         public void SetupConvertKeyPairTest()
         {
@@ -78,31 +79,24 @@ namespace Ui.Console.Test.Integration
             }
             
             [Test]
-            public void ShouldIndicateMissingPrivateKey()
+            public void ShouldIndicateWhenNoKeysAreGiven()
             {
-                var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"--convert", "--publickey", "public.rsa.pem", "-t", "der"}); });
-                Assert.AreEqual("Private key file or path is required.", exception.Message);
-            }
-
-            [Test]
-            public void ShouldIndicateMissingPublicKey()
-            {
-                var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "-t", "der"}); });
-                Assert.AreEqual("Public key file or path is required.", exception.Message);
+                var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"--convert", "-t", "der"}); });
+                Assert.AreEqual("No keys were specified for conversion.", exception.Message);
             }
 
             [Test]
             public void ShouldIndicateWhenKeyAlreadyIsInGivenFormat()
             {
-                var exception = Assert.Throws<InvalidOperationException>(() => { Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "--publickey", "public.rsa.pem", "-t", "pem"}); });
-                Assert.AreEqual("The given key is already in pem format.", exception.Message);
+                var exception = Assert.Throws<InvalidOperationException>(() => { Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "-t", "pem"}); });
+                Assert.AreEqual("The given key private.rsa.pem is already in pem format.", exception.Message);
             }
 
             [Test]
-            public void ShouldIndicateMissingKeyTypeParameter()
+            public void ShouldIndicateWhenNoTargetTypeIsGiven()
             {
-                var exception = Assert.Throws<InvalidOperationException>(() => { Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "--publickey", "public.rsa.pem"}); });
-                Assert.AreEqual("Key conversion type was not specified.", exception.Message);
+                var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "--publickey", "public.rsa.pem"}); });
+                Assert.AreEqual("Target type for key conversion was not specified.", exception.Message);
             }
         }
 
@@ -116,24 +110,52 @@ namespace Ui.Console.Test.Integration
             }
             
             [Test]
-            public void ShouldConvertPemToDer()
+            public void ShouldConvertPemKeyPairToDer()
             {
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "--publickey", "public.rsa.pem", "-t", "der"});
                 CollectionAssert.AreEqual(files["private.rsa.der"], files["private.rsa.pem.der"]);
                 CollectionAssert.AreEqual(files["public.rsa.der"], files["public.rsa.pem.der"]);
             }
+
+            [Test]
+            public void ShouldConvertPublicPemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.rsa.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["public.rsa.der"], files["public.rsa.pem.der"]);
+            }
+
+            [Test]
+            public void ShouldConvertPrivatePemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["private.rsa.der"], files["private.rsa.pem.der"]);
+            }
             
             [Test]
-            public void ShouldConvertDerToPem()
+            public void ShouldConvertDerKeyPairToPem()
             {
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.der", "--publickey", "public.rsa.der", "-t", "pem"});
                 CollectionAssert.AreEqual(files["private.rsa.pem"], files["private.rsa.der.pem"]);
                 CollectionAssert.AreEqual(files["public.rsa.pem"], files["public.rsa.der.pem"]);
             }
+
+            [Test]
+            public void ShouldConvertPrivateDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["private.rsa.pem"], files["private.rsa.der.pem"]);
+            }
+
+            [Test]
+            public void ShouldConvertPublicDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.rsa.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["public.rsa.pem"], files["public.rsa.der.pem"]);
+            }
         }
 
         [TestFixture]
-        public class ConvertEncryptedRsaKeyPair : ConvertKeyPairTest
+        public class ConvertEncryptedPrivateRsaKey : ConvertKeyPairTest
         {
             [SetUp]
             public void Setup()
@@ -144,7 +166,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldConvertPemToDer()
             {
-                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.encrypted.pem", "-p", "foobarbaz", "--publickey", "public.rsa.pem", "-t", "der"});
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.encrypted.pem", "-p", "foobarbaz", "-t", "der"});
                 IAsymmetricKey encryptedKey = asymmetricKeyProvider.GetEncryptedPrivateKey(files["private.rsa.encrypted.pem.der"]);
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
@@ -154,7 +176,7 @@ namespace Ui.Console.Test.Integration
             [Test]
             public void ShouldConvertDerToPem()
             {
-                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.encrypted.der", "-p", "foobarbaz", "--publickey", "public.rsa.der", "-t", "pem"});
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
                 
                 string keyContent = encodingWrapper.GetString(files["private.rsa.encrypted.der.pem"]);
                 IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);

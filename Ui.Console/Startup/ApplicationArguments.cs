@@ -29,5 +29,7 @@ namespace Ui.Console.Startup
         public bool HasFileInput => !string.IsNullOrWhiteSpace(FileInput);
         public ContentType ContentType { get; set; }
         public bool IsConvertOperation { get; set; }
+        public bool HasPublicKey => !string.IsNullOrWhiteSpace(PublicKeyPath);
+        public bool HasPrivateKey => !string.IsNullOrWhiteSpace(PrivateKeyPath);
     }
 }
