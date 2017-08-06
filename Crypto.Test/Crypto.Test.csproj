@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Generators\PkcsEncryptionGeneratorTest.cs" />
-    <Compile Include="Generators\RsaKeyPairGeneratorTest.cs" />
+    <Compile Include="Generators\AsymmetricKeyPairGeneratorTest.cs" />
     <Compile Include="Generators\SecureRandomGeneratorTest.cs" />
     <Compile Include="Mappers\OidToCipherTypeMapperTest.cs" />
     <Compile Include="Mappers\SignatureAlgorithmIdentifierMapperTest.cs" />

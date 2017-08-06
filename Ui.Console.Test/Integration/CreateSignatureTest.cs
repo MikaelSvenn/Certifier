@@ -61,7 +61,7 @@ namespace Ui.Console.Test.Integration
 
         protected void SetupWithRsaKey()
         {
-            var rsaKeyPairGenerator = new RsaKeyPairGenerator(new SecureRandomGenerator());
+            var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
             var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider, new KeyInfoWrapper());
             var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);

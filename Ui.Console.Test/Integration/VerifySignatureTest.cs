@@ -39,7 +39,7 @@ namespace Ui.Console.Test.Integration
             container.Register<FileWrapper>(() => file.Object);
             container.Register<ConsoleWrapper>(() => console.Object);
 
-            var keyProvider = new RsaKeyProvider(new RsaKeyPairGenerator(new SecureRandomGenerator()));
+            var keyProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(new SecureRandomGenerator()));
             var signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
             var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper()));
 

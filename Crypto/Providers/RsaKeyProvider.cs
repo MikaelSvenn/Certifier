@@ -15,16 +15,16 @@ namespace Crypto.Providers
 {
     public class RsaKeyProvider : IKeyProvider<RsaKey>
     {
-        private readonly RsaKeyPairGenerator rsaKeyPairGenerator;
+        private readonly AsymmetricKeyPairGenerator asymmetricKeyPairGenerator;
 
-        public RsaKeyProvider(RsaKeyPairGenerator rsaKeyPairGenerator)
+        public RsaKeyProvider(AsymmetricKeyPairGenerator asymmetricKeyPairGenerator)
         {
-            this.rsaKeyPairGenerator = rsaKeyPairGenerator;
+            this.asymmetricKeyPairGenerator = asymmetricKeyPairGenerator;
         }
 
         public IAsymmetricKeyPair CreateKeyPair(int keySize)
         {
-            AsymmetricCipherKeyPair rsaKeyPair = rsaKeyPairGenerator.GenerateKeyPair(keySize);
+            AsymmetricCipherKeyPair rsaKeyPair = asymmetricKeyPairGenerator.GenerateRsaKeyPair(keySize);
             SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(rsaKeyPair.Public);
             byte[] publicKeyContent = publicKeyInfo
                 .ToAsn1Object()
@@ -53,7 +53,7 @@ namespace Crypto.Providers
         {
             if (keyType == AsymmetricKeyType.Encrypted)
             {
-                throw new InvalidOperationException("Unable to access encrypted key content. Key must be decrypted first.");
+                throw new InvalidOperationException("Key must be decrypted prior to usage.");
             }
 
             AsymmetricKeyParameter key;

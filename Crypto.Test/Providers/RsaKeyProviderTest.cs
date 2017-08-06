@@ -23,7 +23,7 @@ namespace Crypto.Test.Providers
                 c.Get<int>("SaltLengthInBytes") == 100);
 
             var secureRandomGenerator = new SecureRandomGenerator();
-            var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
+            var rsaGenerator = new AsymmetricKeyPairGenerator(secureRandomGenerator);
 
             keyProvider = new RsaKeyProvider(rsaGenerator);
         }

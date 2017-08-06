@@ -46,7 +46,7 @@ namespace Ui.Console.Test.Integration
 
         public void PopulateRsaKeys()
         {
-            var rsaKeyPairGenerator = new RsaKeyPairGenerator(new SecureRandomGenerator());
+            var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider, new KeyInfoWrapper());
             encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());

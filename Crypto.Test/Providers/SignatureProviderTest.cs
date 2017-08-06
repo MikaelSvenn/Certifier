@@ -31,7 +31,7 @@ namespace Crypto.Test.Providers
 
             keys = new Dictionary<CipherType, IAsymmetricKeyPair>();
 
-            var rsaGenerator = new RsaKeyPairGenerator(secureRandomGenerator);
+            var rsaGenerator = new AsymmetricKeyPairGenerator(secureRandomGenerator);
             var rsaKeyProvider = new RsaKeyProvider(rsaGenerator);
 
             IAsymmetricKeyPair keyPair = rsaKeyProvider.CreateKeyPair(2048);

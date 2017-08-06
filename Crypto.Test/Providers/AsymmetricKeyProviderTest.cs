@@ -26,7 +26,7 @@ namespace Crypto.Test.Providers
             var configuration = Mock.Of<IConfiguration>(c => c.Get<int>("SaltLengthInBytes") == 100 &&
                                                              c.Get<int>("KeyDerivationIterationCount") == 10);
             var secureRandom = new SecureRandomGenerator();
-            var rsaGenerator = new RsaKeyPairGenerator(secureRandom);
+            var rsaGenerator = new AsymmetricKeyPairGenerator(secureRandom);
             rsaKeyProvider = new RsaKeyProvider(rsaGenerator);
 
             cipherTypeMapper = new Mock<OidToCipherTypeMapper>();

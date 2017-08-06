@@ -23,7 +23,7 @@ namespace Crypto.Test.Generators
             encryptionGenerator = new PkcsEncryptionGenerator();
 
             var secureRandom = new SecureRandomGenerator();
-            var rsaProvider = new RsaKeyProvider(new RsaKeyPairGenerator(secureRandom));
+            var rsaProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandom));
             keyPair = rsaProvider.CreateKeyPair(1024);
 
             encryptedKey = encryptionGenerator.Encrypt("fooBar", new byte[] {0x01, 0x02}, 10, keyPair.PrivateKey.Content);

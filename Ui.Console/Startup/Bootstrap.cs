@@ -18,7 +18,7 @@ namespace Ui.Console.Startup
             Container container = ContainerProvider.GetContainer();
 
             container.Register<IConfiguration, PbeConfiguration>();
-            container.Register<RsaKeyPairGenerator>();
+            container.Register<AsymmetricKeyPairGenerator>();
             container.Register<SecureRandomGenerator>();
 
             container.Register<IKeyProvider<RsaKey>, RsaKeyProvider>();

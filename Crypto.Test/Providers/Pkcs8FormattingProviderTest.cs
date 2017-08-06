@@ -22,7 +22,7 @@ namespace Crypto.Test.Providers
         public void SetupFormattingProviderTest()
         {
             var secureRandom = new SecureRandomGenerator();
-            rsaKeyProvider = new RsaKeyProvider(new RsaKeyPairGenerator(secureRandom));
+            rsaKeyProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandom));
             keyPair = rsaKeyProvider.CreateKeyPair(2048);
 
             var oidMapper = new OidToCipherTypeMapper();

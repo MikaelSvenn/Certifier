@@ -51,7 +51,7 @@ namespace Crypto.Test.Providers
             public void Setup()
             {
                 var secureRandomGenerator = new SecureRandomGenerator();
-                var rsaProvider = new RsaKeyProvider(new RsaKeyPairGenerator(secureRandomGenerator));
+                var rsaProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandomGenerator));
                 keyPair = rsaProvider.CreateKeyPair(1024);
 
                 secureRandom.Setup(sr => sr.NextBytes(100))
@@ -122,7 +122,7 @@ namespace Crypto.Test.Providers
             public void Setup()
             {
                 var secureRandomGenerator = new SecureRandomGenerator();
-                var rsaProvider = new RsaKeyProvider(new RsaKeyPairGenerator(secureRandomGenerator));
+                var rsaProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandomGenerator));
                 keyPair = rsaProvider.CreateKeyPair(1024);
 
                 var oidToCipherTypeMapper = new OidToCipherTypeMapper();
