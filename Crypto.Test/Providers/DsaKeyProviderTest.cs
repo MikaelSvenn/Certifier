@@ -1,4 +1,5 @@
-﻿using Core.Configuration;
+﻿using System;
+using Core.Configuration;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -212,6 +213,49 @@ namespace Crypto.Test.Providers
             public void ShouldReturnTrueWhenKeyPairIsValid()
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
+            }
+        }
+
+        [TestFixture]
+        public class GetKey : DsaKeyProviderTest
+        {
+            [Test]
+            public void ShouldSetPublicKeyLength()
+            {
+                var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
+                Assert.AreEqual(2048, result.KeySize);
+            }
+
+            [Test]
+            public void ShouldSetPrivateKeyLength()
+            {
+                var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
+                Assert.AreEqual(2048, result.KeySize);
+            }
+
+            [Test]
+            public void ShouldReturnPublicDsaKey()
+            {
+                var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
+                Assert.IsAssignableFrom<DsaKey>(result);
+                Assert.IsFalse(result.IsPrivateKey);
+            }
+
+            [Test]
+            public void ShouldReturnPrivateDsaKey()
+            {
+                var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
+                Assert.IsAssignableFrom<DsaKey>(result);
+                Assert.IsTrue(result.IsPrivateKey);
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenKeyTypeDoesNotMatch()
+            {
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Public);
+                });
             }
         }
     }
