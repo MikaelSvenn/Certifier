@@ -1,19 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.Security.Cryptography;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.X509;
 
 namespace Crypto.Providers
 {
-    public class DsaKeyProvider : IKeyProvider<DsaKey>
+    public class DsaKeyProvider : BCKeyProvider, IKeyProvider<DsaKey>
     {
         private readonly AsymmetricKeyPairGenerator keyGenerator;
 
@@ -25,16 +19,9 @@ namespace Crypto.Providers
         public IAsymmetricKeyPair CreateKeyPair(int keySize)
         {
             AsymmetricCipherKeyPair keyPair = keyGenerator.GenerateDsaKeyPair(keySize);
-            SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(keyPair.Public);
-            byte[] publicKeyContent = publicKeyInfo
-                .ToAsn1Object()
-                .GetDerEncoded();
+            byte[] publicKeyContent = GetPublicKey(keyPair.Public);
+            byte[] privateKeyContent = GetPrivateKey(keyPair.Private);            
 
-            PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(keyPair.Private);
-            byte[] privateKeyContent = privateKeyInfo
-                .ToAsn1Object()
-                .GetDerEncoded();
-            
             var publicKey = new DsaKey(publicKeyContent, AsymmetricKeyType.Public, GetKeyLength(keyPair.Private));
             var privateKey = new DsaKey(privateKeyContent, AsymmetricKeyType.Private, GetKeyLength(keyPair.Public));
             
@@ -45,28 +32,23 @@ namespace Crypto.Providers
 
         public DsaKey GetKey(byte[] content, AsymmetricKeyType keyType)
         {
-            throw new NotImplementedException();
+            AsymmetricKeyParameter key = CreateKey(content, keyType);
+            int keyLength = GetKeyLength(key);
+            return new DsaKey(content, keyType, keyLength);
         }
 
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)
         {
             DsaPrivateKeyParameters privateKey;
             DsaPublicKeyParameters publicKey;
-            
+
             try
             {
-                AsymmetricKeyParameter publicKeyContent = PublicKeyFactory.CreateKey(keyPair.PublicKey?.Content);
-                AsymmetricKeyParameter privateKeyContent = PrivateKeyFactory.CreateKey(keyPair.PrivateKey?.Content);
+                publicKey = GetKeyParameter<DsaPublicKeyParameters>(keyPair.PublicKey?.Content, AsymmetricKeyType.Public);
+                privateKey = GetKeyParameter<DsaPrivateKeyParameters>(keyPair.PrivateKey?.Content, AsymmetricKeyType.Private);
 
-                publicKey = (DsaPublicKeyParameters) publicKeyContent;
-                privateKey = (DsaPrivateKeyParameters) privateKeyContent;
             }
-            catch (Exception exception) when (exception is ArgumentNullException ||
-                                              exception is IOException ||
-                                              exception is ArgumentException ||
-                                              exception is SecurityUtilityException ||
-                                              exception is NullReferenceException ||
-                                              exception is InvalidCastException)
+            catch (CryptographicException)
             {
                 return false;
             }

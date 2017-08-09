@@ -91,12 +91,6 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            public void ShouldThrowExceptionWhenKeyIsEncrypted()
-            {
-                Assert.Throws<InvalidOperationException>(() => keyProvider.GetKey(null, AsymmetricKeyType.Encrypted));
-            }
-
-            [Test]
             public void ShouldSetPublicKeyLength()
             {
                 var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
