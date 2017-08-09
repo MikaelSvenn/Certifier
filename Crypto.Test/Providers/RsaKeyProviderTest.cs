@@ -1,4 +1,5 @@
 using System;
+using Core.Configuration;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -14,18 +15,14 @@ namespace Crypto.Test.Providers
     public class RsaKeyProviderTest
     {
         private RsaKeyProvider keyProvider;
-        private IConfiguration configuration;
 
         [OneTimeSetUp]
         public void SetupRsaKeyProviderTest()
         {
-            configuration = Mock.Of<IConfiguration>(c => c.Get<int>("KeyDerivationIterationCount") == 10 &&
-                c.Get<int>("SaltLengthInBytes") == 100);
-
             var secureRandomGenerator = new SecureRandomGenerator();
-            var rsaGenerator = new AsymmetricKeyPairGenerator(secureRandomGenerator);
+            var asymmetricKeyGenerator = new AsymmetricKeyPairGenerator(secureRandomGenerator);
 
-            keyProvider = new RsaKeyProvider(rsaGenerator);
+            keyProvider = new RsaKeyProvider(asymmetricKeyGenerator);
         }
 
         [TestFixture]
@@ -118,6 +115,7 @@ namespace Crypto.Test.Providers
             {
                 var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
                 Assert.IsAssignableFrom<RsaKey>(result);
+                Assert.IsFalse(result.IsPrivateKey);
             }
 
             [Test]
@@ -125,6 +123,7 @@ namespace Crypto.Test.Providers
             {
                 var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
                 Assert.IsAssignableFrom<RsaKey>(result);
+                Assert.IsTrue(result.IsPrivateKey);
             }
 
             [Test]
@@ -156,7 +155,7 @@ namespace Crypto.Test.Providers
                 public void Setup()
                 {
                     var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper());
-                    encryptionProvider = new PkcsEncryptionProvider(configuration, new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+                    encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
                 }
 
                 [Test]

@@ -44,10 +44,7 @@ namespace Crypto.Providers
             return new AsymmetricKeyPair(privateKey, publicKey);
         }
 
-        private int GetKeyLength(AsymmetricKeyParameter key)
-        {
-            return ((RsaKeyParameters) key).Modulus.BitLength;
-        }
+        private int GetKeyLength(AsymmetricKeyParameter key) => ((RsaKeyParameters) key).Modulus.BitLength;
 
         public RsaKey GetKey(byte[] content, AsymmetricKeyType keyType)
         {

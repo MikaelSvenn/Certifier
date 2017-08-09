@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Core.Test.Model
 {
     [TestFixture]
-    public class RsaKeyPairTest
+    public class AsymmetricKeyPairTest
     {
         private AsymmetricKeyPair keyPair;
         private RsaKey privateKey;
@@ -19,14 +19,8 @@ namespace Core.Test.Model
             keyPair = new AsymmetricKeyPair(privateKey, publicKey);
         }
 
-        [Test]
-        public void KeyLengthInBitsShouldReturnPrivateKeyLength()
-        {
-            Assert.AreEqual(4096, keyPair.KeyLengthInBits);
-        }
-
         [TestFixture]
-        public class HasPassword : RsaKeyPairTest
+        public class HasPassword : AsymmetricKeyPairTest
         {
             [Test]
             public void ShouldReturnFalseWhenPasswordIsNull()

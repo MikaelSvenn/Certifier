@@ -12,7 +12,6 @@ namespace Core.Model
 
         public IAsymmetricKey PrivateKey { get; }
         public IAsymmetricKey PublicKey { get; }
-        public int KeyLengthInBits => PrivateKey.KeySize;
         public string Password { get; set; }
         public bool HasPassword => !string.IsNullOrEmpty(Password);
     }

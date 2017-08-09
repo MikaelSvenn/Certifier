@@ -55,6 +55,7 @@
     <Compile Include="Interfaces\ISignatureProvider.cs" />
     <Compile Include="Model\CipherType.cs" />
     <Compile Include="Model\ContentType.cs" />
+    <Compile Include="Model\DsaKey.cs" />
     <Compile Include="Model\EncryptedKey.cs" />
     <Compile Include="Model\EncryptionType.cs" />
     <Compile Include="Model\RsaKey.cs" />
