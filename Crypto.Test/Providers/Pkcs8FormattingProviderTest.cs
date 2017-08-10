@@ -26,7 +26,7 @@ namespace Crypto.Test.Providers
             keyPair = rsaKeyProvider.CreateKeyPair(2048);
 
             var oidMapper = new OidToCipherTypeMapper();
-            var asymmetricKeyConverter = new AsymmetricKeyProvider(oidMapper, rsaKeyProvider, new KeyInfoWrapper());
+            var asymmetricKeyConverter = new AsymmetricKeyProvider(oidMapper, new KeyInfoWrapper(), rsaKeyProvider, null);
             pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyConverter);
 
             var configuration = Mock.Of<IConfiguration>(m => m.Get<int>("SaltLengthInBytes") == 100 &&

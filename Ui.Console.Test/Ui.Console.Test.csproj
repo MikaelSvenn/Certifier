@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandler\CreateDsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateSignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadFromFileCommandHandlerTest.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="CommandHandler\VerifySignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
+    <Compile Include="Decorator\DsaKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
     <Compile Include="Decorator\Pkcs8WriteFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\Pkcs8ReadFormattingDecoratorTest.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Decorator\WriteToFileBase64FormattingDecoratorTest.cs" />
     <Compile Include="Decorator\WriteToStdOutBase64FormattingDecoratorTest.cs" />
     <Compile Include="Integration\ConvertKeyPairTest.cs" />
+    <Compile Include="Integration\CreateDsaKeyTest.cs" />
     <Compile Include="Integration\CreateRsaKeyTest.cs" />
     <Compile Include="Integration\CreateSignatureTest.cs" />
     <Compile Include="Integration\VerifyKeyPairTest.cs" />

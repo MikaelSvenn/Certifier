@@ -24,7 +24,7 @@ namespace Ui.Console.Test.Integration
         public void Setup()
         {
             var keyProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(new SecureRandomGenerator()));
-            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), keyProvider, new KeyInfoWrapper()));
+            var pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), keyProvider, null));
             
             file = new Mock<FileWrapper>();
             file = new Mock<FileWrapper>();            

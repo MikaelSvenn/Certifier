@@ -14,13 +14,14 @@ namespace Crypto.Providers
     {
         private readonly OidToCipherTypeMapper cipherTypeMapper;
         private readonly IKeyProvider<RsaKey> rsaKeyProvider;
+        private readonly IKeyProvider<DsaKey> dsaKeyProvider;
         private readonly KeyInfoWrapper keyInfoWrapper;
 
-        //TODO: Extension point for reading in DSA and EC keys - implement once EC and DSA key providers are done.
-        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, IKeyProvider<RsaKey> rsaKeyProvider, KeyInfoWrapper keyInfoWrapper)
+        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, KeyInfoWrapper keyInfoWrapper, IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider)
         {
             this.cipherTypeMapper = cipherTypeMapper;
             this.rsaKeyProvider = rsaKeyProvider;
+            this.dsaKeyProvider = dsaKeyProvider;
             this.keyInfoWrapper = keyInfoWrapper;
         }
 
@@ -36,13 +37,21 @@ namespace Crypto.Providers
                 throw new CryptographicException("Public key is not valid.");
             }
             
-            var cipherType = cipherTypeMapper.MapOidToCipherType(publicKeyInfo.AlgorithmID.Algorithm.Id);
-            if (cipherType != CipherType.Rsa)
-            {
-                throw new ArgumentException($"Unsupported key type: {cipherType}");
-            }
+            return GetKey(keyContent, publicKeyInfo.AlgorithmID.Algorithm.Id, AsymmetricKeyType.Public);
+        }
 
-            return rsaKeyProvider.GetKey(keyContent, AsymmetricKeyType.Public);
+        private IAsymmetricKey GetKey(byte[] keyContent, string algorithmId, AsymmetricKeyType keyType)
+        {
+            var cipherType = cipherTypeMapper.MapOidToCipherType(algorithmId);
+            switch (cipherType)
+            {
+                    case CipherType.Rsa:
+                        return rsaKeyProvider.GetKey(keyContent, keyType);
+                    case CipherType.Dsa:
+                        return dsaKeyProvider.GetKey(keyContent, keyType);
+                    default:
+                        throw new ArgumentException("Key type not supported or key is corrupted.");        
+            }
         }
 
         public IAsymmetricKey GetPrivateKey(byte[] keyContent)
@@ -57,14 +66,8 @@ namespace Crypto.Providers
             {
                 throw new CryptographicException("Private key is not valid.");
             }
-            
-            var cipherType = cipherTypeMapper.MapOidToCipherType(privateKeyInfo.PrivateKeyAlgorithm.Algorithm.Id);
-            if (cipherType != CipherType.Rsa)
-            {
-                throw new ArgumentException($"Unsupported key type: {cipherType}");
-            }
 
-            return rsaKeyProvider.GetKey(keyContent, AsymmetricKeyType.Private);
+            return GetKey(keyContent, privateKeyInfo.PrivateKeyAlgorithm.Algorithm.Id, AsymmetricKeyType.Private);
         }
 
         public IAsymmetricKey GetEncryptedPrivateKey(byte[] keyContent)

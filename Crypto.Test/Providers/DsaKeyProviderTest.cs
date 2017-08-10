@@ -100,7 +100,7 @@ namespace Crypto.Test.Providers
                 [OneTimeSetUp]
                 public void Setup()
                 {
-                    var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), null, new KeyInfoWrapper());
+                    var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null);
                     encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
                 }
                 

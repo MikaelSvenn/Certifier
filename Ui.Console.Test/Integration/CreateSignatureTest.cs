@@ -63,7 +63,7 @@ namespace Ui.Console.Test.Integration
         {
             var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
-            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider, new KeyInfoWrapper());
+            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, null);
             var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
 
             keyPair = rsaKeyProvider.CreateKeyPair(2048);

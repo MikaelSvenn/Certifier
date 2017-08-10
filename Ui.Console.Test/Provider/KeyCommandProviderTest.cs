@@ -26,13 +26,19 @@ namespace Ui.Console.Test.Provider
             [SetUp]
             public void Setup()
             {
-                command = provider.GetCreateKeyCommand(4096);
+                command = provider.GetCreateKeyCommand<CreateDsaKeyCommand>(3072);
             }
 
             [Test]
             public void KeySize()
             {
-                Assert.AreEqual(4096, command.KeySize);
+                Assert.AreEqual(3072, command.KeySize);
+            }
+
+            [Test]
+            public void CommandType()
+            {
+                Assert.IsAssignableFrom<CreateDsaKeyCommand>(command);
             }
         }
 

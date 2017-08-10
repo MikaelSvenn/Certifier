@@ -21,9 +21,20 @@ namespace Ui.Console.Provider
 
         public void CreateKeyPair(ApplicationArguments arguments)
         {
-            ICreateAsymmetricKeyCommand createKeyCommand = keyCommandProvider.GetCreateKeyCommand(arguments.KeySize);
+            ICreateAsymmetricKeyCommand createKeyCommand;
+            switch (arguments.KeyType)
+            {
+                    case CipherType.Rsa:
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<CreateRsaKeyCommand>(arguments.KeySize);
+                        break;
+                    case CipherType.Dsa:
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<CreateDsaKeyCommand>(arguments.KeySize);
+                        break;
+                    default:
+                        throw new ArgumentException("Key type not supported.");
+            }
+            
             commandExecutor.Execute(createKeyCommand);
-
             WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
             WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath, arguments.ContentType);
             commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});

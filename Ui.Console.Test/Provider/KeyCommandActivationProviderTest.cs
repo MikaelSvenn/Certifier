@@ -48,19 +48,34 @@ namespace Ui.Console.Test.Provider
                     EncryptionType = EncryptionType.Pkcs,
                     PrivateKeyPath = "private.pem",
                     PublicKeyPath = "public.pem",
-                    ContentType = ContentType.Pem
+                    ContentType = ContentType.Pem,
+                    KeyType = CipherType.Rsa
                 };
-
+                
                 provider.CreateKeyPair(arguments);
             }
 
             [Test]
             public void ShouldCreateRsaKeyPair()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.EncryptionType == EncryptionType.None && 
-                                                                                        c.KeySize == 1024)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.KeySize == 1024)));
             }
 
+            [Test]
+            public void ShouldCreateDsaKeyPair()
+            {
+                arguments.KeyType = CipherType.Dsa;
+                provider.CreateKeyPair(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateDsaKeyCommand>(c => c.KeySize == 1024)));
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenKeyTypeIsNotSupported()
+            {
+                arguments.KeyType = CipherType.Pkcs5Encrypted;
+                Assert.Throws<ArgumentException>(() => { provider.CreateKeyPair(arguments); });
+            }
+            
             [Test]
             public void ShouldWriteCreatedPrivateKeyToFile()
             {

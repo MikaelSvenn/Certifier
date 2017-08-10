@@ -48,7 +48,7 @@ namespace Ui.Console.Test.Integration
         {
             var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
-            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), rsaKeyProvider, new KeyInfoWrapper());
+            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, null);
             encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
             pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
