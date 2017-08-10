@@ -63,6 +63,25 @@ namespace Ui.Console.Test.Integration
             files.Add("private.rsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz"))));
         }
         
+        public void PopulateDsaKeys()
+        {
+            var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
+            var dsaKeyProvider = new DsaKeyProvider(keyPairGenerator);
+            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, dsaKeyProvider);
+            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encodingWrapper = new EncodingWrapper();
+            
+            IAsymmetricKeyPair dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
+            
+            files.Add("private.dsa.der", dsaKeyPair.PrivateKey.Content);
+            files.Add("public.dsa.der", dsaKeyPair.PublicKey.Content);
+            files.Add("private.dsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(dsaKeyPair.PrivateKey)));
+            files.Add("public.dsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(dsaKeyPair.PublicKey)));
+            files.Add("private.dsa.encrypted.der", encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz").Content);
+            files.Add("private.dsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz"))));
+        }
+        
         [TearDown]
         public void TeardownConvertKeyPairTest()
         {
@@ -101,7 +120,7 @@ namespace Ui.Console.Test.Integration
         }
 
         [TestFixture]
-        public class ConvertUnencryptedRsaKeyPair : ConvertKeyPairTest
+        public class ConvertUnencryptedRsaKey : ConvertKeyPairTest
         {
             [SetUp]
             public void Setup()
@@ -183,6 +202,92 @@ namespace Ui.Console.Test.Integration
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
                 CollectionAssert.AreEqual(files["private.rsa.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+            }
+        }
+
+        [TestFixture]
+        public class ConvertUnencryptedDsaKey : ConvertKeyPairTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                PopulateDsaKeys();
+            }
+            
+            [Test]
+            public void ShouldConvertPemKeyPairToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.pem", "--publickey", "public.dsa.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["private.dsa.der"], files["private.dsa.pem.der"]);
+                CollectionAssert.AreEqual(files["public.dsa.der"], files["public.dsa.pem.der"]);
+            }
+
+            [Test]
+            public void ShouldConvertPublicPemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.dsa.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["public.dsa.der"], files["public.dsa.pem.der"]);
+            }
+
+            [Test]
+            public void ShouldConvertPrivatePemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["private.dsa.der"], files["private.dsa.pem.der"]);
+            }
+            
+            [Test]
+            public void ShouldConvertDerKeyPairToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.der", "--publickey", "public.dsa.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["private.dsa.pem"], files["private.dsa.der.pem"]);
+                CollectionAssert.AreEqual(files["public.dsa.pem"], files["public.dsa.der.pem"]);
+            }
+
+            [Test]
+            public void ShouldConvertPrivateDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["private.dsa.pem"], files["private.dsa.der.pem"]);
+            }
+
+            [Test]
+            public void ShouldConvertPublicDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.dsa.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["public.dsa.pem"], files["public.dsa.der.pem"]);
+            }
+        }
+
+        [TestFixture]
+        public class ConvertEncryptedPrivateDsaKey : ConvertKeyPairTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                PopulateDsaKeys();
+            }
+            
+            [Test]
+            public void ShouldConvertPemToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.encrypted.pem", "-p", "foobarbaz", "-t", "der"});
+                IAsymmetricKey encryptedKey = asymmetricKeyProvider.GetEncryptedPrivateKey(files["private.dsa.encrypted.pem.der"]);
+                IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
+                
+                CollectionAssert.AreEqual(files["private.dsa.der"], decryptedKey.Content);
+            }
+            
+            [Test]
+            public void ShouldConvertDerToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
+                
+                string keyContent = encodingWrapper.GetString(files["private.dsa.encrypted.der.pem"]);
+                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
+                
+                CollectionAssert.AreEqual(files["private.dsa.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
             }
         }
     }
