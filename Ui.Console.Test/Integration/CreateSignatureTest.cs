@@ -16,7 +16,7 @@ using Ui.Console.Provider;
 namespace Ui.Console.Test.Integration
 {
     [TestFixture]
-    public class CreateSignatureTest
+    public abstract class CreateSignatureTest
     {
         private string privateKey;
         private byte[] fileContent;
@@ -26,6 +26,10 @@ namespace Ui.Console.Test.Integration
         private List<string> consoleOutput;
         private EncodingWrapper encoding;
         private IAsymmetricKeyPair keyPair;
+
+        private RsaKeyProvider rsaKeyProvider;
+        private DsaKeyProvider dsaKeyProvider;
+        private Pkcs8FormattingProvider pkcs8Formatter;
         
         [SetUp]
         public void SetupCreateSignatureTest()
@@ -42,6 +46,9 @@ namespace Ui.Console.Test.Integration
                     fileOutput.Add(path, content);
                 });
 
+            file.Setup(f => f.ReadAllBytes("foo.file"))
+                .Returns(fileContent);
+            
             console = new Mock<ConsoleWrapper>();
             consoleOutput = new List<string>();
             
@@ -51,6 +58,13 @@ namespace Ui.Console.Test.Integration
             Container container = ContainerProvider.GetContainer();
             container.Register<FileWrapper>(() => file.Object);
             container.Register<ConsoleWrapper>(() => console.Object);
+            
+            var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
+            rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
+            dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
+            
+            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider);
+            pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
         }
 
         [TearDown]
@@ -61,22 +75,24 @@ namespace Ui.Console.Test.Integration
 
         protected void SetupWithRsaKey()
         {
-            var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
-            var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
-            var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, null);
-            var pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
-
             keyPair = rsaKeyProvider.CreateKeyPair(2048);
             var privateRsaKey = keyPair.PrivateKey;
             privateKey = pkcs8Formatter.GetAsPem(privateRsaKey);
 
             file.Setup(f => f.ReadAllBytes("private.pem"))
                 .Returns(encoding.GetBytes(privateKey));
-
-            file.Setup(f => f.ReadAllBytes("foo.file"))
-                .Returns(fileContent);
         }
 
+        protected void SetupWithDsaKey()
+        {
+            keyPair = dsaKeyProvider.CreateKeyPair(2048);
+            var privateDsaKey = keyPair.PrivateKey;
+            privateKey = pkcs8Formatter.GetAsPem(privateDsaKey);
+
+            file.Setup(f => f.ReadAllBytes("private.pem"))
+                .Returns(encoding.GetBytes(privateKey));
+        }
+        
         public void VerifySignature(string signatureFileName = "", string content = "")
         {
             Container container = ContainerProvider.GetContainer();
@@ -94,88 +110,88 @@ namespace Ui.Console.Test.Integration
             
             Assert.IsTrue(signatureProvider.VerifySignature(keyPair.PublicKey, signature));
         }
-        
+
         [TestFixture]
-        public class CreateWithRsaSignature : CreateSignatureTest
+        public class CreateRsaSignature : CreateSignatureTest
         {
             [SetUp]
             public void SetupCreateRsaSignature()
             {
                 SetupWithRsaKey();
             }
-
-            [Test]
-            public void ShouldWriteBase64EncodedSignatureToFile()
-            {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foobarbaz", "-o", "foo.file.signature"});
-
-                byte[] signatureContent = fileOutput["foo.file.signature"];
-                string signature = encoding.GetString(signatureContent);
-
-                Assert.IsNotEmpty(signature);
-                Assert.DoesNotThrow(() => Convert.FromBase64String(signature));
-            }
-
-            [Test]
-            public void ShouldWriteBase64EncodedSignatureToStdoutWhenOutputIsNotSpecified()
-            {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foobarbaz"});
-                string signature = consoleOutput.Single();
-                
-                Assert.IsNotEmpty(signature);
-                Assert.DoesNotThrow(() => { Convert.FromBase64String(signature); });
-            }
-                       
-            [Test]
-            public void ShouldCreateValidSignatureForFileInputAndFileOutput()
-            {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file", "-o", "foo.file.signature"});
-                VerifySignature("foo.file.signature");
-            }
-
-            [Test]
-            public void ShouldCreateValidSignatureForStandardInputAndFileOutput()
-            {
-                const string input = @"FooBarBaz©®*Åäö!      _<>#|?€  \n\t  I said this. It is guaranteed.";  
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", input, "-o", "bar.file.signature"});
-                VerifySignature("bar.file.signature", input);
-            }
-
-            [Test]
-            public void ShouldCreateValidSignatureForFileInputAndConsoleOutput()
-            {
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
-                VerifySignature();
-            }
-
-            [Test]
-            public void ShouldCreateValidSignatureForStandardInputAndConsoleOutput()
-            {
-                const string input = "It's me, Mario!";
-                Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", input});
-                VerifySignature("", input);
-            }
         }
 
         [TestFixture]
-        public class ErrorCases : CreateSignatureTest
+        public class CreateDsaSignature : CreateSignatureTest
         {
             [SetUp]
-            public void SetupErrorCases()
+            public void SetupCreateDsaSignature()
             {
-                SetupWithRsaKey();
+                SetupWithDsaKey();
             }
+        }
 
-            [Test]
-            public void ShouldIndicateMissingPrivateKey()
+        [Test]
+        public void ShouldWriteBase64EncodedSignatureToFile()
+        {
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foobarbaz", "-o", "foo.file.signature"});
+
+            byte[] signatureContent = fileOutput["foo.file.signature"];
+            string signature = encoding.GetString(signatureContent);
+
+            Assert.IsNotEmpty(signature);
+            Assert.DoesNotThrow(() => Convert.FromBase64String(signature));
+        }
+
+        [Test]
+        public void ShouldWriteBase64EncodedSignatureToStdoutWhenOutputIsNotSpecified()
+        {
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", "foobarbaz"});
+            string signature = consoleOutput.Single();
+            
+            Assert.IsNotEmpty(signature);
+            Assert.DoesNotThrow(() => { Convert.FromBase64String(signature); });
+        }
+
+        [Test]
+        public void ShouldCreateValidSignatureForFileInputAndFileOutput()
+        {
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file", "-o", "foo.file.signature"});
+            VerifySignature("foo.file.signature");
+        }
+
+        [Test]
+        public void ShouldCreateValidSignatureForStandardInputAndFileOutput()
+        {
+            const string input = @"FooBarBaz©®*Åäö!      _<>#|?€  \n\t  I said this. It is guaranteed.";  
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", input, "-o", "bar.file.signature"});
+            VerifySignature("bar.file.signature", input);
+        }
+
+        [Test]
+        public void ShouldCreateValidSignatureForFileInputAndConsoleOutput()
+        {
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-f", "foo.file"});
+            VerifySignature();
+        }
+
+        [Test]
+        public void ShouldCreateValidSignatureForStandardInputAndConsoleOutput()
+        {
+            const string input = "It's me, Mario!";
+            Certifier.Main(new[] {"-c", "signature", "--privatekey", "private.pem", "-i", input});
+            VerifySignature("", input);
+        }
+
+        [Test]
+        public void ShouldIndicateMissingPrivateKey()
+        {
+            var exception = Assert.Throws<ArgumentException>(() =>
             {
-                var exception = Assert.Throws<ArgumentException>(() =>
-                {
-                    Certifier.Main(new []{"-c", "signature", "-i", "foobarbaz"});
-                });
+                Certifier.Main(new []{"-c", "signature", "-i", "foobarbaz"});
+            });
 
-                Assert.AreEqual("Private key file or path is required.", exception.Message);
-            }
+            Assert.AreEqual("Private key file or path is required.", exception.Message);
         }
     }
 }
