@@ -61,7 +61,7 @@
     <Compile Include="CommandHandler\ICommandHandler.cs" />
     <Compile Include="CommandHandler\ReadFileCommandHandler.cs" />
     <Compile Include="CommandHandler\ReadKeyFromFileCommandHandler.cs" />
-    <Compile Include="CommandHandler\VerifyRsaKeyPairCommandHandler.cs" />
+    <Compile Include="CommandHandler\VerifyKeyPairCommandHandler.cs" />
     <Compile Include="CommandHandler\VerifySignatureCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToFileCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
@@ -75,7 +75,7 @@
     <Compile Include="Command\ICommandWithResult.cs" />
     <Compile Include="Command\ICreateAsymmetricKeyCommand.cs" />
     <Compile Include="Command\ReadKeyFromFileCommand.cs" />
-    <Compile Include="Command\VerifyRsaKeyPairCommand.cs" />
+    <Compile Include="Command\VerifyKeyPairCommand.cs" />
     <Compile Include="Command\VerifySignatureCommand.cs" />
     <Compile Include="Command\WriteFileCommand.cs" />
     <Compile Include="Command\WriteToStdOutCommand.cs" />
@@ -83,6 +83,7 @@
     <Compile Include="Decorator\FilePathValidationDecorator.cs" />
     <Compile Include="Decorator\ReadKeyConversionDecorator.cs" />
     <Compile Include="Decorator\ReadKeyFromFilePathValidationDecorator.cs" />
+    <Compile Include="Decorator\VerifyKeyTypeValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecorator.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8ReadFormattingDecorator.cs" />
