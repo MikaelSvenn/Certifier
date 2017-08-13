@@ -3,3 +3,4 @@ packages/*
 *obj/
 *bin/
 TestResult.xml
+/.vs/Certifier/v15

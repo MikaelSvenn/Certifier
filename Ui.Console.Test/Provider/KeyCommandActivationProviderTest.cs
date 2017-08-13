@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Core.Interfaces;
 using Core.Model;
 using Moq;
@@ -116,7 +115,7 @@ namespace Ui.Console.Test.Provider
                 commandExecutor.Setup(c => c.ExecuteSequence(It.IsAny<IEnumerable<object>>()))
                                .Callback<IEnumerable<object>>(commands =>
                                {
-                                   commands.ForEach(c =>
+                                   commands.ToList().ForEach(c =>
                                    {
                                        var keyCommand = c as ReadKeyFromFileCommand;
                                        if (keyCommand != null && keyCommand.FilePath == "public.key")
