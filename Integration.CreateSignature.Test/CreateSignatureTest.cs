@@ -11,9 +11,10 @@ using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 using SimpleInjector;
+using Ui.Console;
 using Ui.Console.Provider;
 
-namespace Ui.Console.Test.Integration
+namespace Integration.CreateSignature.Test
 {
     [TestFixture]
     public abstract class CreateSignatureTest

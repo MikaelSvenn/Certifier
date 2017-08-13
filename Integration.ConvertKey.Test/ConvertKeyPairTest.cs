@@ -10,10 +10,10 @@ using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
 using SimpleInjector;
+using Ui.Console;
 using Ui.Console.Provider;
-using Ui.Console.Startup;
 
-namespace Ui.Console.Test.Integration
+namespace Integration.ConvertKey.Test
 {
     [TestFixture]
     public class ConvertKeyPairTest

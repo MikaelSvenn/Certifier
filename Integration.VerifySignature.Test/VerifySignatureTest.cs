@@ -9,10 +9,11 @@ using Crypto.Providers;
 using Crypto.Wrappers;
 using Moq;
 using NUnit.Framework;
+using Ui.Console;
 using Ui.Console.Provider;
 using Container = SimpleInjector.Container;
 
-namespace Ui.Console.Test.Integration
+namespace Integration.VerifySignature.Test
 {
     [TestFixture]
     public abstract class VerifySignatureTest

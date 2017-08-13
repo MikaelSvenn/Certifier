@@ -74,12 +74,6 @@
     <Compile Include="Decorator\WriteKeyToFilePathValidationDecoratorTest.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecoratorTest.cs" />
     <Compile Include="Decorator\WriteToStdOutBase64FormattingDecoratorTest.cs" />
-    <Compile Include="Integration\ConvertKeyPairTest.cs" />
-    <Compile Include="Integration\CreateDsaKeyTest.cs" />
-    <Compile Include="Integration\CreateRsaKeyTest.cs" />
-    <Compile Include="Integration\CreateSignatureTest.cs" />
-    <Compile Include="Integration\VerifyKeyPairTest.cs" />
-    <Compile Include="Integration\VerifySignatureTest.cs" />
     <Compile Include="Provider\KeyCommandActivationProviderTest.cs" />
     <Compile Include="Provider\KeyCommandProviderTest.cs" />
     <Compile Include="Provider\FileCommandProviderTest.cs" />
