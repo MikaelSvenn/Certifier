@@ -1,5 +1,8 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using System;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.EC;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 
@@ -37,6 +40,27 @@ namespace Crypto.Generators
             var keyPairGenerator = new DsaKeyPairGenerator();
             keyPairGenerator.Init(keyGenerationParameters);
 
+            return keyPairGenerator.GenerateKeyPair();
+        }
+
+        public AsymmetricCipherKeyPair GenerateECKeyPair(string curve)
+        {
+            X9ECParameters curveParameters = ECNamedCurveTable.GetByName(curve) ?? CustomNamedCurves.GetByName(curve);
+            if (curveParameters == null)
+            {
+                throw new ArgumentException("Curve not supported.");
+            }
+            
+            var ecDomainParameters = new ECDomainParameters(curveParameters.Curve, 
+                                                            curveParameters.G, 
+                                                            curveParameters.N, 
+                                                            curveParameters.H, 
+                                                            curveParameters.GetSeed());
+            
+            var keyGenerationParamters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);
+            var keyPairGenerator = new ECKeyPairGenerator();
+            keyPairGenerator.Init(keyGenerationParamters);
+            
             return keyPairGenerator.GenerateKeyPair();
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using Crypto.Generators;
 using NUnit.Framework;
 using Org.BouncyCastle.Crypto;
@@ -98,6 +99,56 @@ namespace Crypto.Test.Generators
 
                 Assert.AreEqual(2048, privateKey.Parameters.P.BitLength);
                 Assert.AreEqual(2048, publicKey.Parameters.P.BitLength);
+            }
+        }
+
+        [TestFixture]
+        public class GenerateECKeyPair : AsymmetricKeyPairGeneratorTest
+        {
+            private AsymmetricCipherKeyPair keyPair;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = asymmetricKeyPairGenerator.GenerateECKeyPair("curve25519");
+            }
+            
+            [Test]
+            public void ShouldCreatePrivateKey()
+            {
+                var privateKey = (ECPrivateKeyParameters) keyPair.Private;
+                Assert.IsTrue(privateKey.IsPrivate);
+                Assert.AreEqual("EC", privateKey.AlgorithmName);
+                Assert.AreNotEqual(privateKey.D, default(BigInteger));
+                Assert.IsNotEmpty(privateKey.Parameters.G.GetEncoded());
+                Assert.AreNotEqual(privateKey.Parameters.H, default(BigInteger));
+                Assert.AreNotEqual(privateKey.Parameters.N, default(BigInteger));
+            }
+
+            [Test]
+            public void ShouldCreatePublicKey()
+            {
+                var publicKey = (ECPublicKeyParameters) keyPair.Public;
+                Assert.IsFalse(publicKey.IsPrivate);
+                Assert.AreEqual("EC", publicKey.AlgorithmName);
+                Assert.IsNotEmpty(publicKey.Q.GetEncoded());
+                Assert.IsNotEmpty(publicKey.Parameters.G.GetEncoded());
+                Assert.AreNotEqual(publicKey.Parameters.H, default(BigInteger));
+                Assert.AreNotEqual(publicKey.Parameters.N, default(BigInteger));
+                
+            }
+
+            [Test]
+            public void ShouldCreateKeysOfGivenLength()
+            {
+                var privateKey = (ECPrivateKeyParameters) keyPair.Private;
+                Assert.GreaterOrEqual(privateKey.D.BitLength, 250);
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenCurveIsNotSupported()
+            {
+                Assert.Throws<ArgumentException>(() => { asymmetricKeyPairGenerator.GenerateECKeyPair("curve41417"); });
             }
         }
     }
