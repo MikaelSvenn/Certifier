@@ -8,34 +8,34 @@ using Ui.Console.CommandHandler;
 namespace Ui.Console.Test.CommandHandler
 {
     [TestFixture]
-    public class CreateDsaKeyCommandHandlerTest
+    public class CreateEcKeyCommandHandlerTest
     {
-        private CreateDsaKeyCommandHandler commandHandler;
-        private Mock<IKeyProvider<DsaKey>> keyProvider;
+        private CreateEcKeyCommandHandler commandHandler;
+        private Mock<IEcKeyProvider> keyProvider;
         private IAsymmetricKeyPair keyPair;
-        private CreateKeyCommand<DsaKey> command;
+        private CreateKeyCommand<EcKey> command;
         
         [SetUp]
         public void Setup()
         {
             keyPair = new AsymmetricKeyPair(null, null);    
-            keyProvider = new Mock<IKeyProvider<DsaKey>>();
-            keyProvider.Setup(k => k.CreateKeyPair(7))
+            keyProvider = new Mock<IEcKeyProvider>();
+            keyProvider.Setup(k => k.CreateKeyPair("foobar"))
                        .Returns(keyPair);
 
-            command = new CreateKeyCommand<DsaKey>
+            command = new CreateKeyCommand<EcKey>()
             {
-                KeySize = 7
+                Curve = "foobar"
             };
             
-            commandHandler = new CreateDsaKeyCommandHandler(keyProvider.Object);
+            commandHandler = new CreateEcKeyCommandHandler(keyProvider.Object);
             commandHandler.Execute(command);
         }
 
         [Test]
         public void ShouldCreateKey()
         {
-            keyProvider.Verify(kp => kp.CreateKeyPair(7));
+            keyProvider.Verify(kp => kp.CreateKeyPair("foobar"));
         }
 
         [Test]

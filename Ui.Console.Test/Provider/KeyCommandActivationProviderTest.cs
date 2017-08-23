@@ -57,7 +57,7 @@ namespace Ui.Console.Test.Provider
             [Test]
             public void ShouldCreateRsaKeyPair()
             {
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateRsaKeyCommand>(c => c.KeySize == 1024)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<RsaKey>>(c => c.KeySize == 1024)));
             }
 
             [Test]
@@ -65,13 +65,25 @@ namespace Ui.Console.Test.Provider
             {
                 arguments.KeyType = CipherType.Dsa;
                 provider.CreateKeyPair(arguments);
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateDsaKeyCommand>(c => c.KeySize == 1024)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<DsaKey>>(c => c.KeySize == 1024)));
             }
 
             [Test]
-            public void ShouldThrowExceptionWhenKeyTypeIsNotSupported()
+            public void ShouldCreateEcKeyPair()
             {
-                arguments.KeyType = CipherType.Pkcs5Encrypted;
+                arguments.KeyType = CipherType.Ec;
+                arguments.Curve = "foobar";
+                provider.CreateKeyPair(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<EcKey>>(c => c.Curve == "foobar")));
+            }
+            
+            [TestCase(CipherType.ElGamal)]
+            [TestCase(CipherType.Pkcs5Encrypted)]
+            [TestCase(CipherType.Pkcs12Encrypted)]
+            [TestCase(CipherType.Unknown)]
+            public void ShouldThrowExceptionWhenKeyTypeIsNotSupported(CipherType cipherType)
+            {
+                arguments.KeyType = cipherType;
                 Assert.Throws<ArgumentException>(() => { provider.CreateKeyPair(arguments); });
             }
             

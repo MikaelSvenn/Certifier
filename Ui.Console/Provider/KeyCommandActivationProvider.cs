@@ -25,10 +25,13 @@ namespace Ui.Console.Provider
             switch (arguments.KeyType)
             {
                     case CipherType.Rsa:
-                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<CreateRsaKeyCommand>(arguments.KeySize);
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<RsaKey>(arguments.KeySize);
                         break;
                     case CipherType.Dsa:
-                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<CreateDsaKeyCommand>(arguments.KeySize);
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<DsaKey>(arguments.KeySize);
+                        break;
+                    case CipherType.Ec:
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<EcKey>(0, arguments.Curve);
                         break;
                     default:
                         throw new ArgumentException("Key type not supported.");

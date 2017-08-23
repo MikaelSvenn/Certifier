@@ -10,7 +10,7 @@ namespace Ui.Console.Test.CommandHandler
     [TestFixture]
     public class CreateRsaKeyCommandHandlerTest
     {
-        private ICommandHandler<CreateRsaKeyCommand> commandHandler;
+        private ICommandHandler<CreateKeyCommand<RsaKey>> commandHandler;
         private Mock<IKeyProvider<RsaKey>> keyProvider;
         private IAsymmetricKeyPair keyPair;
 
@@ -29,7 +29,7 @@ namespace Ui.Console.Test.CommandHandler
         [Test]
         public void ShouldSetCreatedKeyPairAsCommandResult()
         {
-            var command = new CreateRsaKeyCommand
+            var command = new CreateKeyCommand<RsaKey>
             {
                 KeySize = 4096
             };

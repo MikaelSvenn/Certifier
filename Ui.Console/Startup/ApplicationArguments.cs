@@ -31,5 +31,6 @@ namespace Ui.Console.Startup
         public bool IsConvertOperation { get; set; }
         public bool HasPublicKey => !string.IsNullOrWhiteSpace(PublicKeyPath);
         public bool HasPrivateKey => !string.IsNullOrWhiteSpace(PrivateKeyPath);
+        public string Curve { get; set; }
     }
 }

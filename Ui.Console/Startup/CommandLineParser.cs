@@ -69,6 +69,10 @@ namespace Ui.Console.Startup
                   .As("convert")
                   .SetDefault(false);
 
+            parser.Setup(argument => argument.Curve)
+                  .As("curve")
+                  .SetDefault("curve25519");
+
 
             var result = parser.Parse(arguments);
             if (result.HasErrors || result.EmptyArgs || result.HelpCalled || result.AdditionalOptionsFound.Any())

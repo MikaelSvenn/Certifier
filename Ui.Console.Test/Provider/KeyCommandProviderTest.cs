@@ -13,7 +13,7 @@ namespace Ui.Console.Test.Provider
         private KeyCommandProvider provider;
 
         [SetUp]
-        public void SetupRsaKeyCommandProviderTest()
+        public void SetupKeyCommandProviderTest()
         {
             provider = new KeyCommandProvider();
         }
@@ -21,12 +21,12 @@ namespace Ui.Console.Test.Provider
         [TestFixture]
         public class CreateKeyCommandShouldMap : KeyCommandProviderTest
         {
-            private ICreateAsymmetricKeyCommand command;
+            private CreateKeyCommand<DsaKey> command;
 
             [SetUp]
             public void Setup()
             {
-                command = provider.GetCreateKeyCommand<CreateDsaKeyCommand>(3072);
+                command = provider.GetCreateKeyCommand<DsaKey>(3072);
             }
 
             [Test]
@@ -36,9 +36,16 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
+            public void Curve()
+            {
+                CreateKeyCommand<EcKey> ecKeyCommand = provider.GetCreateKeyCommand<EcKey>(0, "foobar");
+                Assert.AreEqual("foobar", ecKeyCommand.Curve);
+            }
+            
+            [Test]
             public void CommandType()
             {
-                Assert.IsAssignableFrom<CreateDsaKeyCommand>(command);
+                Assert.IsAssignableFrom<CreateKeyCommand<DsaKey>>(command);
             }
         }
 

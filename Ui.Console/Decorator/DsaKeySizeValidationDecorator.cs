@@ -1,10 +1,11 @@
 ﻿using System;
+using Core.Model;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class DsaKeySizeValidationDecorator<T> : ICommandHandler<T> where T : CreateDsaKeyCommand
+    public class DsaKeySizeValidationDecorator<T> : ICommandHandler<T> where T : CreateKeyCommand<DsaKey>
     {
         private readonly ICommandHandler<T> decoratedHandler;
         public DsaKeySizeValidationDecorator(ICommandHandler<T> decoratedHandler)

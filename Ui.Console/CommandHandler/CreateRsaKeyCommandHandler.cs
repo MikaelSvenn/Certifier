@@ -4,7 +4,7 @@ using Ui.Console.Command;
 
  namespace Ui.Console.CommandHandler
  {
-     public class CreateRsaKeyCommandHandler : ICommandHandler<CreateRsaKeyCommand>
+     public class CreateRsaKeyCommandHandler : ICommandHandler<CreateKeyCommand<RsaKey>>
      {
          private readonly IKeyProvider<RsaKey> rsaKeyProvider;
 
@@ -13,9 +13,9 @@ using Ui.Console.Command;
              this.rsaKeyProvider = rsaKeyProvider;
          }
 
-         public void Execute(CreateRsaKeyCommand createKeyCommand)
+         public void Execute(CreateKeyCommand<RsaKey> command)
          {
-             createKeyCommand.Result = rsaKeyProvider.CreateKeyPair(createKeyCommand.KeySize);
+             command.Result = rsaKeyProvider.CreateKeyPair(command.KeySize);
          }
      }
  }

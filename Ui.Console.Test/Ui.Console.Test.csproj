@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandler\CreateDsaKeyCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\CreateEcKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateSignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadFromFileCommandHandlerTest.cs" />

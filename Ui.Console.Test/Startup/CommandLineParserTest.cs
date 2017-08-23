@@ -33,6 +33,12 @@ namespace Ui.Console.Test.Startup
             }
 
             [Test]
+            public void Curve()
+            {
+                Assert.AreEqual("curve25519", arguments.Curve);
+            }
+            
+            [Test]
             public void KeyType()
             {
                 Assert.AreEqual(CipherType.Rsa, arguments.KeyType);
@@ -217,6 +223,13 @@ namespace Ui.Console.Test.Startup
                 Assert.AreEqual(2048, result.KeySize);
             }
 
+            [Test]
+            public void Curve()
+            {
+                var result = commandLineParser.ParseArguments(new []{"--curve", "foobar"});
+                Assert.AreEqual("foobar", result.Curve);
+            }
+            
             [Test]
             public void KeyType()
             {

@@ -4,7 +4,7 @@ using Ui.Console.Command;
 
 namespace Ui.Console.CommandHandler
 {
-    public class CreateDsaKeyCommandHandler : ICommandHandler<CreateDsaKeyCommand>
+    public class CreateDsaKeyCommandHandler : ICommandHandler<CreateKeyCommand<DsaKey>>
     {
         private readonly IKeyProvider<DsaKey> keyProvider;
         public CreateDsaKeyCommandHandler(IKeyProvider<DsaKey> keyProvider)
@@ -12,7 +12,7 @@ namespace Ui.Console.CommandHandler
             this.keyProvider = keyProvider;
         }
 
-        public void Execute(CreateDsaKeyCommand command)
+        public void Execute(CreateKeyCommand<DsaKey> command)
         {
             command.Result = keyProvider.CreateKeyPair(command.KeySize);
         }

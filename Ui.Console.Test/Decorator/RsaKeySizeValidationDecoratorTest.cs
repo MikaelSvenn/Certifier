@@ -1,4 +1,5 @@
 using System;
+using Core.Model;
 using Moq;
 using NUnit.Framework;
 using Ui.Console.Command;
@@ -10,20 +11,20 @@ namespace Ui.Console.Test.Decorator
     [TestFixture]
     public class RsaKeySizeValidationDecoratorTest
     {
-        private RsaKeySizeValidationDecorator<CreateRsaKeyCommand> decorator;
-        private Mock<ICommandHandler<ICreateAsymmetricKeyCommand>> decoratedCommand;
+        private RsaKeySizeValidationDecorator<CreateKeyCommand<RsaKey>> decorator;
+        private Mock<ICommandHandler<CreateKeyCommand<RsaKey>>> decoratedCommand;
 
         [SetUp]
         public void Setup()
         {
-            decoratedCommand = new Mock<ICommandHandler<ICreateAsymmetricKeyCommand>>();
-            decorator = new RsaKeySizeValidationDecorator<CreateRsaKeyCommand>(decoratedCommand.Object);
+            decoratedCommand = new Mock<ICommandHandler<CreateKeyCommand<RsaKey>>>();
+            decorator = new RsaKeySizeValidationDecorator<CreateKeyCommand<RsaKey>>(decoratedCommand.Object);
         }
 
         [Test]
         public void ShouldNotThrowExceptionWhenKeySizeIs2048()
         {
-            var command = new CreateRsaKeyCommand
+            var command = new CreateKeyCommand<RsaKey>
             {
                 KeySize = 2048
             };
@@ -34,7 +35,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldNotThrowExceptionWhenKeySizeIsOver2048()
         {
-            var command = new CreateRsaKeyCommand
+            var command = new CreateKeyCommand<RsaKey>
             {
                 KeySize = 9999
             };
@@ -45,7 +46,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldInvokeDecoratedCommand()
         {
-            var command = new CreateRsaKeyCommand
+            var command = new CreateKeyCommand<RsaKey>
             {
                 KeySize = 2048
             };
@@ -57,7 +58,7 @@ namespace Ui.Console.Test.Decorator
         [Test]
         public void ShouldThrowExceptionWhenKeySizeIsLessThan2048()
         {
-            var command = new CreateRsaKeyCommand
+            var command = new CreateKeyCommand<RsaKey>
             {
                 KeySize = 1024
             };

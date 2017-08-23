@@ -1,10 +1,11 @@
 ﻿using System;
+using Core.Model;
 using Ui.Console.Command;
 using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class RsaKeySizeValidationDecorator<T> : ICommandHandler<T> where T : CreateRsaKeyCommand
+    public class RsaKeySizeValidationDecorator<T> : ICommandHandler<T> where T : CreateKeyCommand<RsaKey>
     {
         private readonly ICommandHandler<T> decoratedCommand;
 
