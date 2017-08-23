@@ -135,16 +135,24 @@ namespace Crypto.Test.Generators
                 Assert.IsNotEmpty(publicKey.Parameters.G.GetEncoded());
                 Assert.AreNotEqual(publicKey.Parameters.H, default(BigInteger));
                 Assert.AreNotEqual(publicKey.Parameters.N, default(BigInteger));
-                
             }
 
             [Test]
-            public void ShouldCreateKeysOfGivenLength()
+            public void ShouldCreateKeysOfLengthTypicalToGivenCurve()
             {
-                var privateKey = (ECPrivateKeyParameters) keyPair.Private;
-                Assert.GreaterOrEqual(privateKey.D.BitLength, 250);
+                var privateKey = (ECKeyParameters) keyPair.Private;
+                Assert.AreEqual(255, privateKey.Parameters.Curve.FieldSize);
+                var publicKey = (ECKeyParameters) keyPair.Public;
+                Assert.AreEqual(255, publicKey.Parameters.Curve.FieldSize);
             }
 
+            [Test]
+            public void ShouldCreateElliptiCurveKeyOverGivenField()
+            {
+                var publicKey = (ECKeyParameters) keyPair.Public;
+                Assert.AreEqual("Curve25519Field", publicKey.Parameters.Curve.A.FieldName);
+            }
+            
             [Test]
             public void ShouldThrowExceptionWhenCurveIsNotSupported()
             {

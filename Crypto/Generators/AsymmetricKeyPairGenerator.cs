@@ -51,10 +51,10 @@ namespace Crypto.Generators
                 throw new ArgumentException("Curve not supported.");
             }
             
-            var ecDomainParameters = new ECDomainParameters(curveParameters.Curve, 
-                                                            curveParameters.G, 
-                                                            curveParameters.N, 
-                                                            curveParameters.H, 
+            var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
+                                                            curveParameters.G,
+                                                            curveParameters.N,
+                                                            curveParameters.H,
                                                             curveParameters.GetSeed());
             
             var keyGenerationParamters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);

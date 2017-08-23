@@ -51,6 +51,7 @@
     <Compile Include="Providers\AsymmetricKeyProvider.cs" />
     <Compile Include="Providers\DsaKeyProvider.cs" />
     <Compile Include="Providers\BCKeyProvider.cs" />
+    <Compile Include="Providers\EcKeyProvider.cs" />
     <Compile Include="Providers\PkcsEncryptionProvider.cs" />
     <Compile Include="Providers\Pkcs8FormattingProvider.cs" />
     <Compile Include="Providers\RsaKeyProvider.cs" />

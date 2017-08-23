@@ -48,6 +48,7 @@
     <Compile Include="Interfaces\IAsymmetricKeyPair.cs" />
     <Compile Include="Interfaces\IAsymmetricKeyProvider.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
+    <Compile Include="Interfaces\IEcKeyProvider.cs" />
     <Compile Include="Interfaces\IKeyEncryptionProvider.cs" />
     <Compile Include="Interfaces\IPkcsFormattingProvider.cs" />
     <Compile Include="Interfaces\IKeyProvider.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Model\CipherType.cs" />
     <Compile Include="Model\ContentType.cs" />
     <Compile Include="Model\DsaKey.cs" />
+    <Compile Include="Model\EcKey.cs" />
     <Compile Include="Model\EncryptedKey.cs" />
     <Compile Include="Model\EncryptionType.cs" />
     <Compile Include="Model\RsaKey.cs" />
