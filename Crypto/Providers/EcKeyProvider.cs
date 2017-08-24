@@ -17,7 +17,11 @@ namespace Crypto.Providers
             this.keyPairGenerator = keyPairGenerator;
         }
 
-        public IAsymmetricKeyPair CreateKeyPair(int keySize) => throw new InvalidOperationException("EC key must be defined by curve.");
+        public IAsymmetricKeyPair CreateKeyPair(int keySize)
+        {
+            throw new InvalidOperationException("EC key must be defined by curve.");
+        }
+
         public IAsymmetricKeyPair CreateKeyPair(string curve)
         {
             AsymmetricCipherKeyPair keyPair = keyPairGenerator.GenerateECKeyPair(curve);
