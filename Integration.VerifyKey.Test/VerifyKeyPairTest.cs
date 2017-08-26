@@ -23,6 +23,7 @@ namespace Integration.VerifyKey.Test
         private Mock<ConsoleWrapper> console;
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
+        private EcKeyProvider ecKeyProvider;
         private EncodingWrapper encoding;
         private Pkcs8FormattingProvider pkcs8Formatter;
         
@@ -33,9 +34,10 @@ namespace Integration.VerifyKey.Test
             
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
             
             encoding = new EncodingWrapper();
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider));
+            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider));
             
             files = new Dictionary<string, byte[]>();
             file = new Mock<FileWrapper>();            
@@ -83,6 +85,23 @@ namespace Integration.VerifyKey.Test
             files.Add("public.dsa.second", encoding.GetBytes(secondPublicKey));
         }
 
+        private void PopulateEcKeys()
+        {
+            IAsymmetricKeyPair ecKeyPair = ecKeyProvider.CreateKeyPair("sect283r1");
+            string firstPublicKey = pkcs8Formatter.GetAsPem(ecKeyPair.PublicKey);
+            string firstPrivateKey = pkcs8Formatter.GetAsPem(ecKeyPair.PrivateKey);
+
+            files.Add("private.ec.first", encoding.GetBytes(firstPrivateKey));
+            files.Add("public.ec.first", encoding.GetBytes(firstPublicKey));
+
+            ecKeyPair = ecKeyProvider.CreateKeyPair("sect283r1");
+
+            string secondPublicKey = pkcs8Formatter.GetAsPem(ecKeyPair.PublicKey);
+            string secondPrivateKey = pkcs8Formatter.GetAsPem(ecKeyPair.PrivateKey);
+            files.Add("private.ec.second", encoding.GetBytes(secondPrivateKey));
+            files.Add("public.ec.second", encoding.GetBytes(secondPublicKey));
+        }
+        
         [TearDown]
         public void TeardownVerifyKeyPairTest()
         {
@@ -135,6 +154,29 @@ namespace Integration.VerifyKey.Test
             }
         }
 
+        [TestFixture]
+        public class VerifyEcKeyPair : VerifyKeyPairTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                PopulateEcKeys();
+            }
+            
+            [Test]
+            public void ShouldNotThrowExceptionWhenKeyPairIsValid()
+            {
+                Assert.DoesNotThrow(() => Certifier.Main(new[]{"-v", "key", "--publickey", "public.ec.first", "--privatekey", "private.ec.first"}));
+                console.Verify(c => c.WriteLine(It.IsAny<string>()), Times.Never);
+            }
+
+            [Test]
+            public void ShouldThrowExceptionWhenKeyPairIsNotValid()
+            {
+                Assert.Throws<CryptographicException>(() => Certifier.Main(new[]{"-v", "key", "--publickey", "public.ec.first", "--privatekey", "private.ec.second"}));
+            }
+        }
+        
         [TestFixture]
         public class WhenKeysAreNotTheSameType : VerifyKeyPairTest
         {

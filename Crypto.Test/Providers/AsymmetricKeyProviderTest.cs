@@ -17,11 +17,13 @@ namespace Crypto.Test.Providers
         private AsymmetricKeyProvider keyProvider;
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
+        private EcKeyProvider ecKeyProvider;
         private OidToCipherTypeMapper cipherTypeMapper;
         private PkcsEncryptionProvider pkcsEncryptionProvider;
         private Mock<KeyInfoWrapper> keyInfoWrapper;
         private IAsymmetricKeyPair rsaKeyPair;
         private IAsymmetricKeyPair dsaKeyPair;
+        private IAsymmetricKeyPair ecKeyPair;
         
         [OneTimeSetUp]
         public void SetupAsymmetricKeyProviderTest()
@@ -32,6 +34,7 @@ namespace Crypto.Test.Providers
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(secureRandom);
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
             
             cipherTypeMapper = new OidToCipherTypeMapper();
             keyInfoWrapper = new Mock<KeyInfoWrapper>();
@@ -43,11 +46,12 @@ namespace Crypto.Test.Providers
             
             rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
             dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
+            ecKeyPair = ecKeyProvider.CreateKeyPair("secp384r1");
         }
 
         private void SetupValidKeyProvider()
         {
-            keyProvider = new AsymmetricKeyProvider(cipherTypeMapper, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider);
+            keyProvider = new AsymmetricKeyProvider(cipherTypeMapper, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider, ecKeyProvider);
         }
 
         private void SetupValidKeyInfo()
@@ -77,7 +81,6 @@ namespace Crypto.Test.Providers
                 SetupValidKeyInfo();
             }
             
-            [TestCase(CipherType.Ec)]
             [TestCase(CipherType.ElGamal)]
             [TestCase(CipherType.Pkcs5Encrypted)]
             [TestCase(CipherType.Pkcs12Encrypted)]
@@ -88,7 +91,7 @@ namespace Crypto.Test.Providers
                 typeMapperMock.Setup(ctm => ctm.MapOidToCipherType(It.IsAny<string>()))
                                 .Returns(cipherType);
 
-                keyProvider = new AsymmetricKeyProvider(typeMapperMock.Object, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider);
+                keyProvider = new AsymmetricKeyProvider(typeMapperMock.Object, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider, ecKeyProvider);
                 Assert.Throws<ArgumentException>(() =>
                 {
                     keyProvider.GetPublicKey(rsaKeyPair.PublicKey.Content);
@@ -124,6 +127,15 @@ namespace Crypto.Test.Providers
                 Assert.IsAssignableFrom<DsaKey>(result);
                 Assert.IsFalse(result.IsPrivateKey);
             }
+
+            [Test]
+            public void ShouldReturnPublicEcKey()
+            {
+                IAsymmetricKey result = keyProvider.GetPublicKey(ecKeyPair.PublicKey.Content);
+
+                Assert.IsAssignableFrom<EcKey>(result);
+                Assert.IsFalse(result.IsPrivateKey);
+            }
             
             [Test]
             public void ShouldReturnValidKey()
@@ -150,7 +162,6 @@ namespace Crypto.Test.Providers
                 SetupValidKeyInfo();
             }
 
-            [TestCase(CipherType.Ec)]
             [TestCase(CipherType.ElGamal)]
             [TestCase(CipherType.Pkcs5Encrypted)]
             [TestCase(CipherType.Pkcs12Encrypted)]
@@ -161,7 +172,7 @@ namespace Crypto.Test.Providers
                 typeMapperMock.Setup(ctm => ctm.MapOidToCipherType(It.IsAny<string>()))
                               .Returns(cipherType);
                 
-                keyProvider = new AsymmetricKeyProvider(typeMapperMock.Object, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider);
+                keyProvider = new AsymmetricKeyProvider(typeMapperMock.Object, keyInfoWrapper.Object, rsaKeyProvider, dsaKeyProvider, ecKeyProvider);
                 
                 Assert.Throws<ArgumentException>(() =>
                 {
@@ -210,6 +221,15 @@ namespace Crypto.Test.Providers
                 Assert.IsAssignableFrom<DsaKey>(result);
                 Assert.IsTrue(result.IsPrivateKey);
             }
+
+            [Test]
+            public void ShouldReturnPrivateEcKey()
+            {
+                IAsymmetricKey result = keyProvider.GetPrivateKey(ecKeyPair.PrivateKey.Content);
+
+                Assert.IsAssignableFrom<EcKey>(result);
+                Assert.IsTrue(result.IsPrivateKey);
+            }
             
             [Test]
             public void ShouldReturnValidKey()
@@ -234,7 +254,7 @@ namespace Crypto.Test.Providers
             [SetUp]
             public void Setup()
             {
-                keyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider);
+                keyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider);
                 var key = pkcsEncryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobar");
 
                 encryptedPrivateKey = keyProvider.GetEncryptedPrivateKey(key.Content);

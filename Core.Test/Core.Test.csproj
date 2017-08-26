@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\DsaKeyTest.cs" />
+    <Compile Include="Model\EcKeyTest.cs" />
     <Compile Include="Model\EncryptedKeyTest.cs" />
     <Compile Include="Model\AsymmetricKeyPairTest.cs" />
     <Compile Include="Model\RsaKeyTest.cs" />

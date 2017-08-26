@@ -15,22 +15,28 @@ namespace Ui.Console.Test.CommandHandler
         private VerifyKeyPairCommandHandler commandHandler;
         private Mock<IKeyProvider<RsaKey>> rsaKeyProvider;
         private Mock<IKeyProvider<DsaKey>> dsaKeyProvider;
+        private Mock<IEcKeyProvider> ecKeyProvider;
         
         [SetUp]
         public void Setup()
         {
             rsaKeyProvider = new Mock<IKeyProvider<RsaKey>>();
             dsaKeyProvider = new Mock<IKeyProvider<DsaKey>>();
-            commandHandler = new VerifyKeyPairCommandHandler(rsaKeyProvider.Object, dsaKeyProvider.Object);
+            ecKeyProvider = new Mock<IEcKeyProvider>();
+            
+            commandHandler = new VerifyKeyPairCommandHandler(rsaKeyProvider.Object, dsaKeyProvider.Object, ecKeyProvider.Object);
             
             rsaKeyProvider.Setup(kp => kp.VerifyKeyPair(It.IsAny<IAsymmetricKeyPair>()))
                           .Returns(true);
             dsaKeyProvider.Setup(kp => kp.VerifyKeyPair(It.IsAny<IAsymmetricKeyPair>()))
                           .Returns(true);
+            ecKeyProvider.Setup(kp => kp.VerifyKeyPair(It.IsAny<IAsymmetricKeyPair>()))
+                          .Returns(true);
         }
 
         [TestCase(CipherType.Rsa)]
         [TestCase(CipherType.Dsa)]
+        [TestCase(CipherType.Ec)]
         public void ShouldThrowExceptionWhenKeyPairIsNotValid(CipherType cipherType)
         {
             var command = new VerifyKeyPairCommand
@@ -43,11 +49,12 @@ namespace Ui.Console.Test.CommandHandler
                           .Returns(false);
             dsaKeyProvider.Setup(kp => kp.VerifyKeyPair(It.IsAny<IAsymmetricKeyPair>()))
                           .Returns(false);
+            ecKeyProvider.Setup(kp => kp.VerifyKeyPair(It.IsAny<IAsymmetricKeyPair>()))
+                          .Returns(false);
             
             Assert.Throws<CryptographicException>(() => { commandHandler.Execute(command); });
         }
 
-        [TestCase(CipherType.Ec)]
         [TestCase(CipherType.ElGamal)]
         [TestCase(CipherType.Pkcs5Encrypted)]
         [TestCase(CipherType.Pkcs12Encrypted)]
@@ -65,6 +72,7 @@ namespace Ui.Console.Test.CommandHandler
         
         [TestCase(CipherType.Rsa)]
         [TestCase(CipherType.Dsa)]
+        [TestCase(CipherType.Ec)]
         public void ShouldNotThrowExceptionWhenKeyPairIsValid(CipherType cipherType)
         {
             var command = new VerifyKeyPairCommand

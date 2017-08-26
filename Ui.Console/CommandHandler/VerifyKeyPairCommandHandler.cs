@@ -10,11 +10,13 @@ namespace Ui.Console.CommandHandler
     {
         private readonly IKeyProvider<RsaKey> rsaKeyProvider;
         private readonly IKeyProvider<DsaKey> dsaKeyProvider;
+        private readonly IEcKeyProvider ecKeyProvider;
 
-        public VerifyKeyPairCommandHandler(IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider)
+        public VerifyKeyPairCommandHandler(IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider, IEcKeyProvider ecKeyProvider)
         {
             this.rsaKeyProvider = rsaKeyProvider;
             this.dsaKeyProvider = dsaKeyProvider;
+            this.ecKeyProvider = ecKeyProvider;
         }
 
         public void Execute(VerifyKeyPairCommand command)
@@ -27,6 +29,9 @@ namespace Ui.Console.CommandHandler
                         break;
                     case CipherType.Dsa:
                         isValidKeyPair = dsaKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(command.PrivateKey, command.PublicKey));
+                        break;
+                    case CipherType.Ec:
+                        isValidKeyPair = ecKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(command.PrivateKey, command.PublicKey));
                         break;
                     default:
                         throw new InvalidOperationException("Key type not supported.");

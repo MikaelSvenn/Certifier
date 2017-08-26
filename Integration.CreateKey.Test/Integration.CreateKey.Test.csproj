@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreateDsaKeyTest.cs" />
+    <Compile Include="CreateEcKeyTest.cs" />
     <Compile Include="CreateRsaKeyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

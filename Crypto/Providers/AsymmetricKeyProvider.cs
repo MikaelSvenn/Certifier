@@ -15,13 +15,15 @@ namespace Crypto.Providers
         private readonly OidToCipherTypeMapper cipherTypeMapper;
         private readonly IKeyProvider<RsaKey> rsaKeyProvider;
         private readonly IKeyProvider<DsaKey> dsaKeyProvider;
+        private readonly IEcKeyProvider ecKeyProvider;
         private readonly KeyInfoWrapper keyInfoWrapper;
 
-        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, KeyInfoWrapper keyInfoWrapper, IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider)
+        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, KeyInfoWrapper keyInfoWrapper, IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider, IEcKeyProvider ecKeyProvider)
         {
             this.cipherTypeMapper = cipherTypeMapper;
             this.rsaKeyProvider = rsaKeyProvider;
             this.dsaKeyProvider = dsaKeyProvider;
+            this.ecKeyProvider = ecKeyProvider;
             this.keyInfoWrapper = keyInfoWrapper;
         }
 
@@ -49,6 +51,8 @@ namespace Crypto.Providers
                         return rsaKeyProvider.GetKey(keyContent, keyType);
                     case CipherType.Dsa:
                         return dsaKeyProvider.GetKey(keyContent, keyType);
+                    case CipherType.Ec:
+                        return ecKeyProvider.GetKey(keyContent, keyType);
                     default:
                         throw new ArgumentException("Key type not supported or key is corrupted.");        
             }

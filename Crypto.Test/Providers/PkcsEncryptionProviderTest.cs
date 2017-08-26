@@ -29,7 +29,7 @@ namespace Crypto.Test.Providers
 
             secureRandom = new Mock<SecureRandomGenerator>();
             rsaKeyProvider = new Mock<IKeyProvider<RsaKey>>();
-            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider.Object, null);
+            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider.Object, null, null);
             encryptionGenerator = new Mock<PkcsEncryptionGenerator>();
             encryptionGenerator.Setup(e => e.Encrypt(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<byte[]>()))
                 .Returns<string, byte[], int, byte[]>((password, salt, iterationCount, content) =>
@@ -126,7 +126,7 @@ namespace Crypto.Test.Providers
                 keyPair = rsaProvider.CreateKeyPair(1024);
 
                 var oidToCipherTypeMapper = new OidToCipherTypeMapper();
-                encryptionProvider = new PkcsEncryptionProvider(configuration, secureRandomGenerator, new AsymmetricKeyProvider(oidToCipherTypeMapper, new KeyInfoWrapper(), rsaProvider, null), new PkcsEncryptionGenerator());
+                encryptionProvider = new PkcsEncryptionProvider(configuration, secureRandomGenerator, new AsymmetricKeyProvider(oidToCipherTypeMapper, new KeyInfoWrapper(), rsaProvider, null, null), new PkcsEncryptionGenerator());
 
                 encryptedKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foobar");
                 result = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobar");

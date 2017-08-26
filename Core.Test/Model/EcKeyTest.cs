@@ -4,49 +4,49 @@ using NUnit.Framework;
 namespace Core.Test.Model
 {
     [TestFixture]
-    public class DsaKeyTest
+    public class EcKeyTest
     {
         [TestCase(AsymmetricKeyType.Private, TestName = "Private")]
         [TestCase(AsymmetricKeyType.Public, TestName = "Public")]
-        public void ShouldHaveDsaAsCipherType(AsymmetricKeyType keyType)
+        public void ShouldHaveEcAsCipherType(AsymmetricKeyType keyType)
         {
-            var key = new DsaKey(null, keyType, 1);
-            Assert.AreEqual(CipherType.Dsa, key.CipherType);
+            var key = new EcKey(null, keyType, 1);
+            Assert.AreEqual(CipherType.Ec, key.CipherType);
         }
 
         [TestFixture]
-        public class IsEncrypted : DsaKeyTest
+        public class IsEncrypted : EcKeyTest
         {
             [TestCase(AsymmetricKeyType.Private, TestName = "Private")]
             [TestCase(AsymmetricKeyType.Public, TestName = "Public")]
             public void ShouldRetrunFalseWhenKeyTypeIsNotEncrypted(AsymmetricKeyType keyType)
             {
-                var key = new DsaKey(null, keyType, 1);
+                var key = new EcKey(null, keyType, 1);
                 Assert.IsFalse(key.IsEncrypted);
             }
 
             [Test]
             public void ShouldReturnTrueWhenKeyTypeIsEncrypted()
             {
-                var key = new DsaKey(null, AsymmetricKeyType.Encrypted, 1);
+                var key = new EcKey(null, AsymmetricKeyType.Encrypted, 1);
                 Assert.IsTrue(key.IsEncrypted);
             }
         }
 
         [TestFixture]
-        public class IsPrivateKey : DsaKeyTest
+        public class IsPrivateKey : EcKeyTest
         {
             [Test]
             public void ShouldReturnFalseWhenKeyTypeIsPublic()
             {
-                var key = new DsaKey(null, AsymmetricKeyType.Public, 1);
+                var key = new EcKey(null, AsymmetricKeyType.Public, 1);
                 Assert.IsFalse(key.IsPrivateKey);
             }
 
             [Test]
             public void ShouldReturnTrueWhenKeyTypeIsPrivate()
             {
-                var key = new DsaKey(null, AsymmetricKeyType.Private, 1);
+                var key = new EcKey(null, AsymmetricKeyType.Private, 1);
                 Assert.IsTrue(key.IsPrivateKey);
             }
         }

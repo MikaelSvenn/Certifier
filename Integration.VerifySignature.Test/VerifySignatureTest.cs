@@ -49,7 +49,7 @@ namespace Integration.VerifySignature.Test
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
 
             signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider));
+            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, null));
 
             base64 = new Base64Wrapper();
             encoding = new EncodingWrapper();
