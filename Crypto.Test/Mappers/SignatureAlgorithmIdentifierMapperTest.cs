@@ -19,7 +19,6 @@ namespace Crypto.Test.Mappers
         [TestFixture]
         public class MapToAlgorithmIdentifierIdentifier : SignatureAlgorithmIdentifierMapperTest
         {
-            [TestCase(CipherType.Ec, TestName = "EC")]
             [TestCase(CipherType.ElGamal, TestName = "ElGamal")]
             [TestCase(CipherType.Pkcs5Encrypted, TestName = "Pkcs5Encrypted")]
             [TestCase(CipherType.Pkcs12Encrypted, TestName = "Pkcs12Encrypted")]
@@ -31,6 +30,7 @@ namespace Crypto.Test.Mappers
 
             [TestCase(CipherType.Rsa, ExpectedResult = "SHA-512withRSAandMGF1", TestName = "RSA")]
             [TestCase(CipherType.Dsa, ExpectedResult = "2.16.840.1.101.3.4.3.4", TestName = "DSA")]
+            [TestCase(CipherType.Ec, ExpectedResult = "1.2.840.10045.4.3.4", TestName = "ECDSA")]
             public string ShouldReturnAlgorithmFor(CipherType cipherType)
             {
                 return identifierMapper.MapToAlgorithmIdentifier(cipherType);

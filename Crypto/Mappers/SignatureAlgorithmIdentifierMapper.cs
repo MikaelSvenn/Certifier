@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Model;
 using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1.X9;
 
 namespace Crypto.Mappers
 {
@@ -14,7 +15,8 @@ namespace Crypto.Mappers
             bouncyCastleSignatureAlgorithms = new Dictionary<CipherType, string>
             {
                 {CipherType.Rsa, "SHA-512withRSAandMGF1"},
-                {CipherType.Dsa, NistObjectIdentifiers.DsaWithSha512.Id}
+                {CipherType.Dsa, NistObjectIdentifiers.DsaWithSha512.Id},
+                {CipherType.Ec, X9ObjectIdentifiers.ECDsaWithSha512.Id}
             };
         }
 

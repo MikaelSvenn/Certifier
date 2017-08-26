@@ -27,6 +27,7 @@ namespace Integration.VerifySignature.Test
         private EncodingWrapper encoding;
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
+        private EcKeyProvider ecKeyProvider;
         private SignatureProvider signatureProvider;
         private Pkcs8FormattingProvider pkcs8Formatter;
         private SecureRandomGenerator random;
@@ -47,9 +48,10 @@ namespace Integration.VerifySignature.Test
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
-
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            
             signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, null));
+            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider));
 
             base64 = new Base64Wrapper();
             encoding = new EncodingWrapper();
@@ -72,6 +74,14 @@ namespace Integration.VerifySignature.Test
             SetFileContent(keyPair, fileContent);
         }
 
+        private void SetupWithEcdsaSignature()
+        {
+            byte[] fileContent = random.NextBytes(1500);
+            IAsymmetricKeyPair keyPair = ecKeyProvider.CreateKeyPair("curve25519");
+
+            SetFileContent(keyPair, fileContent);
+        }
+        
         private void SetFileContent(IAsymmetricKeyPair keyPair, byte[] fileContent)
         {
             Signature fileSignature = signatureProvider.CreateSignature(keyPair.PrivateKey, fileContent);
@@ -178,6 +188,16 @@ namespace Integration.VerifySignature.Test
             public void Setup()
             {
                 SetupWithDsaSignature();
+            }
+        }
+
+        [TestFixture]
+        public class VerifyEcdsaSignature : VerifySignatureTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                SetupWithEcdsaSignature();
             }
         }
     }

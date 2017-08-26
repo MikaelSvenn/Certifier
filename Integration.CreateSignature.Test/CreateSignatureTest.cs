@@ -30,6 +30,7 @@ namespace Integration.CreateSignature.Test
 
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
+        private EcKeyProvider ecKeyProvider;
         private Pkcs8FormattingProvider pkcs8Formatter;
         
         [SetUp]
@@ -63,6 +64,7 @@ namespace Integration.CreateSignature.Test
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
             
             var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, null);
             pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
@@ -89,6 +91,16 @@ namespace Integration.CreateSignature.Test
             keyPair = dsaKeyProvider.CreateKeyPair(2048);
             var privateDsaKey = keyPair.PrivateKey;
             privateKey = pkcs8Formatter.GetAsPem(privateDsaKey);
+
+            file.Setup(f => f.ReadAllBytes("private.pem"))
+                .Returns(encoding.GetBytes(privateKey));
+        }
+
+        protected void SetupWithEcdsaKey()
+        {
+            keyPair = ecKeyProvider.CreateKeyPair("brainpoolp512t1");
+            var privateEcKey = keyPair.PrivateKey;
+            privateKey = pkcs8Formatter.GetAsPem(privateEcKey);
 
             file.Setup(f => f.ReadAllBytes("private.pem"))
                 .Returns(encoding.GetBytes(privateKey));
@@ -132,6 +144,16 @@ namespace Integration.CreateSignature.Test
             }
         }
 
+        [TestFixture]
+        public class CreateEcdsaSignature : CreateSignatureTest
+        {
+            [SetUp]
+            public void SetupCreateEcdsaSignature()
+            {
+                SetupWithEcdsaKey();
+            }
+        }
+        
         [Test]
         public void ShouldWriteBase64EncodedSignatureToFile()
         {
