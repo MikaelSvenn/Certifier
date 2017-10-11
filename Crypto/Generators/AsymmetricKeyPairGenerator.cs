@@ -63,5 +63,19 @@ namespace Crypto.Generators
             
             return keyPairGenerator.GenerateKeyPair();
         }
+
+        public AsymmetricCipherKeyPair GenerateElGamalKeyPair(int keySize)
+        {
+            var elGamalParameterGenerator = new ElGamalParametersGenerator();
+            elGamalParameterGenerator.Init(keySize, 64, secureRandom.Generator);
+
+            ElGamalParameters elGamalParameters = elGamalParameterGenerator.GenerateParameters();
+            var keyGenerationParameters = new ElGamalKeyGenerationParameters(secureRandom.Generator, elGamalParameters);
+            
+            var keyPairGenerator = new ElGamalKeyPairGenerator();
+            keyPairGenerator.Init(keyGenerationParameters);
+
+            return keyPairGenerator.GenerateKeyPair();
+        }
     }
 }

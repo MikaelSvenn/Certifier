@@ -159,5 +159,47 @@ namespace Crypto.Test.Generators
                 Assert.Throws<ArgumentException>(() => { asymmetricKeyPairGenerator.GenerateECKeyPair("curve41417"); });
             }
         }
+
+        [TestFixture]
+        public class GenerateElGamalKeyPair : AsymmetricKeyPairGeneratorTest
+        {
+            private AsymmetricCipherKeyPair keyPair;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = asymmetricKeyPairGenerator.GenerateElGamalKeyPair(1024);
+            }
+
+            [Test]
+            public void ShouldCreatePrivateKey()
+            {
+                var privateKey = (ElGamalPrivateKeyParameters) keyPair.Private;
+                Assert.IsTrue(privateKey.IsPrivate);
+                Assert.AreNotEqual(privateKey.X, default(BigInteger));
+                Assert.AreNotEqual(privateKey.Parameters.G, default(BigInteger));
+                Assert.AreNotEqual(privateKey.Parameters.P, default(BigInteger));
+            }
+
+            [Test]
+            public void ShouldCreatePublicKey()
+            {
+                var publicKey = (ElGamalPublicKeyParameters) keyPair.Public;
+                Assert.IsFalse(publicKey.IsPrivate);
+                Assert.AreNotEqual(publicKey.Y, default(BigInteger));
+                Assert.AreNotEqual(publicKey.Parameters.G, default(BigInteger));
+                Assert.AreNotEqual(publicKey.Parameters.P, default(BigInteger));
+            }
+
+            [Test]
+            public void ShouldCreateKeysOfGivenLength()
+            {
+                var privateKey = (ElGamalKeyParameters) keyPair.Private;
+                var publicKey = (ElGamalKeyParameters) keyPair.Public;
+                
+                Assert.AreEqual(1024, privateKey.Parameters.P.BitLength);
+                Assert.AreEqual(1024, publicKey.Parameters.P.BitLength);
+            }
+        }
     }
 }
