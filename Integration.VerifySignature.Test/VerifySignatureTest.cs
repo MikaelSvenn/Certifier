@@ -28,6 +28,7 @@ namespace Integration.VerifySignature.Test
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
         private EcKeyProvider ecKeyProvider;
+        private ElGamalKeyProvider elGamalKeyProvider;
         private SignatureProvider signatureProvider;
         private Pkcs8FormattingProvider pkcs8Formatter;
         private SecureRandomGenerator random;
@@ -49,9 +50,10 @@ namespace Integration.VerifySignature.Test
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
             ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator);
             
             signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider));
+            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
 
             base64 = new Base64Wrapper();
             encoding = new EncodingWrapper();

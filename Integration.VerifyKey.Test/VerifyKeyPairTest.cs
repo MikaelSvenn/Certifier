@@ -24,6 +24,7 @@ namespace Integration.VerifyKey.Test
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
         private EcKeyProvider ecKeyProvider;
+        private ElGamalKeyProvider elGamalKeyProvider;
         private EncodingWrapper encoding;
         private Pkcs8FormattingProvider pkcs8Formatter;
         
@@ -35,9 +36,10 @@ namespace Integration.VerifyKey.Test
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
             ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator);
             
             encoding = new EncodingWrapper();
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider));
+            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
             
             files = new Dictionary<string, byte[]>();
             file = new Mock<FileWrapper>();            

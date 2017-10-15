@@ -23,6 +23,7 @@ namespace Ui.Console.Startup
 
             container.Register<IKeyProvider<RsaKey>, RsaKeyProvider>();
             container.Register<IKeyProvider<DsaKey>, DsaKeyProvider>();
+            container.Register<IKeyProvider<ElGamalKey>, ElGamalKeyProvider>();
             container.Register<IEcKeyProvider, EcKeyProvider>();
             container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
             container.Register<IKeyEncryptionProvider, PkcsEncryptionProvider>();
