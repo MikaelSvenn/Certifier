@@ -60,6 +60,7 @@
     <Compile Include="Providers\AsymmetricKeyProviderTest.cs" />
     <Compile Include="Providers\DsaKeyProviderTest.cs" />
     <Compile Include="Providers\EcKeyProviderTest.cs" />
+    <Compile Include="Providers\ElGamalKeyProviderTest.cs" />
     <Compile Include="Providers\Pkcs8FormattingProviderTest.cs" />
     <Compile Include="Providers\PkcsEncryptionProviderTest.cs" />
     <Compile Include="Providers\RsaKeyProviderTest.cs" />

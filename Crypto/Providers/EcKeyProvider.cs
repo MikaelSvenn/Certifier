@@ -28,8 +28,8 @@ namespace Crypto.Providers
             byte[] publicKeyContent = GetPublicKey(keyPair.Public);
             byte[] privateKeyContent = GetPrivateKey(keyPair.Private);
             
-            var publicKey = new EcKey(publicKeyContent, AsymmetricKeyType.Public, GetKeyLength(keyPair.Private));
-            var privateKey = new EcKey(privateKeyContent, AsymmetricKeyType.Private, GetKeyLength(keyPair.Public));
+            var publicKey = new EcKey(publicKeyContent, AsymmetricKeyType.Public, GetKeyLength(keyPair.Public));
+            var privateKey = new EcKey(privateKeyContent, AsymmetricKeyType.Private, GetKeyLength(keyPair.Private));
             
             return new AsymmetricKeyPair(privateKey, publicKey);
         }

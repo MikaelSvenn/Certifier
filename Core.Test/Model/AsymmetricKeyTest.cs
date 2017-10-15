@@ -163,7 +163,7 @@ namespace Core.Test.Model
         public class IsPrivateKey : AsymmetricKeyTest
         {
             [Test, TestCaseSource(typeof(AsymmetricKeyTestCaseData), nameof(AsymmetricKeyTestCaseData.IsPrivateShouldBeFalse))]
-            public bool ShouldReturnFalseWhenKeyTypeIsPublic(IAsymmetricKey key) => key.IsPrivateKey;
+            public bool ShouldReturnFalseWhenKeyTypeIsNotPrivate(IAsymmetricKey key) => key.IsPrivateKey;
 
             [Test, TestCaseSource(typeof(AsymmetricKeyTestCaseData), nameof(AsymmetricKeyTestCaseData.IsPrivateShouldBeTrue))]
             public bool ShouldReturnTrueWhenKeyTypeIsPrivate(IAsymmetricKey key) => key.IsPrivateKey;

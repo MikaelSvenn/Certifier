@@ -2,9 +2,9 @@
 
 namespace Core.Model
 {
-    public class AsymmetricKey : IAsymmetricKey
+    public abstract class AsymmetricKey : IAsymmetricKey
     {
-        public AsymmetricKey(byte[] content, AsymmetricKeyType keyType, int keyLength, CipherType cipherType)
+        protected AsymmetricKey(byte[] content, AsymmetricKeyType keyType, int keyLength, CipherType cipherType)
         {
             Content = content;
             KeyType = keyType;

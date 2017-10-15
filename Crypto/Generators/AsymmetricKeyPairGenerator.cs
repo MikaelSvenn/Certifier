@@ -5,6 +5,7 @@ using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.EC;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 
 namespace Crypto.Generators
 {
@@ -64,14 +65,22 @@ namespace Crypto.Generators
             return keyPairGenerator.GenerateKeyPair();
         }
 
-        public AsymmetricCipherKeyPair GenerateElGamalKeyPair(int keySize)
+        public AsymmetricCipherKeyPair GenerateElGamalKeyPair(int keySize, BigInteger prime = null, BigInteger generator = null)
         {
-            var elGamalParameterGenerator = new ElGamalParametersGenerator();
-            elGamalParameterGenerator.Init(keySize, 64, secureRandom.Generator);
+            ElGamalParameters elGamalParameters;
+            if (prime != null && generator != null)
+            {
+                elGamalParameters = new ElGamalParameters(prime, generator);
+            }
+            else
+            {
+                var elGamalParameterGenerator = new ElGamalParametersGenerator();
+                elGamalParameterGenerator.Init(keySize, 64, secureRandom.Generator);
 
-            ElGamalParameters elGamalParameters = elGamalParameterGenerator.GenerateParameters();
-            var keyGenerationParameters = new ElGamalKeyGenerationParameters(secureRandom.Generator, elGamalParameters);
+                elGamalParameters = elGamalParameterGenerator.GenerateParameters();
+            }
             
+            var keyGenerationParameters = new ElGamalKeyGenerationParameters(secureRandom.Generator, elGamalParameters);
             var keyPairGenerator = new ElGamalKeyPairGenerator();
             keyPairGenerator.Init(keyGenerationParameters);
 
