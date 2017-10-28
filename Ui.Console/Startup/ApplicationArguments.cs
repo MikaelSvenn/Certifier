@@ -14,7 +14,8 @@ namespace Ui.Console.Startup
         public string Signature { get; set; }
         public EncryptionType EncryptionType { get; set; }
         public CipherType KeyType { get; set; }
-
+        public bool UseRfc3526Prime { get; set; }
+        
         public OperationTarget CreateOperation { get; set; }
         public OperationTarget VerifyOperation { get; set; }
 

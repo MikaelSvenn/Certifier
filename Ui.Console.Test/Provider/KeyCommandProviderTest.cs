@@ -26,7 +26,7 @@ namespace Ui.Console.Test.Provider
             [SetUp]
             public void Setup()
             {
-                command = provider.GetCreateKeyCommand<DsaKey>(3072);
+                command = provider.GetCreateKeyCommand<DsaKey>(3072, true);
             }
 
             [Test]
@@ -36,10 +36,16 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
+            public void UseRfc3526Prime()
+            {
+                Assert.AreEqual(true, command.UseRfc3526Prime);
+            }
+
+            [Test]
             public void Curve()
             {
-                CreateKeyCommand<EcKey> ecKeyCommand = provider.GetCreateKeyCommand<EcKey>(0, "foobar");
-                Assert.AreEqual("foobar", ecKeyCommand.Curve);
+                CreateKeyCommand<IEcKey> createEcKeyCommand = provider.GetCreateKeyCommand<EcKey>("foo");
+                Assert.AreEqual("foo", createEcKeyCommand.Curve);
             }
             
             [Test]

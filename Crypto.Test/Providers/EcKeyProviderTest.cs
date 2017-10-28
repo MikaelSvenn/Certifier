@@ -85,6 +85,8 @@ namespace Crypto.Test.Providers
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
+
+
         }
 
         [TestFixture]
@@ -173,6 +175,13 @@ namespace Crypto.Test.Providers
             public void ShouldThrowExceptionWhenKeyTypesDoNotMatch()
             {
                 Assert.Throws<ArgumentException>(() => { keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Public); });
+            }
+            
+            [Test]
+            public void ShouldSetCurveName()
+            {
+                var key = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
+                Assert.AreEqual("unknown", key.Curve);
             }
         }
     }

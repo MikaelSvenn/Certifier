@@ -26,13 +26,10 @@ namespace Crypto.Test.Providers
         {
             var secureRandomGenerator = new SecureRandomGenerator();
             var keyGenerator = new AsymmetricKeyPairGenerator(secureRandomGenerator);
-            keyProvider = new ElGamalKeyProvider(keyGenerator);
+            var primeMapper = new Rfc3526PrimeMapper();
+            keyProvider = new ElGamalKeyProvider(keyGenerator, primeMapper);
 
-            //Creating Elgamal key parameters is very slow; these pre-generated values are from BC Elgamal test suite.
-            var prime = new BigInteger("a00e283b3c624e5b2b4d9fbc2653b5185d99499b00fd1bf244c6f0bb817b4d1c451b2958d62a0f8a38caef059fb5ecd25d75ed9af403f5b5bdab97a642902f824e3c13789fed95fa106ddfe0ff4a707c85e2eb77d49e68f2808bcea18ce128b178cd287c6bc00efa9a1ad2a673fe0dceace53166f75b81d6709d5f8af7c66bb7", 16);
-            var generator = new BigInteger("1db17639cdf96bc4eabba19454f0b7e5bd4e14862889a725c96eb61048dcd676ceb303d586e30f060dbafd8a571a39c4d823982117da5cc4e0f89c77388b7a08896362429b94a18a327604eb7ff227bffbc83459ade299e57b5f77b50fb045250934938efa145511166e3197373e1b5b1e52de713eb49792bedde722c6717abf", 16);
-
-            keyPair = keyProvider.CreateKeyPair(1024, prime, generator);
+            keyPair = keyProvider.CreateKeyPair(2048, true);
         }
 
         [TestFixture]
@@ -55,13 +52,13 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetPrivateKeySize()
             {
-                Assert.AreEqual(1024, keyPair.PrivateKey.KeySize);
+                Assert.AreEqual(2048, keyPair.PrivateKey.KeySize);
             }
 
             [Test]
             public void ShouldSetPublicKeySize()
             {
-                Assert.AreEqual(1024, keyPair.PublicKey.KeySize);
+                Assert.AreEqual(2048, keyPair.PublicKey.KeySize);
             }
 
             [Test]
@@ -176,14 +173,14 @@ namespace Crypto.Test.Providers
             public void ShouldSetPublicKeyLength()
             {
                 var result = keyProvider.GetKey(keyPair.PublicKey.Content, AsymmetricKeyType.Public);
-                Assert.AreEqual(1024, result.KeySize);
+                Assert.AreEqual(2048, result.KeySize);
             }
 
             [Test]
             public void ShouldSetPrivateKeyLength()
             {
                 var result = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
-                Assert.AreEqual(1024, result.KeySize);
+                Assert.AreEqual(2048, result.KeySize);
             }
 
             [Test]

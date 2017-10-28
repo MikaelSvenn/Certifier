@@ -7,5 +7,6 @@ namespace Ui.Console.Command
         public IAsymmetricKeyPair Result { get; set; }
         public int KeySize { get; set; }
         public string Curve { get; set; }
+        public bool UseRfc3526Prime { get; set; }
     }
 }

@@ -2,23 +2,39 @@
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
+using Crypto.Mappers;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 
 namespace Crypto.Providers
 {
-    public class ElGamalKeyProvider : BCKeyProvider, IKeyProvider<ElGamalKey>
+    public class ElGamalKeyProvider : BCKeyProvider, IElGamalKeyProvider
     {
         private readonly AsymmetricKeyPairGenerator keyPairGenerator;
-        public ElGamalKeyProvider(AsymmetricKeyPairGenerator keyPairGenerator)
+        private readonly Rfc3526PrimeMapper primes;
+
+        public ElGamalKeyProvider(AsymmetricKeyPairGenerator keyPairGenerator, Rfc3526PrimeMapper primes)
         {
             this.keyPairGenerator = keyPairGenerator;
+            this.primes = primes;
         }
 
-        public IAsymmetricKeyPair CreateKeyPair(int keySize, BigInteger prime, BigInteger generator)
+        private int GetKeyLength(AsymmetricKeyParameter key) => ((ElGamalKeyParameters) key).Parameters.P.BitLength;
+
+        public IAsymmetricKeyPair CreateKeyPair(int keySize, bool useRfc3526Prime)
         {
-            AsymmetricCipherKeyPair keyPair = keyPairGenerator.GenerateElGamalKeyPair(keySize, prime, generator);
+            AsymmetricCipherKeyPair keyPair;
+            if (useRfc3526Prime)
+            {
+                AsymmetricKeyParameters parameters = primes.GetParametersByKeySize(keySize);
+                keyPair = keyPairGenerator.GenerateElGamalKeyPair(keySize, parameters.Prime, parameters.Generator);
+            }
+            else
+            {
+                keyPair = keyPairGenerator.GenerateElGamalKeyPair(keySize);
+            }
+            
             byte[] publicKeyContent = GetPublicKey(keyPair.Public);
             byte[] privateKeyContent = GetPrivateKey(keyPair.Private);            
 
@@ -28,12 +44,7 @@ namespace Crypto.Providers
             return new AsymmetricKeyPair(privateKey, publicKey);
         }
 
-        private int GetKeyLength(AsymmetricKeyParameter key) => ((ElGamalKeyParameters) key).Parameters.P.BitLength;
-
-        public IAsymmetricKeyPair CreateKeyPair(int keySize)
-        {
-            return CreateKeyPair(keySize, null, null);
-        }
+        public IAsymmetricKeyPair CreateKeyPair(int keySize) => CreateKeyPair(keySize, false);
 
         public ElGamalKey GetKey(byte[] content, AsymmetricKeyType keyType)
         {

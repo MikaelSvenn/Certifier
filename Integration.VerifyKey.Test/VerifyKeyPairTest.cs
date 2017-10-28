@@ -32,11 +32,12 @@ namespace Integration.VerifyKey.Test
         public void SetupVerifyKeyPairTest()
         {
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
+            var primeMapper = new Rfc3526PrimeMapper();
             
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
             ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
-            elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator);
+            elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator, primeMapper);
             
             encoding = new EncodingWrapper();
             pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));

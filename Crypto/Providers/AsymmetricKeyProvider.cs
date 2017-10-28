@@ -16,10 +16,10 @@ namespace Crypto.Providers
         private readonly IKeyProvider<RsaKey> rsaKeyProvider;
         private readonly IKeyProvider<DsaKey> dsaKeyProvider;
         private readonly IEcKeyProvider ecKeyProvider;
-        private readonly IKeyProvider<ElGamalKey> elGamalKeyProvider;
+        private readonly IElGamalKeyProvider elGamalKeyProvider;
         private readonly KeyInfoWrapper keyInfoWrapper;
 
-        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, KeyInfoWrapper keyInfoWrapper, IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider, IEcKeyProvider ecKeyProvider, IKeyProvider<ElGamalKey> elGamalKeyProvider)
+        public AsymmetricKeyProvider(OidToCipherTypeMapper cipherTypeMapper, KeyInfoWrapper keyInfoWrapper, IKeyProvider<RsaKey> rsaKeyProvider, IKeyProvider<DsaKey> dsaKeyProvider, IEcKeyProvider ecKeyProvider, IElGamalKeyProvider elGamalKeyProvider)
         {
             this.cipherTypeMapper = cipherTypeMapper;
             this.rsaKeyProvider = rsaKeyProvider;

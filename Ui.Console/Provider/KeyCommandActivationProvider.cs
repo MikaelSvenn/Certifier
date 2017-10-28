@@ -31,7 +31,10 @@ namespace Ui.Console.Provider
                         createKeyCommand = keyCommandProvider.GetCreateKeyCommand<DsaKey>(arguments.KeySize);
                         break;
                     case CipherType.Ec:
-                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<EcKey>(0, arguments.Curve);
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<EcKey>(arguments.Curve);
+                        break;
+                    case CipherType.ElGamal:
+                        createKeyCommand = keyCommandProvider.GetCreateKeyCommand<ElGamalKey>(arguments.KeySize, arguments.UseRfc3526Prime);
                         break;
                     default:
                         throw new ArgumentException("Key type not supported.");

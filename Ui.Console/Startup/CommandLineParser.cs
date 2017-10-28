@@ -73,6 +73,9 @@ namespace Ui.Console.Startup
                   .As("curve")
                   .SetDefault("curve25519");
 
+            parser.Setup(argument => argument.UseRfc3526Prime)
+                  .As("fast")
+                  .SetDefault(false);
 
             var result = parser.Parse(arguments);
             if (result.HasErrors || result.EmptyArgs || result.HelpCalled || result.AdditionalOptionsFound.Any())

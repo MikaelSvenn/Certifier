@@ -13,7 +13,7 @@ namespace Ui.Console.Test.CommandHandler
         private CreateEcKeyCommandHandler commandHandler;
         private Mock<IEcKeyProvider> keyProvider;
         private IAsymmetricKeyPair keyPair;
-        private CreateKeyCommand<EcKey> command;
+        private CreateKeyCommand<IEcKey> command;
         
         [SetUp]
         public void Setup()
@@ -23,7 +23,7 @@ namespace Ui.Console.Test.CommandHandler
             keyProvider.Setup(k => k.CreateKeyPair("foobar"))
                        .Returns(keyPair);
 
-            command = new CreateKeyCommand<EcKey>()
+            command = new CreateKeyCommand<IEcKey>()
             {
                 Curve = "foobar"
             };

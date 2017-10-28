@@ -4,7 +4,7 @@ using Ui.Console.Command;
 
 namespace Ui.Console.CommandHandler
 {
-    public class CreateEcKeyCommandHandler : ICommandHandler<CreateKeyCommand<EcKey>>
+    public class CreateEcKeyCommandHandler : ICommandHandler<CreateKeyCommand<IEcKey>>
     {
         private readonly IEcKeyProvider keyProvider;
         public CreateEcKeyCommandHandler(IEcKeyProvider keyProvider)
@@ -12,7 +12,7 @@ namespace Ui.Console.CommandHandler
             this.keyProvider = keyProvider;
         }
 
-        public void Execute(CreateKeyCommand<EcKey> command)
+        public void Execute(CreateKeyCommand<IEcKey> command)
         {
             command.Result = keyProvider.CreateKeyPair(command.Curve);
         }

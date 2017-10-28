@@ -23,7 +23,7 @@ namespace Ui.Console.Startup
 
             container.Register<IKeyProvider<RsaKey>, RsaKeyProvider>();
             container.Register<IKeyProvider<DsaKey>, DsaKeyProvider>();
-            container.Register<IKeyProvider<ElGamalKey>, ElGamalKeyProvider>();
+            container.Register<IElGamalKeyProvider, ElGamalKeyProvider>();
             container.Register<IEcKeyProvider, EcKeyProvider>();
             container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
             container.Register<IKeyEncryptionProvider, PkcsEncryptionProvider>();
@@ -53,6 +53,7 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(RsaKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(DsaKeySizeValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ElGamalKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(VerifyKeyTypeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(FilePathValidationDecorator<,>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteKeyToFilePathValidationDecorator<>));

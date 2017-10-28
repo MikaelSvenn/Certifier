@@ -26,10 +26,10 @@ namespace Core.Test.Model
                     yield return new TestCaseData(new DsaKey(null, AsymmetricKeyType.Public, 1)).SetName("Dsa public key")
                                                                                                 .Returns(false);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1)).SetName("EC private key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1, "curve")).SetName("EC private key")
                                                                                                  .Returns(false);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1)).SetName("EC public key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1, "curve")).SetName("EC public key")
                                                                                                 .Returns(false);
                     
                     yield return new TestCaseData(new ElGamalKey(null, AsymmetricKeyType.Private, 1)).SetName("ElGamal private key")
@@ -50,7 +50,7 @@ namespace Core.Test.Model
                     yield return new TestCaseData(new DsaKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("Dsa encrypted key")
                                                                                                    .Returns(true);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("EC encrypted key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1, "curve")).SetName("EC encrypted key")
                                                                                                    .Returns(true);
                     
                     yield return new TestCaseData(new ElGamalKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("ElGamal encrypted key")
@@ -74,10 +74,10 @@ namespace Core.Test.Model
                     yield return new TestCaseData(new DsaKey(null, AsymmetricKeyType.Public, 1)).SetName("Dsa public key")
                                                                                                 .Returns(false);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("EC encrypted key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1, "curve")).SetName("EC encrypted key")
                                                                                                    .Returns(false);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1)).SetName("EC public key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1, "curve")).SetName("EC public key")
                                                                                                 .Returns(false);
                     
                     yield return new TestCaseData(new ElGamalKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("ElGamal encrypted key")
@@ -98,7 +98,7 @@ namespace Core.Test.Model
                     yield return new TestCaseData(new DsaKey(null, AsymmetricKeyType.Private, 1)).SetName("Dsa private key")
                                                                                                  .Returns(true);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1)).SetName("EC private key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1, "curve")).SetName("EC private key")
                                                                                                  .Returns(true);
                     
                     yield return new TestCaseData(new ElGamalKey(null, AsymmetricKeyType.Private, 1)).SetName("ElGamal private key")
@@ -128,13 +128,13 @@ namespace Core.Test.Model
                     yield return new TestCaseData(new DsaKey(null, AsymmetricKeyType.Public, 1)).SetName("Dsa public key")
                                                                                                 .Returns(Core.Model.CipherType.Dsa);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("EC encrypted key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Encrypted, 1, "curve")).SetName("EC encrypted key")
                                                                                                    .Returns(Core.Model.CipherType.Ec);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1)).SetName("EC private key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Private, 1, "curve")).SetName("EC private key")
                                                                                                  .Returns(Core.Model.CipherType.Ec);
                     
-                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1)).SetName("EC public key")
+                    yield return new TestCaseData(new EcKey(null, AsymmetricKeyType.Public, 1, "curve")).SetName("EC public key")
                                                                                                 .Returns(Core.Model.CipherType.Ec);
                     
                     yield return new TestCaseData(new ElGamalKey(null, AsymmetricKeyType.Encrypted, 1)).SetName("ElGamal encrypted key")

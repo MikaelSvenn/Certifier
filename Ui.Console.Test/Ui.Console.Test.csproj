@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CommandHandler\CreateDsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateEcKeyCommandHandlerTest.cs" />
+    <Compile Include="CommandHandler\CreateElGamalKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateRsaKeyCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\CreateSignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\ReadFromFileCommandHandlerTest.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
     <Compile Include="Decorator\DsaKeySizeValidationDecoratorTest.cs" />
+    <Compile Include="Decorator\ElGamalKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
     <Compile Include="Decorator\Pkcs8WriteFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\Pkcs8ReadFormattingDecoratorTest.cs" />

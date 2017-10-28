@@ -74,10 +74,17 @@ namespace Ui.Console.Test.Provider
                 arguments.KeyType = CipherType.Ec;
                 arguments.Curve = "foobar";
                 provider.CreateKeyPair(arguments);
-                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<EcKey>>(c => c.Curve == "foobar")));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<IEcKey>>(c => c.Curve == "foobar")));
+            }
+
+            [Test]
+            public void ShouldCreateElGamalKeyPair()
+            {
+                arguments.KeyType = CipherType.ElGamal;
+                provider.CreateKeyPair(arguments);
+                commandExecutor.Verify(ce => ce.Execute(It.Is<CreateKeyCommand<ElGamalKey>>(c => c.KeySize == 1024)));
             }
             
-            [TestCase(CipherType.ElGamal)]
             [TestCase(CipherType.Pkcs5Encrypted)]
             [TestCase(CipherType.Pkcs12Encrypted)]
             [TestCase(CipherType.Unknown)]
