@@ -100,6 +100,25 @@ namespace Integration.ConvertKey.Test
             files.Add("private.ec.encrypted.der", encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz").Content);
             files.Add("private.ec.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz"))));
         }
+
+        public void PopulateElGamalKeys()
+        {
+            var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
+            var elGamalKeyProvider = new ElGamalKeyProvider(keyPairGenerator, new Rfc3526PrimeMapper());
+            asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, null, elGamalKeyProvider);
+            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encodingWrapper = new EncodingWrapper();
+            
+            IAsymmetricKeyPair elGamalKeyPair = elGamalKeyProvider.CreateKeyPair(2048, true);
+            
+            files.Add("private.elgamal.der", elGamalKeyPair.PrivateKey.Content);
+            files.Add("public.elgamal.der", elGamalKeyPair.PublicKey.Content);
+            files.Add("private.elgamal.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(elGamalKeyPair.PrivateKey)));
+            files.Add("public.elgamal.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(elGamalKeyPair.PublicKey)));
+            files.Add("private.elgamal.encrypted.der", encryptionProvider.EncryptPrivateKey(elGamalKeyPair.PrivateKey, "foobarbaz").Content);
+            files.Add("private.elgamal.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(elGamalKeyPair.PrivateKey, "foobarbaz"))));
+        }
         
         [TearDown]
         public void TeardownConvertKeyPairTest()
@@ -393,6 +412,93 @@ namespace Integration.ConvertKey.Test
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
                 CollectionAssert.AreEqual(files["private.ec.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+            }
+        }
+        
+        
+        [TestFixture]
+        public class ConvertUnencryptedElGamalKey : ConvertKeyPairTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                PopulateElGamalKeys();
+            }
+            
+            [Test]
+            public void ShouldConvertPemKeyPairToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.pem", "--publickey", "public.elgamal.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["private.elgamal.der"], files["private.elgamal.pem.der"]);
+                CollectionAssert.AreEqual(files["public.elgamal.der"], files["public.elgamal.pem.der"]);
+            }
+
+            [Test]
+            public void ShouldConvertPublicPemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.elgamal.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["public.elgamal.der"], files["public.elgamal.pem.der"]);
+            }
+
+            [Test]
+            public void ShouldConvertPrivatePemKeyToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.pem", "-t", "der"});
+                CollectionAssert.AreEqual(files["private.elgamal.der"], files["private.elgamal.pem.der"]);
+            }
+            
+            [Test]
+            public void ShouldConvertDerKeyPairToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.der", "--publickey", "public.elgamal.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["private.elgamal.pem"], files["private.elgamal.der.pem"]);
+                CollectionAssert.AreEqual(files["public.elgamal.pem"], files["public.elgamal.der.pem"]);
+            }
+
+            [Test]
+            public void ShouldConvertPrivateDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["private.elgamal.pem"], files["private.elgamal.der.pem"]);
+            }
+
+            [Test]
+            public void ShouldConvertPublicDerKeyToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--publickey", "public.elgamal.der", "-t", "pem"});
+                CollectionAssert.AreEqual(files["public.elgamal.pem"], files["public.elgamal.der.pem"]);
+            }
+        }
+        
+        [TestFixture]
+        public class ConvertEncryptedPrivateElGamalKey : ConvertKeyPairTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                PopulateElGamalKeys();
+            }
+            
+            [Test]
+            public void ShouldConvertPemToDer()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.encrypted.pem", "-p", "foobarbaz", "-t", "der"});
+                IAsymmetricKey encryptedKey = asymmetricKeyProvider.GetEncryptedPrivateKey(files["private.elgamal.encrypted.pem.der"]);
+                IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
+                
+                CollectionAssert.AreEqual(files["private.elgamal.der"], decryptedKey.Content);
+            }
+            
+            [Test]
+            public void ShouldConvertDerToPem()
+            {
+                Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
+                
+                string keyContent = encodingWrapper.GetString(files["private.elgamal.encrypted.der.pem"]);
+                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
+                
+                CollectionAssert.AreEqual(files["private.elgamal.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
             }
         }
     }
