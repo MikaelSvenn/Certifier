@@ -33,10 +33,11 @@ namespace Integration.VerifyKey.Test
         {
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var primeMapper = new Rfc3526PrimeMapper();
+            var curveNameMapper = new FieldToCurveNameMapper();
             
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
-            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, curveNameMapper);
             elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator, primeMapper);
             
             encoding = new EncodingWrapper();

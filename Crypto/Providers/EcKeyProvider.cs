@@ -3,23 +3,22 @@ using System.Security.Cryptography;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X9;
+using Crypto.Mappers;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.EC;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Math.EC;
 
 namespace Crypto.Providers
 {
     public class EcKeyProvider : BCKeyProvider, IEcKeyProvider
     {
         private readonly AsymmetricKeyPairGenerator keyPairGenerator;
-        
-        public EcKeyProvider(AsymmetricKeyPairGenerator keyPairGenerator)
+        private readonly FieldToCurveNameMapper curveNameMapper;
+
+        public EcKeyProvider(AsymmetricKeyPairGenerator keyPairGenerator, FieldToCurveNameMapper curveNameMapper)
         {
             this.keyPairGenerator = keyPairGenerator;
+            this.curveNameMapper = curveNameMapper;
         }
 
         public IAsymmetricKeyPair CreateKeyPair(int keySize)
@@ -44,17 +43,12 @@ namespace Crypto.Providers
         public EcKey GetKey(byte[] content, AsymmetricKeyType keyType)
         {           
             AsymmetricKeyParameter key = CreateKey(content, keyType);
-
-            DerObjectIdentifier identifier = key.IsPrivate ? 
-                                 PrivateKeyInfoFactory.CreatePrivateKeyInfo(key).PrivateKeyAlgorithm.Algorithm : 
-                                 SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(key).AlgorithmID.Algorithm;
-            
-            string curve  = ECNamedCurveTable.GetName(identifier) ?? CustomNamedCurves.GetName(identifier) ?? "unknown";          
             int keyLength = GetKeyLength(key);
-            
-            //TODO: Bouncy castle supports only one-way mapping.
-            //The curve name reverse mapping needs to be done manually by comparing the EC field parameters.
-            return new EcKey(content, keyType, keyLength, curve);
+
+            ECCurve curve = ((ECKeyParameters) key).Parameters.Curve;
+            string curveName = curveNameMapper.MapCurveToName(curve);
+
+            return new EcKey(content, keyType, keyLength, curveName);
         }
 
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)

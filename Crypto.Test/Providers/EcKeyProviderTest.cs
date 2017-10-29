@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
+using Crypto.Mappers;
 using Crypto.Providers;
 using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace Crypto.Test.Providers
         public void SetupEcKeyProviderTest()
         {
             asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
-            keyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            keyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, new FieldToCurveNameMapper());
             
             keyPair = keyProvider.CreateKeyPair("brainpoolP384t1");
         }
@@ -181,7 +182,7 @@ namespace Crypto.Test.Providers
             public void ShouldSetCurveName()
             {
                 var key = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
-                Assert.AreEqual("unknown", key.Curve);
+                Assert.AreEqual("brainpoolP384t1", key.Curve);
             }
         }
     }

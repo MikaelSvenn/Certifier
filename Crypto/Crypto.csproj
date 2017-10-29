@@ -45,6 +45,7 @@
     <Compile Include="Generators\PkcsEncryptionGenerator.cs" />
     <Compile Include="Generators\AsymmetricKeyPairGenerator.cs" />
     <Compile Include="Generators\SecureRandomGenerator.cs" />
+    <Compile Include="Mappers\FieldToCurveNameMapper.cs" />
     <Compile Include="Mappers\Rfc3526PrimeMapper.cs" />
     <Compile Include="Mappers\SignatureAlgorithmIdentifierMapper.cs" />
     <Compile Include="Mappers\OidToCipherTypeMapper.cs" />

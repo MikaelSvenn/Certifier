@@ -85,7 +85,7 @@ namespace Integration.ConvertKey.Test
         public void PopulateEcKeys()
         {
             var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
-            var ecKeyProvider = new EcKeyProvider(keyPairGenerator);
+            var ecKeyProvider = new EcKeyProvider(keyPairGenerator, new FieldToCurveNameMapper());
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, ecKeyProvider, null);
             encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
             pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);

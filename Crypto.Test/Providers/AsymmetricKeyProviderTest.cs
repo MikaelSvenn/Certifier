@@ -36,9 +36,10 @@ namespace Crypto.Test.Providers
             var secureRandom = new SecureRandomGenerator();
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(secureRandom);
             var primeMapper = new Rfc3526PrimeMapper();
+            var fieldMapper = new FieldToCurveNameMapper();
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
-            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, fieldMapper);
             elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator, primeMapper);
             
             cipherTypeMapper = new OidToCipherTypeMapper();

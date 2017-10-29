@@ -64,7 +64,7 @@ namespace Integration.CreateSignature.Test
             var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
             dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
-            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator);
+            ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, new FieldToCurveNameMapper());
             
             var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, null, null);
             pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
