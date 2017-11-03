@@ -69,6 +69,7 @@
     <Compile Include="Providers\RsaKeyProviderTest.cs" />
     <Compile Include="Providers\SignatureProviderTest.cs" />
     <Compile Include="Providers\SshFormattingProviderTest.cs" />
+    <Compile Include="Providers\SshKeyProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
