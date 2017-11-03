@@ -62,6 +62,7 @@
     <Compile Include="CommandHandler\VerifySignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
+    <Compile Include="Decorator\DerWriteFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\DsaKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\ElGamalKeySizeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecoratorTest.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Decorator\ReadKeyConversionDecoratorTest.cs" />
     <Compile Include="Decorator\ReadKeyFromFilePathValidationDecoratorTest.cs" />
     <Compile Include="Decorator\RsaKeySizeValidationDecoratorTest.cs" />
+    <Compile Include="Decorator\SshWriteFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\VerifyKeyTypeValidationDecoratorTest.cs" />
     <Compile Include="Decorator\WriteKeyToFilePathValidationDecoratorTest.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecoratorTest.cs" />

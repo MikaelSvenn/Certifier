@@ -65,6 +65,7 @@
     <Reference Include="System.Reflection.TypeExtensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.TypeExtensions.4.4.0\lib\net46\System.Reflection.TypeExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -96,11 +97,13 @@
     <Compile Include="Command\VerifySignatureCommand.cs" />
     <Compile Include="Command\WriteFileCommand.cs" />
     <Compile Include="Command\WriteToStdOutCommand.cs" />
+    <Compile Include="Decorator\DerWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\DsaKeySizeValidationDecorator.cs" />
     <Compile Include="Decorator\ElGamalKeySizeValidationDecorator.cs" />
     <Compile Include="Decorator\FilePathValidationDecorator.cs" />
     <Compile Include="Decorator\ReadKeyConversionDecorator.cs" />
     <Compile Include="Decorator\ReadKeyFromFilePathValidationDecorator.cs" />
+    <Compile Include="Decorator\SshWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\VerifyKeyTypeValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecorator.cs" />
     <Compile Include="Decorator\EncryptionPasswordValidationDecorator.cs" />

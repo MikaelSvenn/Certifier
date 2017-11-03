@@ -4,6 +4,8 @@
     {
         NotSpecified,
         Pem,
-        Der
+        Der,
+        OpenSsh,
+        Ssh2
     }
 }

@@ -26,10 +26,6 @@ namespace Ui.Console.Decorator
                 string pemFormatted = formattingProvider.GetAsPem(command.Out);
                 command.FileContent = encoding.GetBytes(pemFormatted);
             }
-            else
-            {
-                command.FileContent = command.Out.Content;
-            }
             
             decoratedCommand.Execute(command);
         }

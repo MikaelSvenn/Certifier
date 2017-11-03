@@ -1,14 +1,14 @@
-﻿using Core.Model;
+﻿using Core.Interfaces;
+using Core.Model;
 using Ui.Console.Command;
-using Ui.Console.Startup;
 
 namespace Ui.Console.Provider
 {
     public class FileCommandProvider
     {
-        public ReadKeyFromFileCommand GetReadPrivateKeyFromFileCommand(string targetPath, string password = "") => new ReadKeyFromFileCommand
+        public ReadKeyFromFileCommand GetReadPrivateKeyFromFileCommand(string filePath, string password = "") => new ReadKeyFromFileCommand
         {
-            FilePath = targetPath,
+            FilePath = filePath,
             Password = password,
             IsPrivateKey = true
         };
@@ -32,6 +32,16 @@ namespace Ui.Console.Provider
             Password = password
         };
 
+        public WriteFileCommand<IAsymmetricKey> GetWriteKeyToFileCommand(IAsymmetricKey input, string output, ContentType contentType, EncryptionType encryptionType = EncryptionType.None, string password = "")
+        {
+            if (input.IsPrivateKey && contentType == ContentType.Ssh2 || input.IsPrivateKey && contentType == ContentType.OpenSsh)
+            {
+                contentType = ContentType.Pem;
+            }
+
+            return GetWriteToFileCommand(input, output, contentType, encryptionType, password);
+        }
+        
         public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T content) => new WriteToStdOutCommand<T>
         {
             Out = content

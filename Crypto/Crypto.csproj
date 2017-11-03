@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Formatters\Ssh2ContentFormatter.cs" />
     <Compile Include="Generators\PkcsEncryptionGenerator.cs" />
     <Compile Include="Generators\AsymmetricKeyPairGenerator.cs" />
     <Compile Include="Generators\SecureRandomGenerator.cs" />
@@ -60,6 +61,8 @@
     <Compile Include="Providers\Pkcs8FormattingProvider.cs" />
     <Compile Include="Providers\RsaKeyProvider.cs" />
     <Compile Include="Providers\SignatureProvider.cs" />
+    <Compile Include="Providers\SshFormattingProvider.cs" />
+    <Compile Include="Providers\SshKeyProvider.cs" />
     <Compile Include="Wrappers\KeyInfoWrapper.cs" />
     <Compile Include="Wrappers\SignerUtilitiesWrapper.cs" />
   </ItemGroup>

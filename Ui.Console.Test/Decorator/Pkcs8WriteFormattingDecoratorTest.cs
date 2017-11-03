@@ -51,7 +51,7 @@ namespace Ui.Console.Test.Decorator
         }
 
         [Test]
-        public void ShouldInvokeDecoratedCommandWithKeyContentWhenContentTypeIsNotPem()
+        public void ShouldInvokeDecoratedCommandWithEmptyContentWhenContentTypeIsNotPem()
         {
             var command = new WriteFileCommand<IAsymmetricKey>
             {
@@ -60,7 +60,7 @@ namespace Ui.Console.Test.Decorator
             };
 
             decorator.Execute(command);
-            decoratedCommand.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(k => k.FileContent.SequenceEqual(keyContent))));
+            decoratedCommand.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(k => k.FileContent == null)));
         }
     }
 }

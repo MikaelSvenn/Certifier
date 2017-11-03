@@ -56,6 +56,8 @@
     <Compile Include="Interfaces\IKeyProvider.cs" />
     <Compile Include="Interfaces\ISignatureGenerator.cs" />
     <Compile Include="Interfaces\ISignatureProvider.cs" />
+    <Compile Include="Interfaces\ISshFormattingProvider.cs" />
+    <Compile Include="Interfaces\ISshKeyProvider.cs" />
     <Compile Include="Model\AsymmetricKey.cs" />
     <Compile Include="Model\CipherType.cs" />
     <Compile Include="Model\ContentType.cs" />

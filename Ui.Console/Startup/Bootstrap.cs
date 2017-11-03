@@ -1,6 +1,7 @@
 ﻿using Core.Configuration;
 using Core.Interfaces;
 using Core.Model;
+using Crypto.Formatters;
 using Crypto.Generators;
 using Crypto.Providers;
 using SimpleInjector;
@@ -29,6 +30,9 @@ namespace Ui.Console.Startup
             container.Register<IKeyEncryptionProvider, PkcsEncryptionProvider>();
             container.Register<IPkcsFormattingProvider<IAsymmetricKey>, Pkcs8FormattingProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
+            container.Register<Ssh2ContentFormatter>();
+            container.Register<ISshFormattingProvider, SshFormattingProvider>();
+            container.Register<ISshKeyProvider, SshKeyProvider>();
             
             container.Register<CommandLineParser>();
             container.Register<ApplicationArguments>(() =>
@@ -62,6 +66,8 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyConversionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyDecryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8WriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(SshWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(DerWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToFileBase64FormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToStdOutBase64FormattingDecorator<>));

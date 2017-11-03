@@ -41,8 +41,8 @@ namespace Ui.Console.Provider
             }
             
             commandExecutor.Execute(createKeyCommand);
-            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
-            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath, arguments.ContentType);
+            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
+            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath, arguments.ContentType);
             commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
         }
         
@@ -96,8 +96,8 @@ namespace Ui.Console.Provider
             }
 
             string keyPath = $"{readKeyFromFile.FilePath}.{fileExtension}";
-            WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKey>(readKeyFromFile.Result, keyPath, arguments.ContentType, readKeyFromFile.OriginalEncryptionType, arguments.Password);
-            commandExecutor.Execute(writePublicKeyToFile);
+            WriteFileCommand<IAsymmetricKey> writeKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(readKeyFromFile.Result, keyPath, arguments.ContentType, readKeyFromFile.OriginalEncryptionType, arguments.Password);
+            commandExecutor.Execute(writeKeyToFile);
         }
     }
 }

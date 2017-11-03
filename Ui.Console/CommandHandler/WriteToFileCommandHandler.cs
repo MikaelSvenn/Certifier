@@ -12,9 +12,9 @@ namespace Ui.Console.CommandHandler
             this.file = file;
         }
 
-        public void Execute(WriteFileCommand<T> createKeyCommand)
+        public void Execute(WriteFileCommand<T> writeToFileCommand)
         {
-            file.WriteAllBytes(createKeyCommand.FilePath, createKeyCommand.FileContent);
+            file.WriteAllBytes(writeToFileCommand.FilePath, writeToFileCommand.FileContent);
         }
     }
 }

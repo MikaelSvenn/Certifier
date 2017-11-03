@@ -86,8 +86,6 @@ namespace Crypto.Test.Providers
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
-
-
         }
 
         [TestFixture]

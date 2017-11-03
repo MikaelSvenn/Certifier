@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using Core.Model;
 using Moq;
 using NUnit.Framework;
@@ -128,6 +129,66 @@ namespace Ui.Console.Test.Provider
             }
         }
 
+        [TestFixture]
+        public class GetWriteKeyToFileCommand : FileCommandProviderTest
+        {
+            private WriteFileCommand<IAsymmetricKey> result;
+            private IAsymmetricKey key;
+
+            [SetUp]
+            public void Setup()
+            {
+                key = Mock.Of<IAsymmetricKey>();
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.Der, EncryptionType.Pkcs, "foopassword");
+            }
+
+            [Test]
+            public void ShouldMapOutput()
+            {
+                Assert.AreEqual(key, result.Out);
+            }
+
+            [Test]
+            public void ShouldMapFilePath()
+            {
+                Assert.AreEqual("key", result.FilePath);
+            }
+
+            [Test]
+            public void ShouldMapContentType()
+            {
+                Assert.AreEqual(ContentType.Der, result.ContentType);
+            }
+
+            [Test]
+            public void ShouldMapEncryptionType()
+            {
+                Assert.AreEqual(EncryptionType.Pkcs, result.EncryptionType);
+            }
+
+            [Test]
+            public void ShouldMapPassword()
+            {
+                Assert.AreEqual("foopassword", result.Password);
+            }
+
+            [Test]
+            public void ShouldMapContentTypeToPemWhenContentIsSsh2()
+            {
+                key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.Ssh2);
+                Assert.AreEqual(ContentType.Pem, result.ContentType);
+            }
+
+            [Test]
+            public void ShouldMapContentTypeToPemWhenContentIsOpenSsh()
+            {
+                key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.OpenSsh);
+                Assert.AreEqual(ContentType.Pem, result.ContentType);
+            }
+        }
+        
         [TestFixture]
         public class GetWriteToStdOutCommand : FileCommandProviderTest
         {

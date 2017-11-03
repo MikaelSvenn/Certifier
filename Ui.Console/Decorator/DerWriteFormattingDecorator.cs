@@ -1,0 +1,27 @@
+﻿using Core.Interfaces;
+using Core.Model;
+using Ui.Console.Command;
+using Ui.Console.CommandHandler;
+
+namespace Ui.Console.Decorator
+{
+    public class DerWriteFormattingDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
+    {
+        private readonly ICommandHandler<T> decoratedCommand;
+
+        public DerWriteFormattingDecorator(ICommandHandler<T> decoratedCommand)
+        {
+            this.decoratedCommand = decoratedCommand;
+        }
+
+        public void Execute(T command)
+        {
+            if (command.ContentType == ContentType.Der || command.ContentType == ContentType.NotSpecified)
+            {
+                command.FileContent = command.Out.Content;
+            }
+            
+            decoratedCommand.Execute(command);
+        }
+    }
+}
