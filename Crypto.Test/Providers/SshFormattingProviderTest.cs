@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
 using Crypto.Formatters;
+using Crypto.Generators;
+using Crypto.Mappers;
 using Crypto.Providers;
 using Moq;
 using NUnit.Framework;
@@ -22,12 +25,12 @@ namespace Crypto.Test.Providers
         {
             keyProvider = new Mock<ISshKeyProvider>();
             contentFormatter = new Mock<Ssh2ContentFormatter>();
-            contentFormatter.Setup(c => c.FormatSsh2Header(It.IsAny<string>()))
+            contentFormatter.Setup(c => c.FormatToSsh2Header(It.IsAny<string>()))
                              .Returns<string>(s => $"formatted {s}");
-            contentFormatter.Setup(c => c.FormatSsh2KeyContent(It.IsAny<string>()))
+            contentFormatter.Setup(c => c.FormatToSsh2KeyContent(It.IsAny<string>()))
                              .Returns<string>(s => $"formattedkey {s}");
             
-            provider = new SshFormattingProvider(keyProvider.Object, new EncodingWrapper(), contentFormatter.Object);
+            provider = new SshFormattingProvider(keyProvider.Object, new EncodingWrapper(), contentFormatter.Object, new Base64Wrapper());
         }
 
         [TestFixture]
@@ -393,6 +396,78 @@ namespace Crypto.Test.Providers
                 {
                     string comment = string.Concat(Enumerable.Repeat("a", 1500));
                     Assert.Throws<ArgumentException>(() => provider.GetAsSsh2(key, comment));
+                }
+            }
+        }
+
+        [TestFixture]
+        public class GetAsDer : SshFormattingProviderTest
+        {          
+            private string ssh2Key;
+            private string openSshKey;
+            private string keyContent;
+
+            [SetUp]
+            public void SetupGetAsDer()
+            {
+                var secureRandom = new SecureRandomGenerator();
+                var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(secureRandom);
+                var rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
+                var dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
+                var ecKeyProvier = new EcKeyProvider(asymmetricKeyPairGenerator, new FieldToCurveNameMapper());
+                var keyPair = rsaKeyProvider.CreateKeyPair(1024);
+                var key = keyPair.PublicKey;
+                
+                var encoding = new EncodingWrapper();
+                var base64 = new Base64Wrapper();
+                var sshKeyProvider = new SshKeyProvider(encoding, base64, rsaKeyProvider, dsaKeyProvider, ecKeyProvier);
+                
+                var formattingProvider = new SshFormattingProvider(sshKeyProvider, encoding, new Ssh2ContentFormatter(), base64);
+
+                ssh2Key = formattingProvider.GetAsSsh2(key, "foo");
+                keyContent = sshKeyProvider.GetRsaPublicKeyContent(key);
+                openSshKey = formattingProvider.GetAsOpenSsh(key, "foo");
+            }
+            
+            [TestFixture]
+            public class WhenKeyIsSsh2Formatted : GetAsDer
+            {
+                private IAsymmetricKey key;
+                
+                [SetUp]
+                public void Setup()
+                {
+                    key = Mock.Of<IAsymmetricKey>();
+                    keyProvider.Setup(kp => kp.GetKeyFromSsh(keyContent))
+                               .Returns(key);
+                }
+
+                [Test]
+                public void ShouldGetKeyByContent()
+                {
+                    var result = provider.GetAsDer(ssh2Key);
+                    Assert.AreEqual(key, result);
+                }
+            }
+
+            [TestFixture]
+            public class WhenKeyIsOpenSshFormatted : GetAsDer
+            {
+                private IAsymmetricKey key;
+                
+                [SetUp]
+                public void Setup()
+                {
+                    key = Mock.Of<IAsymmetricKey>();
+                    keyProvider.Setup(kp => kp.GetKeyFromSsh(keyContent))
+                               .Returns(key);
+                }
+
+                [Test]
+                public void ShouldGetKeyByContent()
+                {
+                    var result = provider.GetAsDer(openSshKey);
+                    Assert.AreEqual(key, result);
                 }
             }
         }

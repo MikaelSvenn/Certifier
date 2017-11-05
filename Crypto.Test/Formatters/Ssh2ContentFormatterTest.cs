@@ -26,7 +26,7 @@ namespace Crypto.Test.Formatters
             public void Setup()
             {
                 string header = string.Concat(Enumerable.Repeat("a", 1024));
-                rawResult = formatter.FormatSsh2Header(header);
+                rawResult = formatter.FormatToSsh2Header(header);
                 result = rawResult.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
             }
 
@@ -57,7 +57,7 @@ namespace Crypto.Test.Formatters
             public void Setup()
             {
                 string header = string.Concat(Enumerable.Repeat("a", 2048));
-                rawResult = formatter.FormatSsh2KeyContent(header);
+                rawResult = formatter.FormatToSsh2KeyContent(header);
                 result = rawResult.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
             }
             

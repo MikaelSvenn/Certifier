@@ -7,5 +7,6 @@
         string GetDsaPublicKeyContent(IAsymmetricKey key);
         bool IsSupportedCurve(string curveName);
         string GetCurveSshHeader(string curveName);
+        IAsymmetricKey GetKeyFromSsh(string sshKeyContent);
     }
 }

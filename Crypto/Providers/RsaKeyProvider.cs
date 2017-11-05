@@ -4,10 +4,11 @@ using Core.Model;
 using Crypto.Generators;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 
 namespace Crypto.Providers
 {
-    public class RsaKeyProvider : BCKeyProvider, IKeyProvider<RsaKey>
+    public class RsaKeyProvider : BCKeyProvider, IRsaKeyProvider
     {
         private readonly AsymmetricKeyPairGenerator asymmetricKeyPairGenerator;
 
@@ -38,6 +39,17 @@ namespace Crypto.Providers
             AsymmetricKeyParameter key = CreateKey(content, keyType);
             int keyLength = GetKeyLength(key);
             return new RsaKey(content, keyType, keyLength);
+        }
+
+        public IAsymmetricKey GetPublicKey(byte[] exponent, byte[] modulus)
+        {
+            var e = new BigInteger(exponent);
+            var n = new BigInteger(modulus);
+            var rsaParameters = new RsaKeyParameters(false, n, e);
+            byte[] publicKeyContent = GetPublicKey(rsaParameters);
+
+            int keyLength = GetKeyLength(rsaParameters);
+            return new RsaKey(publicKeyContent, AsymmetricKeyType.Public, keyLength);
         }
 
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)

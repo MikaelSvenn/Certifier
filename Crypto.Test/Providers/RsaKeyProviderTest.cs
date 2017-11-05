@@ -6,8 +6,9 @@ using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
 using Crypto.Wrappers;
-using Moq;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Providers
 {
@@ -127,6 +128,46 @@ namespace Crypto.Test.Providers
                 {
                     keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Public);
                 });
+            }
+        }
+
+        [TestFixture]
+        public class GetPublicKeyByPrimitivesTest : RsaKeyProviderTest
+        {
+            private RsaKeyParameters publicKeyParameters;
+            private byte[] modulus;
+            private byte[] exponent;
+            private IAsymmetricKey result;
+            
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                var keyPair = keyProvider.CreateKeyPair(1024);
+                publicKeyParameters = (RsaKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+
+                modulus = publicKeyParameters.Modulus.ToByteArray();
+                exponent = publicKeyParameters.Exponent.ToByteArray();
+                
+                result = keyProvider.GetPublicKey(exponent, modulus);
+            }
+
+            [Test]
+            public void ShouldCreateValidKey()
+            {
+                var keyContent = (RsaKeyParameters) PublicKeyFactory.CreateKey(result.Content);                
+                Assert.AreEqual(publicKeyParameters, keyContent);
+            }
+
+            [Test]
+            public void ShouldCreatePublicKey()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Public, result.KeyType);
+            }
+
+            [Test]
+            public void ShouldSetKeySize()
+            {
+                Assert.AreEqual(1024, result.KeySize);
             }
         }
 

@@ -13,15 +13,21 @@ namespace Crypto.Providers
     {
         private readonly EncodingWrapper encoding;
         private readonly Base64Wrapper base64;
+        private readonly IRsaKeyProvider rsaKeyProvider;
+        private readonly IDsaKeyProvider dsaKeyProvider;
+        private readonly IEcKeyProvider ecKeyProvider;
         private readonly IEnumerable<string[]> sshSupportedCurves;
         private readonly Dictionary<string, string> sshCurveHeaders;
         private readonly Dictionary<string, string> sshCurveIdentifiers;
         
-        public SshKeyProvider(EncodingWrapper encoding, Base64Wrapper base64)
+        public SshKeyProvider(EncodingWrapper encoding, Base64Wrapper base64, IRsaKeyProvider rsaKeyProvider, IDsaKeyProvider dsaKeyProvider, IEcKeyProvider ecKeyProvider)
         {
             this.encoding = encoding;
             this.base64 = base64;
-            
+            this.rsaKeyProvider = rsaKeyProvider;
+            this.dsaKeyProvider = dsaKeyProvider;
+            this.ecKeyProvider = ecKeyProvider;
+
             sshSupportedCurves = new []
             {
                 new []{"curve25519"},
@@ -88,7 +94,7 @@ namespace Crypto.Providers
         public string GetDsaPublicKeyContent(IAsymmetricKey key)
         {
             var keyParameters = (DsaPublicKeyParameters) PublicKeyFactory.CreateKey(key.Content);
-            byte[] header = encoding.GetBytes("ssh-dsa");
+            byte[] header = encoding.GetBytes("ssh-dss");
             byte[] p = keyParameters.Parameters.P.ToByteArray();
             byte[] q = keyParameters.Parameters.Q.ToByteArray();
             byte[] g = keyParameters.Parameters.G.ToByteArray();
@@ -132,6 +138,104 @@ namespace Crypto.Providers
                                              .First();
 
             return sshCurveHeaders[curve];
+        }
+
+        public IAsymmetricKey GetKeyFromSsh(string sshKeyContent)
+        {
+            byte[] content = base64.FromBase64String(sshKeyContent);
+            var headerLengthArray = new byte[4];
+            
+            Array.Copy(content, 0, headerLengthArray, 0, 4);
+
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(headerLengthArray);
+            }
+
+            int headerLength = BitConverter.ToInt32(headerLengthArray, 0);
+            var header = new byte[headerLength];
+            Array.Copy(content, 4, header, 0, headerLength);
+            string headerContent = encoding.GetString(header);
+
+            switch (headerContent)
+            {
+                case "ssh-rsa":
+                    return GetPublicRsaKey(content);
+                case "ssh-dss":
+                    return GetPublicDsaKey(content);
+                case "ed25519":
+                case "nistp256":
+                case "nistp384":
+                case "nistp521":
+                    return GetPublicEcKey(content, headerContent);
+                default:
+                    throw new ArgumentException("SSH key type not supported or the key is corrupt.");
+            }
+        }
+
+        private IAsymmetricKey GetPublicRsaKey(byte[] content)
+        {
+            byte[] e;
+            byte[] n;
+            
+            using (var stream = new MemoryStream(content))
+            {
+                stream.Seek(11, SeekOrigin.Begin);
+                e = ReadNextContent(stream);
+                n = ReadNextContent(stream);
+            }
+
+            return rsaKeyProvider.GetPublicKey(e, n);
+        }
+
+        private static byte[] ReadNextContent(MemoryStream stream)
+        {
+            var contentLengthBytes = new byte[4];
+            stream.Read(contentLengthBytes, 0, 4);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(contentLengthBytes);
+            }
+
+            int headerLength = BitConverter.ToInt32(contentLengthBytes, 0);
+            int contentLength = headerLength;
+            
+            var contentBytes = new byte[contentLength];
+            stream.Read(contentBytes, 0, contentLength);
+            return contentBytes;
+        }
+
+        private IAsymmetricKey GetPublicDsaKey(byte[] content)
+        {
+            byte[] p;
+            byte[] q;
+            byte[] g;
+            byte[] y;
+            
+            using (var stream = new MemoryStream(content))
+            {
+                stream.Seek(11, SeekOrigin.Begin);
+                p = ReadNextContent(stream);
+                q = ReadNextContent(stream);
+                g = ReadNextContent(stream);
+                y = ReadNextContent(stream);
+            }
+
+            return dsaKeyProvider.GetPublicKey(p, q, g, y);
+        }
+
+        private IAsymmetricKey GetPublicEcKey(byte[] content, string curve)
+        {
+            byte[] q;
+            
+            using (var stream = new MemoryStream(content))
+            {
+                stream.Seek(curve.Length + 4, SeekOrigin.Begin);
+                q = ReadNextContent(stream);
+            }
+
+            string curveName = sshCurveIdentifiers.Keys.Single(k => sshCurveIdentifiers[k].Equals(curve));
+            return ecKeyProvider.GetPublicKey(q, curveName);
         }
     }
 }

@@ -258,5 +258,49 @@ namespace Crypto.Test.Providers
                 });
             }
         }
+
+        [TestFixture]
+        public class GetPublicKeyByPrimitives : DsaKeyProviderTest
+        {
+            private DsaPublicKeyParameters publicKeyParameters;
+            private IAsymmetricKey result;
+            private byte[] p;
+            private byte[] q;
+            private byte[] g;
+            private byte[] y;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = keyProvider.CreateKeyPair(2048);
+                publicKeyParameters = (DsaPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+
+                p = publicKeyParameters.Parameters.P.ToByteArray();
+                q = publicKeyParameters.Parameters.Q.ToByteArray();
+                g = publicKeyParameters.Parameters.G.ToByteArray();
+                y = publicKeyParameters.Y.ToByteArray();
+                
+                result = keyProvider.GetPublicKey(p, q, g, y);
+            }
+
+            [Test]
+            public void ShouldCreateValidKey()
+            {
+                var keyContent = (DsaPublicKeyParameters) PublicKeyFactory.CreateKey(result.Content);                
+                Assert.AreEqual(publicKeyParameters, keyContent);
+            }
+
+            [Test]
+            public void ShouldCreatePublicKey()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Public, result.KeyType);
+            }
+
+            [Test]
+            public void ShouldSetKeySize()
+            {
+                Assert.AreEqual(2048, result.KeySize);
+            }
+        }
     }
 }

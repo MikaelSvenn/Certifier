@@ -4,10 +4,11 @@ using Core.Model;
 using Crypto.Generators;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 
 namespace Crypto.Providers
 {
-    public class DsaKeyProvider : BCKeyProvider, IKeyProvider<DsaKey>
+    public class DsaKeyProvider : BCKeyProvider, IDsaKeyProvider
     {
         private readonly AsymmetricKeyPairGenerator keyGenerator;
 
@@ -35,6 +36,22 @@ namespace Crypto.Providers
             AsymmetricKeyParameter key = CreateKey(content, keyType);
             int keyLength = GetKeyLength(key);
             return new DsaKey(content, keyType, keyLength);
+        }
+
+        public DsaKey GetPublicKey(byte[] p, byte[] q, byte[] g, byte[] y)
+        {
+            var pValue = new BigInteger(p);
+            var qValue = new BigInteger(q);
+            var gValue = new BigInteger(g);
+            var yValue = new BigInteger(y);
+            
+            var dsaParameters = new DsaParameters(pValue, qValue, gValue);
+            var dsaPublicKeyParameters = new DsaPublicKeyParameters(yValue, dsaParameters);
+            
+            byte[] publicKeyContent = GetPublicKey(dsaPublicKeyParameters);
+            int keySize = GetKeyLength(dsaPublicKeyParameters);
+            
+            return new DsaKey(publicKeyContent, AsymmetricKeyType.Public, keySize);
         }
 
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)

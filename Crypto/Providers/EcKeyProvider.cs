@@ -4,7 +4,9 @@ using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.EC;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math.EC;
 
@@ -39,7 +41,7 @@ namespace Crypto.Providers
         }
 
         private int GetKeyLength(AsymmetricKeyParameter key) => ((ECKeyParameters) key).Parameters.Curve.FieldSize;
-        
+
         public EcKey GetKey(byte[] content, AsymmetricKeyType keyType)
         {           
             AsymmetricKeyParameter key = CreateKey(content, keyType);
@@ -49,6 +51,25 @@ namespace Crypto.Providers
             string curveName = curveNameMapper.MapCurveToName(curve);
 
             return new EcKey(content, keyType, keyLength, curveName);
+        }
+
+        public IEcKey GetPublicKey(byte[] q, string curve)
+        {
+            X9ECParameters curveParameters = ECNamedCurveTable.GetByName(curve) ?? CustomNamedCurves.GetByName(curve);
+            var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
+                                                            curveParameters.G,
+                                                            curveParameters.N,
+                                                            curveParameters.H,
+                                                            curveParameters.GetSeed());
+
+            ECPoint qPoint = ecDomainParameters.Curve.DecodePoint(q);
+            var ecPublicKeyParameter = new ECPublicKeyParameters(qPoint, ecDomainParameters);
+
+            byte[] publicKeyContent = GetPublicKey(ecPublicKeyParameter);
+            int keyLength = GetKeyLength(ecPublicKeyParameter);
+            
+            string curveName = curveNameMapper.MapCurveToName(ecDomainParameters.Curve);
+            return new EcKey(publicKeyContent, AsymmetricKeyType.Public, keyLength, curveName);
         }
 
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)

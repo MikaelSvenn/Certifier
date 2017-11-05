@@ -48,12 +48,14 @@
     <Compile Include="Interfaces\IAsymmetricKeyPair.cs" />
     <Compile Include="Interfaces\IAsymmetricKeyProvider.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
+    <Compile Include="Interfaces\IDsaKeyProvider.cs" />
     <Compile Include="Interfaces\IEcKey.cs" />
     <Compile Include="Interfaces\IEcKeyProvider.cs" />
     <Compile Include="Interfaces\IElGamalKeyProvider.cs" />
     <Compile Include="Interfaces\IKeyEncryptionProvider.cs" />
     <Compile Include="Interfaces\IPkcsFormattingProvider.cs" />
     <Compile Include="Interfaces\IKeyProvider.cs" />
+    <Compile Include="Interfaces\IRsaKeyProvider.cs" />
     <Compile Include="Interfaces\ISignatureGenerator.cs" />
     <Compile Include="Interfaces\ISignatureProvider.cs" />
     <Compile Include="Interfaces\ISshFormattingProvider.cs" />

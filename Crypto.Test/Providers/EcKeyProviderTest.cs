@@ -5,6 +5,8 @@ using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Providers
 {
@@ -181,6 +183,49 @@ namespace Crypto.Test.Providers
             {
                 var key = keyProvider.GetKey(keyPair.PrivateKey.Content, AsymmetricKeyType.Private);
                 Assert.AreEqual("brainpoolP384t1", key.Curve);
+            }
+        }
+        
+        [TestFixture]
+        public class GetPublicKeyByPrimitives : EcKeyProviderTest
+        {
+            private ECPublicKeyParameters publicKeyParameters;
+            private IEcKey result;
+            private byte[] q;
+
+            [SetUp]
+            public void Setup()
+            {
+                keyPair = keyProvider.CreateKeyPair("curve25519");
+                publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+
+                q = publicKeyParameters.Q.GetEncoded();
+                result = keyProvider.GetPublicKey(q, "curve25519");
+            }
+
+            [Test]
+            public void ShouldCreateValidKey()
+            {
+                var keyContent = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(result.Content);
+                Assert.AreEqual(publicKeyParameters, keyContent);
+            }
+
+            [Test]
+            public void ShouldCreatePublicKey()
+            {
+                Assert.AreEqual(AsymmetricKeyType.Public, result.KeyType);
+            }
+
+            [Test]
+            public void ShouldSetKeySize()
+            {
+                Assert.AreEqual(255, result.KeySize);
+            }
+
+            [Test]
+            public void ShouldSetCurve()
+            {
+                Assert.AreEqual("curve25519", result.Curve);
             }
         }
     }

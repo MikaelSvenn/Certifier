@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Xml;
 using Core.Interfaces;
 using Core.Model;
 using Core.SystemWrappers;
@@ -15,15 +20,17 @@ namespace Crypto.Providers
         private readonly ISshKeyProvider sshKeyProvider;
         private readonly EncodingWrapper encoding;
         private readonly Ssh2ContentFormatter ssh2ContentFormatter;
+        private readonly Base64Wrapper base64;
 
-        public SshFormattingProvider(ISshKeyProvider sshKeyProvider, EncodingWrapper encoding, Ssh2ContentFormatter ssh2ContentFormatter)
+        public SshFormattingProvider(ISshKeyProvider sshKeyProvider, EncodingWrapper encoding, Ssh2ContentFormatter ssh2ContentFormatter, Base64Wrapper base64)
         {
             this.sshKeyProvider = sshKeyProvider;
             this.encoding = encoding;
             this.ssh2ContentFormatter = ssh2ContentFormatter;
+            this.base64 = base64;
         }
 
-        public virtual string GetAsOpenSsh(IAsymmetricKey key, string comment)
+        public string GetAsOpenSsh(IAsymmetricKey key, string comment)
         {
             if (key.IsPrivateKey)
             {
@@ -63,7 +70,7 @@ namespace Crypto.Providers
             }
         }
         
-        public virtual string GetAsSsh2(IAsymmetricKey key, string comment)
+        public string GetAsSsh2(IAsymmetricKey key, string comment)
         {
             if (key.IsPrivateKey)
             {
@@ -87,19 +94,35 @@ namespace Crypto.Providers
                     break;
                 case CipherType.Ec:
                     VerifyEcCurve(key);
-                    contentLine = sshKeyProvider.GetEcPublicKeyContent((IEcKey) key);
+                    contentLine = sshKeyProvider.GetEcPublicKeyContent(key);
                     break;
                 default:
                     throw new InvalidOperationException("Cipher type not supported for SSH2 key.");
             }
 
-            string content = ssh2ContentFormatter.FormatSsh2KeyContent(contentLine);
-            string formattedComment = ssh2ContentFormatter.FormatSsh2Header(comment);
+            string content = ssh2ContentFormatter.FormatToSsh2KeyContent(contentLine);
+            string formattedComment = ssh2ContentFormatter.FormatToSsh2Header(comment);
             
             return $"---- BEGIN SSH2 PUBLIC KEY ----{Environment.NewLine}" + 
                    $"Comment: {formattedComment + Environment.NewLine}" + 
                    $"{content + Environment.NewLine}" + 
                    "---- END SSH2 PUBLIC KEY ----";
+        }
+
+        public IAsymmetricKey GetAsDer(string sshKey)
+        {
+            string[] contentLines;
+            if (sshKey.StartsWith("---- BEGIN SSH2 PUBLIC KEY ----"))
+            {
+                contentLines = sshKey.Split(new[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+                IEnumerable<string> keyContent = contentLines.Where(line => base64.IsBase64(line));
+                string key = string.Concat(keyContent);
+                
+                return sshKeyProvider.GetKeyFromSsh(key);
+            }
+            
+            contentLines = sshKey.Split(' ');
+            return sshKeyProvider.GetKeyFromSsh(contentLines[1]);
         }
     }
 }

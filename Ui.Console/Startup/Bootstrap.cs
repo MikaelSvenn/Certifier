@@ -23,7 +23,9 @@ namespace Ui.Console.Startup
             container.Register<SecureRandomGenerator>();
 
             container.Register<IKeyProvider<RsaKey>, RsaKeyProvider>();
+            container.Register<IRsaKeyProvider, RsaKeyProvider>();
             container.Register<IKeyProvider<DsaKey>, DsaKeyProvider>();
+            container.Register<IDsaKeyProvider, DsaKeyProvider>();
             container.Register<IElGamalKeyProvider, ElGamalKeyProvider>();
             container.Register<IEcKeyProvider, EcKeyProvider>();
             container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
