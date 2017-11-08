@@ -268,7 +268,7 @@ namespace Crypto.Test.Providers
             [TestCase("P-256")]
             [TestCase("P-384")]
             [TestCase("P-521")]
-            public void ShouldSetP(string curve)
+            public void ShouldSetQ(string curve)
             {
                 SetupForCurve(curve);
                 X9ECParameters curveParameters = ECNamedCurveTable.GetByName(curve) ?? CustomNamedCurves.GetByName(curve);
@@ -350,20 +350,37 @@ namespace Crypto.Test.Providers
             [TestFixture]
             public class Ec : GetKeyFromSsh
             {
-                [SetUp]
-                public void Setup()
+                private string sshKeyContent;
+
+                private void SetupForCurve(string curve)
                 {
-                    IAsymmetricKeyPair keyPair = ecKeyProvider.CreateKeyPair("curve25519");
+                    IAsymmetricKeyPair keyPair = ecKeyProvider.CreateKeyPair(curve);
                     key = keyPair.PublicKey;
 
-                    string keyContent = provider.GetEcPublicKeyContent(key);
-                    result = provider.GetKeyFromSsh(keyContent);
+                    sshKeyContent = provider.GetEcPublicKeyContent(key);
+                    result = provider.GetKeyFromSsh(sshKeyContent);
+                }
+
+                [TestCase("curve25519")]
+                [TestCase("P-256")]
+                [TestCase("P-384")]
+                [TestCase("P-521")]
+                public void ShouldReturnValidEcKey(string curve)
+                {
+                    SetupForCurve(curve);
+                    Assert.AreEqual(key.Content, result.Content);
                 }
 
                 [Test]
-                public void ShouldReturnValidEcKey()
+                public void ShouldThrowExceptionWhenHeaderIsNotIdentified()
                 {
-                    Assert.AreEqual(key.Content, result.Content);
+                    SetupForCurve("curve25519");
+                    byte[] content = base64.FromBase64String(sshKeyContent);
+                    content[4] = (byte)(content[4] >> 1);
+
+                    string alteredContent = base64.ToBase64String(content);
+
+                    Assert.Throws<ArgumentException>(() => provider.GetKeyFromSsh(alteredContent));
                 }
             }
         }

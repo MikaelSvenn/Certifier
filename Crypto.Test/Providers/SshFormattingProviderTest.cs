@@ -471,5 +471,33 @@ namespace Crypto.Test.Providers
                 }
             }
         }
+
+        [TestFixture]
+        public class IsSshKey : SshFormattingProviderTest
+        {
+            [TestCase("---- BEGIN SSH2 PUBLIC")]
+            [TestCase("ssh-rsa ")]
+            [TestCase("ssh-dss ")]
+            [TestCase("ssh-ed25519 ")]
+            [TestCase("ecdsa-sha2-nistp256 ")]
+            [TestCase("ecdsa-sha2-nistp384 ")]
+            [TestCase("ecdsa-sha2-nistp521 ")]
+            public void ShouldReturnTrueForKnownHeader(string header)
+            {
+                Assert.IsTrue(provider.IsSshKey(header));
+            }
+
+            [TestCase("")]
+            [TestCase(" ")]
+            [TestCase("foobarbaz")]
+            [TestCase("---- BEGIN SSH2 PRIVATE")]
+            [TestCase("ssh-ed25519-cert-v01@openssh.com")]
+            [TestCase("ssh-rsa-cert-v01@openssh.com")]
+            [TestCase("ecdsa-sha2-nistp384-cert-v01@openssh.com")]
+            public void ShouldReturnFalseForUnknownHeader(string header)
+            {
+                Assert.IsFalse(provider.IsSshKey(header));
+            }
+        }
     }
 }

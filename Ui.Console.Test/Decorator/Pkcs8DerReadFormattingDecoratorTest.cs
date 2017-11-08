@@ -10,9 +10,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class ReadKeyConversionDecoratorTest
+    public class Pkcs8DerReadFormattingDecoratorTest
     {
-        private ReadKeyConversionDecorator<ReadKeyFromFileCommand> decorator;
+        private Pkcs8DerReadFormattingDecorator<ReadKeyFromFileCommand> decorator;
         private Mock<ICommandHandler<ReadKeyFromFileCommand>> decoratedHandler;
         private Mock<IAsymmetricKeyProvider> asymmetricKeyProvider;
         private IAsymmetricKey privateKey;
@@ -37,7 +37,7 @@ namespace Ui.Console.Test.Decorator
                                  .Returns(publicKey);
             
             
-            decorator = new ReadKeyConversionDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, asymmetricKeyProvider.Object);
+            decorator = new Pkcs8DerReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, asymmetricKeyProvider.Object);
         }
 
         [Test]

@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Net.Mime;
-using System.Security.Policy;
 using NUnit.Framework;
 using Ui.Console.Startup;
+using ContentType = Core.Model.ContentType;
 
 namespace Ui.Console.Test.Startup
 {
@@ -196,6 +193,33 @@ namespace Ui.Console.Test.Startup
                 };
 
                 Assert.IsFalse(arguments.HasFileInput);
+            }
+        }
+
+        [TestFixture]
+        public class IsContentTypeSsh : ApplicationArgumentsTest
+        {
+            [SetUp]
+            public void Setup()
+            {
+                arguments = new ApplicationArguments();
+            }
+            
+            [TestCase(ContentType.OpenSsh)]
+            [TestCase(ContentType.Ssh2)]
+            public void ShouldReturnTrueWhenContentTypeIsSsh(ContentType type)
+            {
+                arguments.ContentType = type;
+                Assert.IsTrue(arguments.IsContentTypeSsh);
+            }
+
+            [TestCase(ContentType.Der)]
+            [TestCase(ContentType.Pem)]
+            [TestCase(ContentType.NotSpecified)]
+            public void ShouldReturnFalseWhenContentTypeIsNotSsh(ContentType type)
+            {
+                arguments.ContentType = type;
+                Assert.IsFalse(arguments.IsContentTypeSsh);
             }
         }
     }

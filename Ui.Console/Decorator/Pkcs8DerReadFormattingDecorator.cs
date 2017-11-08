@@ -6,12 +6,12 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class ReadKeyConversionDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
+    public class Pkcs8DerReadFormattingDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
     {
         private readonly ICommandHandler<T> decoratedHandler;
         private readonly IAsymmetricKeyProvider asymmetricKeyProvider;
         
-        public ReadKeyConversionDecorator(ICommandHandler<T> decoratedHandler, IAsymmetricKeyProvider asymmetricKeyProvider)
+        public Pkcs8DerReadFormattingDecorator(ICommandHandler<T> decoratedHandler, IAsymmetricKeyProvider asymmetricKeyProvider)
         {
             this.decoratedHandler = decoratedHandler;
             this.asymmetricKeyProvider = asymmetricKeyProvider;

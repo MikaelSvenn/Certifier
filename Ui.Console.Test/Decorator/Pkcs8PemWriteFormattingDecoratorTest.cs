@@ -12,9 +12,9 @@ using Ui.Console.Startup;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class Pkcs8WriteFormattingDecoratorTest
+    public class Pkcs8PemWriteFormattingDecoratorTest
     {
-        private Pkcs8WriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private Pkcs8PemWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommand;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncodingWrapper encoding;
@@ -28,7 +28,7 @@ namespace Ui.Console.Test.Decorator
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
 
             encoding = new EncodingWrapper();
-            decorator = new Pkcs8WriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object, encoding);
+            decorator = new Pkcs8PemWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object, encoding);
             
             keyContent = new byte[]{0x07, 0x08, 0x09};
             key = Mock.Of<IAsymmetricKey>(k => k.Content == keyContent);

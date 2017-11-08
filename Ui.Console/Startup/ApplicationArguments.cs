@@ -32,6 +32,7 @@ namespace Ui.Console.Startup
         public bool IsConvertOperation { get; set; }
         public bool HasPublicKey => !string.IsNullOrWhiteSpace(PublicKeyPath);
         public bool HasPrivateKey => !string.IsNullOrWhiteSpace(PrivateKeyPath);
+        public bool IsContentTypeSsh => ContentType == ContentType.OpenSsh || ContentType == ContentType.Ssh2;
         public string Curve { get; set; }
     }
 }

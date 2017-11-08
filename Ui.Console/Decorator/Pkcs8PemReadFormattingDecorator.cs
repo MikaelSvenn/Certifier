@@ -7,13 +7,13 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class Pkcs8ReadFormattingDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
+    public class Pkcs8PemReadFormattingDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
     {
         private readonly ICommandHandler<T> decoratedHandler;
         private readonly IPkcsFormattingProvider<IAsymmetricKey> formattingProvider;
         private readonly EncodingWrapper encoding;
 
-        public Pkcs8ReadFormattingDecorator(ICommandHandler<T> decoratedHandler, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
+        public Pkcs8PemReadFormattingDecorator(ICommandHandler<T> decoratedHandler, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
         {
             this.decoratedHandler = decoratedHandler;
             this.formattingProvider = formattingProvider;

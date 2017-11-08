@@ -5,11 +5,11 @@ using Ui.Console.CommandHandler;
 
 namespace Ui.Console.Decorator
 {
-    public class DerWriteFormattingDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
+    public class Pkcs8DerWriteFormattingDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommand;
 
-        public DerWriteFormattingDecorator(ICommandHandler<T> decoratedCommand)
+        public Pkcs8DerWriteFormattingDecorator(ICommandHandler<T> decoratedCommand)
         {
             this.decoratedCommand = decoratedCommand;
         }

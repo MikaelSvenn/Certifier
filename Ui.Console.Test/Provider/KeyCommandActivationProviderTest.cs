@@ -350,6 +350,13 @@ namespace Ui.Console.Test.Provider
                     arguments.ContentType = ContentType.Pem;
                     Assert.Throws<InvalidOperationException>(() => { provider.ConvertKeyPair(arguments); });
                 }
+
+                [Test]
+                public void ShouldThrowExceptionWhenPrivateKeyIsConvertedToSsh()
+                {
+                    arguments.ContentType = ContentType.Ssh2;
+                    Assert.Throws<InvalidOperationException>(() => provider.ConvertKeyPair(arguments));
+                }
             }
         }
     }

@@ -95,6 +95,11 @@ namespace Ui.Console.Provider
                 throw new InvalidOperationException($"The given key {readKeyFromFile.FilePath} is already in {fileExtension} format.");
             }
 
+            if (arguments.IsContentTypeSsh && readKeyFromFile.Result.IsPrivateKey)
+            {
+                throw new InvalidOperationException("Private key cannot be converted to SSH format.");
+            }
+            
             string keyPath = $"{readKeyFromFile.FilePath}.{fileExtension}";
             WriteFileCommand<IAsymmetricKey> writeKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(readKeyFromFile.Result, keyPath, arguments.ContentType, readKeyFromFile.OriginalEncryptionType, arguments.Password);
             commandExecutor.Execute(writeKeyToFile);

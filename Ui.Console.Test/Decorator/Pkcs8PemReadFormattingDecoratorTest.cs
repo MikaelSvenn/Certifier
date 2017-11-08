@@ -10,9 +10,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class Pkcs8ReadFormattingDecoratorTest
+    public class Pkcs8PemReadFormattingDecoratorTest
     {
-        private Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand> decorator;
+        private Pkcs8PemReadFormattingDecorator<ReadKeyFromFileCommand> decorator;
         private Mock<ICommandHandler<ReadKeyFromFileCommand>> decoratedHandler;
         private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncryptedKey resultingKey;
@@ -25,7 +25,7 @@ namespace Ui.Console.Test.Decorator
             encoding = new EncodingWrapper();
             decoratedHandler = new Mock<ICommandHandler<ReadKeyFromFileCommand>>();
             formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
-            decorator = new Pkcs8ReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, formattingProvider.Object, encoding);
+            decorator = new Pkcs8PemReadFormattingDecorator<ReadKeyFromFileCommand>(decoratedHandler.Object, formattingProvider.Object, encoding);
 
             resultingKey = new EncryptedKey(null, CipherType.Pkcs12Encrypted);
             

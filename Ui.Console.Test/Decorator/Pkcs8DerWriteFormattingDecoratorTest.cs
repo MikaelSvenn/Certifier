@@ -11,9 +11,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class DerWriteFormattingDecoratorTest
+    public class Pkcs8DerWriteFormattingDecoratorTest
     {
-        private DerWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private Pkcs8DerWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommand;
         private IAsymmetricKey key;
         private byte[] keyContent;
@@ -22,7 +22,7 @@ namespace Ui.Console.Test.Decorator
         public void Setup()
         {
             decoratedCommand = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
-            decorator = new DerWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object);
+            decorator = new Pkcs8DerWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object);
             
             keyContent = new byte[]{0x07, 0x08, 0x09};
             key = Mock.Of<IAsymmetricKey>(k => k.Content == keyContent);

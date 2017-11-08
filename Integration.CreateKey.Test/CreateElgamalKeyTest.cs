@@ -72,147 +72,173 @@ namespace Integration.CreateKey.Test
                 var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-e", "pkcs", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"}); });
                 Assert.AreEqual("Password is required for encryption.", exception.Message);
             }
+
+            [Test]
+            public void ShouldIndicateOpenSshIncompatibility()
+            {
+                var exception = Assert.Throws<InvalidOperationException>(() => { Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "openssh", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"}); });
+                Assert.AreEqual("Cipher type not supported for OpenSSH key.", exception.Message);
+            }
+
+            [Test]
+            public void ShouldIndicateSsh2Incompatibility()
+            {
+                var exception = Assert.Throws<InvalidOperationException>(() => { Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"}); });
+                Assert.AreEqual("Cipher type not supported for SSH2 key.", exception.Message);
+            }
         }
 
         [TestFixture]
         public class CreateKeyPairTest : CreateElgamalKeyTest
         {
-            [Test]
-            public void ShouldWritePkcs8FormattedPrivateKeyToGivenFile()
+            [TestFixture]
+            public class Pkcs8Pem : CreateKeyPairTest
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
-                
-                byte[] fileContent = fileOutput["private.pem"];
-                string content = encoding.GetString(fileContent);
-
-                Assert.IsTrue(content.Length > 800 && content.Length < 850);
-                Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
-                Assert.IsTrue(content.EndsWith($"-----END PRIVATE KEY-----{Environment.NewLine}"));
-            }
-
-            [Test]
-            public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
-                
-                byte[] fileContent = fileOutput["public.pem"];
-                string content = encoding.GetString(fileContent);
-                
-                Assert.IsTrue(content.Length > 800 && content.Length < 850);
-                Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
-                Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
-            }
-
-            [Test]
-            public void ShouldCreateValidPemFormattedKeyPair()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
-                
-                byte[] privateKeyFileContent = fileOutput["private.pem"];
-                byte[] publicKeyFileContent = fileOutput["public.pem"];
-
-                string privateKeyContent = encoding.GetString(privateKeyFileContent);
-                string publicKeyContent = encoding.GetString(publicKeyFileContent);
-                
-                var container = ContainerProvider.GetContainer();
-                var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
-                var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
-
-                IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
-                IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
-
-                Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
-            }
-
-            [Test]
-            public void ShouldCreateValidDerFormattedKeyPair()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "--privatekey", "private.der", "--publickey", "public.der", "--fast"});
-                
-                byte[] privateKeyFileContent = fileOutput["private.der"];
-                byte[] publicKeyFileContent = fileOutput["public.der"];
-
-                var container = ContainerProvider.GetContainer();
-                var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
-                var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
-
-                IAsymmetricKey privateKey = asymmetricKeyProvider.GetPrivateKey(privateKeyFileContent);
-                IAsymmetricKey publicKey = asymmetricKeyProvider.GetPublicKey(publicKeyFileContent);
-                
-                Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
-            }
-        }
-        
-        [TestFixture]
-        public class CreatePkcsEncryptedKeyPair : CreateElgamalKeyTest
-        {
-            [Test]
-            public void ShouldWritePkcs8FormattedEncryptedPrivateKeyToGivenFile()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
-                
-                byte[] fileContent = fileOutput["private.pem"];
-                string content = encoding.GetString(fileContent);
-                
-                Assert.IsTrue(content.Length > 2200 && content.Length < 2400);
-                Assert.IsTrue(content.StartsWith($"-----BEGIN ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
-                Assert.IsTrue(content.EndsWith($"-----END ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
-            }
-
-            [Test]
-            public void ShouldWritePkcs8FormattedPublicKeyToGivenFile()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
-                
-                byte[] fileContent = fileOutput["public.pem"];
-                string content = encoding.GetString(fileContent);
-                
-                Assert.IsTrue(content.Length > 800 && content.Length < 850);
-                Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
-                Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
-            }
-
-            [Test]
-            public void ShouldCreateValidPemFormattedKeyPair()
-            {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
-                
-                byte[] privateKeyFileContent = fileOutput["private.pem"];
-                byte[] publicKeyFileContent = fileOutput["public.pem"];
-
-                string privateKeyContent = encoding.GetString(privateKeyFileContent);
-                string publicKeyContent = encoding.GetString(publicKeyFileContent);
+                [Test]
+                public void ShouldWritePkcs8PemFormattedPrivateKey()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
+                    
+                    byte[] fileContent = fileOutput["private.pem"];
+                    string content = encoding.GetString(fileContent);
     
-                var container = ContainerProvider.GetContainer();
-                var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
-                var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
-                var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                    Assert.IsTrue(content.Length > 800 && content.Length < 850);
+                    Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
+                    Assert.IsTrue(content.EndsWith($"-----END PRIVATE KEY-----{Environment.NewLine}"));
+                }
+    
+                [Test]
+                public void ShouldWritePkcs8PemFormattedPublicKey()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
+                    
+                    byte[] fileContent = fileOutput["public.pem"];
+                    string content = encoding.GetString(fileContent);
+                    
+                    Assert.IsTrue(content.Length > 800 && content.Length < 850);
+                    Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
+                    Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
+                }
+    
+                [Test]
+                public void ShouldCreateValidPkcs8PemFormattedKeyPair()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "--fast"});
+                    
+                    byte[] privateKeyFileContent = fileOutput["private.pem"];
+                    byte[] publicKeyFileContent = fileOutput["public.pem"];
+    
+                    string privateKeyContent = encoding.GetString(privateKeyFileContent);
+                    string publicKeyContent = encoding.GetString(publicKeyFileContent);
+                    
+                    var container = ContainerProvider.GetContainer();
+                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
+    
+                    IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
+                    IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
+    
+                    Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                }
 
-                IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
-                IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
-                IAsymmetricKey decryptedPrivateKey = encryptionProvider.DecryptPrivateKey(privateKey, "foobar");
-
-                Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(decryptedPrivateKey, publicKey)));
+                [TestFixture]
+                public class Encrypted : Pkcs8Pem
+                {
+                    [Test]
+                    public void ShouldWritePkcs8PemFormattedEncryptedPrivateKey()
+                    {
+                        Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
+                        
+                        byte[] fileContent = fileOutput["private.pem"];
+                        string content = encoding.GetString(fileContent);
+                        
+                        Assert.IsTrue(content.Length > 2200 && content.Length < 2400);
+                        Assert.IsTrue(content.StartsWith($"-----BEGIN ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
+                        Assert.IsTrue(content.EndsWith($"-----END ENCRYPTED PRIVATE KEY-----{Environment.NewLine}"));
+                    }
+        
+                    [Test]
+                    public void ShouldWritePemFormattedPublicKey()
+                    {
+                        Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
+                        
+                        byte[] fileContent = fileOutput["public.pem"];
+                        string content = encoding.GetString(fileContent);
+                        
+                        Assert.IsTrue(content.Length > 800 && content.Length < 850);
+                        Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
+                        Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
+                    }
+        
+                    [Test]
+                    public void ShouldCreateValidEncryptedPkcs8PemFormattedKeyPair()
+                    {
+                        Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar", "--fast"});
+                        
+                        byte[] privateKeyFileContent = fileOutput["private.pem"];
+                        byte[] publicKeyFileContent = fileOutput["public.pem"];
+        
+                        string privateKeyContent = encoding.GetString(privateKeyFileContent);
+                        string publicKeyContent = encoding.GetString(publicKeyFileContent);
+            
+                        var container = ContainerProvider.GetContainer();
+                        var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                        var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
+                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+        
+                        IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
+                        IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
+                        IAsymmetricKey decryptedPrivateKey = encryptionProvider.DecryptPrivateKey(privateKey, "foobar");
+        
+                        Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(decryptedPrivateKey, publicKey)));
+                    }
+                }
             }
 
-            [Test]
-            public void ShouldCreateValidDerFormattedKeyPair()
+            [TestFixture]
+            public class Pkcs8Der : CreateKeyPairTest
             {
-                Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "--privatekey", "private.der", "--publickey", "public.der", "-e", "pkcs", "-p", "foobar", "-t", "der", "--fast"});
+                [Test]
+                public void ShouldCreateValidPkcs8DerFormattedKeyPair()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "--privatekey", "private.der", "--publickey", "public.der", "--fast"});
                 
-                byte[] privateKeyFileContent = fileOutput["private.der"];
-                byte[] publicKeyFileContent = fileOutput["public.der"];
-                
-                var container = ContainerProvider.GetContainer();
-                var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
-                var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
-                var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                    byte[] privateKeyFileContent = fileOutput["private.der"];
+                    byte[] publicKeyFileContent = fileOutput["public.der"];
 
-                IAsymmetricKey encryptedPrivateKey = asymmetricKeyProvider.GetEncryptedPrivateKey(privateKeyFileContent);
-                IAsymmetricKey privateKey = encryptionProvider.DecryptPrivateKey(encryptedPrivateKey, "foobar");
-                IAsymmetricKey publicKey = asymmetricKeyProvider.GetPublicKey(publicKeyFileContent);
+                    var container = ContainerProvider.GetContainer();
+                    var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
+                    var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
+
+                    IAsymmetricKey privateKey = asymmetricKeyProvider.GetPrivateKey(privateKeyFileContent);
+                    IAsymmetricKey publicKey = asymmetricKeyProvider.GetPublicKey(publicKeyFileContent);
                 
-                Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                    Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                }
+
+                [TestFixture]
+                public class Encrypted : Pkcs8Der
+                {
+                    [Test]
+                    public void ShouldCreateValidEncryptedPkcs8DerFormattedKeyPair()
+                    {
+                        Certifier.Main(new[] {"-c", "key", "-b", "2048", "-k", "elgamal", "--privatekey", "private.der", "--publickey", "public.der", "-e", "pkcs", "-p", "foobar", "-t", "der", "--fast"});
+                
+                        byte[] privateKeyFileContent = fileOutput["private.der"];
+                        byte[] publicKeyFileContent = fileOutput["public.der"];
+                
+                        var container = ContainerProvider.GetContainer();
+                        var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
+                        var elgamalKeyProvider = container.GetInstance<IElGamalKeyProvider>();
+                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+
+                        IAsymmetricKey encryptedPrivateKey = asymmetricKeyProvider.GetEncryptedPrivateKey(privateKeyFileContent);
+                        IAsymmetricKey privateKey = encryptionProvider.DecryptPrivateKey(encryptedPrivateKey, "foobar");
+                        IAsymmetricKey publicKey = asymmetricKeyProvider.GetPublicKey(publicKeyFileContent);
+                
+                        Assert.IsTrue(elgamalKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                    }
+                }
             }
         }
     }

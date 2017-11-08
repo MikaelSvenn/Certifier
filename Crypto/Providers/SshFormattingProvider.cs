@@ -22,12 +22,16 @@ namespace Crypto.Providers
         private readonly Ssh2ContentFormatter ssh2ContentFormatter;
         private readonly Base64Wrapper base64;
 
+        private readonly IEnumerable<string> supportedSshHeaders;
+        
         public SshFormattingProvider(ISshKeyProvider sshKeyProvider, EncodingWrapper encoding, Ssh2ContentFormatter ssh2ContentFormatter, Base64Wrapper base64)
         {
             this.sshKeyProvider = sshKeyProvider;
             this.encoding = encoding;
             this.ssh2ContentFormatter = ssh2ContentFormatter;
             this.base64 = base64;
+
+            supportedSshHeaders = new[] {"---- BEGIN SSH2 PUBLIC", "ssh-rsa ", "ssh-dss ", "ssh-ed25519 ", "ecdsa-sha2-nistp256 ", "ecdsa-sha2-nistp384 ", "ecdsa-sha2-nistp521 "};
         }
 
         public string GetAsOpenSsh(IAsymmetricKey key, string comment)
@@ -124,5 +128,7 @@ namespace Crypto.Providers
             contentLines = sshKey.Split(' ');
             return sshKeyProvider.GetKeyFromSsh(contentLines[1]);
         }
+
+        public bool IsSshKey(string sshKey) => supportedSshHeaders.Any(sshKey.StartsWith);
     }
 }

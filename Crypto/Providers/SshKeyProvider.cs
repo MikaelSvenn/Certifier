@@ -57,7 +57,10 @@ namespace Crypto.Providers
         {
             var ecKey = (IEcKey) key;
             var keyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(key.Content);
-            byte[] header = encoding.GetBytes(sshCurveIdentifiers[ecKey.Curve]);
+
+            string curve = sshSupportedCurves.Single(c => c.Contains(ecKey.Curve)).First();
+            
+            byte[] header = encoding.GetBytes(sshCurveIdentifiers[curve]);
             byte[] q = keyParameters.Q.GetEncoded();
             
             using (var stream = new MemoryStream())
