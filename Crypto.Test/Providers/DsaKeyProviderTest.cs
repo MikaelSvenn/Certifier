@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using Core.Configuration;
 using Core.Interfaces;
 using Core.Model;
@@ -86,6 +87,14 @@ namespace Crypto.Test.Providers
             public void ShouldCreateValidUnencryptedKeyPair()
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
+            }
+            
+            [Test]
+            public void ShouldCreateInteroperablePkcs8PrivateKey()
+            {
+                CngKey cngKey = CngKey.Import(keyPair.PrivateKey.Content, CngKeyBlobFormat.Pkcs8PrivateBlob);
+                Assert.AreEqual("DSA", cngKey.Algorithm.Algorithm);
+                Assert.AreEqual(2048, cngKey.KeySize);
             }
         }
 

@@ -110,7 +110,7 @@ namespace Crypto.Test.Generators
             [OneTimeSetUp]
             public void Setup()
             {
-                keyPair = asymmetricKeyPairGenerator.GenerateECKeyPair("curve25519");
+                keyPair = asymmetricKeyPairGenerator.GenerateEcKeyPair("curve25519");
             }
             
             [Test]
@@ -156,7 +156,7 @@ namespace Crypto.Test.Generators
             [Test]
             public void ShouldThrowExceptionWhenCurveIsNotSupported()
             {
-                Assert.Throws<ArgumentException>(() => { asymmetricKeyPairGenerator.GenerateECKeyPair("curve41417"); });
+                Assert.Throws<ArgumentException>(() => { asymmetricKeyPairGenerator.GenerateEcKeyPair("curve41417"); });
             }
         }
 

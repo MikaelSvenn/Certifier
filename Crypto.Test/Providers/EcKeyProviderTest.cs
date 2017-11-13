@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -17,7 +18,7 @@ namespace Crypto.Test.Providers
         private IAsymmetricKeyPair keyPair;
         private AsymmetricKeyPairGenerator asymmetricKeyPairGenerator;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetupEcKeyProviderTest()
         {
             asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
@@ -88,8 +89,33 @@ namespace Crypto.Test.Providers
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
-        }
 
+            [Test]
+            public void ShouldCreateValidCurve25519KeyPair()
+            {
+                keyPair = keyProvider.CreateKeyPair("curve25519");
+                Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
+            }
+            
+            //.NET supports named NIST and Brainpool curves.
+            [TestCase("P-256")]
+            [TestCase("P-521")]
+            [TestCase("brainpoolP256r1")]
+            [TestCase("brainpoolP320t1")]
+            [TestCase("brainpoolP512r1")]
+            [TestCase("prime192v3")]
+            [TestCase("secp160r2")]
+            [TestCase("secp192k1")]
+            [TestCase("secp256r1")]
+            [TestCase("secp521r1")]
+            public void ShouldCreateInteroperablePkcs8PrivateKey(string curveName)
+            {
+                keyPair = keyProvider.CreateKeyPair(curveName);
+                CngKey key = CngKey.Import(keyPair.PrivateKey.Content, CngKeyBlobFormat.Pkcs8PrivateBlob);
+                Assert.IsTrue(key.Algorithm.Algorithm.StartsWith("ECDH"));
+            }
+        }
+        
         [TestFixture]
         public class VerifyKeyPair : EcKeyProviderTest
         {           

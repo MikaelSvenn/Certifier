@@ -1,4 +1,5 @@
 ﻿using System;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -44,23 +45,35 @@ namespace Crypto.Generators
             return keyPairGenerator.GenerateKeyPair();
         }
 
-        public AsymmetricCipherKeyPair GenerateECKeyPair(string curve)
+        // Based on RFCs 5480 and 5915, a named curve is used whenever possible.
+        // Curve25519 is supported by BC, but not yet standardized and thus does not have an oid. 
+        public AsymmetricCipherKeyPair GenerateEcKeyPair(string curve)
         {
-            X9ECParameters curveParameters = ECNamedCurveTable.GetByName(curve) ?? CustomNamedCurves.GetByName(curve);
-            if (curveParameters == null)
+            ECKeyGenerationParameters keyGenerationParameters;
+            if (curve == "curve25519")
             {
-                throw new ArgumentException("Curve not supported.");
+                X9ECParameters curveParameters = CustomNamedCurves.GetByName(curve);
+                var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
+                                                                curveParameters.G,
+                                                                curveParameters.N,
+                                                                curveParameters.H,
+                                                                curveParameters.GetSeed());
+                
+                keyGenerationParameters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);
+            }
+            else
+            {
+                DerObjectIdentifier curveOid = ECNamedCurveTable.GetOid(curve) ?? CustomNamedCurves.GetOid(curve);
+                if (curveOid == null)
+                {
+                    throw new ArgumentException($"Curve {curve} is not supported.");
+                }
+                
+                keyGenerationParameters = new ECKeyGenerationParameters(curveOid, secureRandom.Generator);
             }
             
-            var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
-                                                            curveParameters.G,
-                                                            curveParameters.N,
-                                                            curveParameters.H,
-                                                            curveParameters.GetSeed());
-            
-            var keyGenerationParamters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);
             var keyPairGenerator = new ECKeyPairGenerator();
-            keyPairGenerator.Init(keyGenerationParamters);
+            keyPairGenerator.Init(keyGenerationParameters);
             
             return keyPairGenerator.GenerateKeyPair();
         }

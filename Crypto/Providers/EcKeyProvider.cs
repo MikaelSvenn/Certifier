@@ -4,6 +4,7 @@ using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.EC;
@@ -30,7 +31,7 @@ namespace Crypto.Providers
 
         public IAsymmetricKeyPair CreateKeyPair(string curve)
         {
-            AsymmetricCipherKeyPair keyPair = keyPairGenerator.GenerateECKeyPair(curve);
+            AsymmetricCipherKeyPair keyPair = keyPairGenerator.GenerateEcKeyPair(curve);
             byte[] publicKeyContent = GetPublicKey(keyPair.Public);
             byte[] privateKeyContent = GetPrivateKey(keyPair.Private);
             
@@ -53,7 +54,31 @@ namespace Crypto.Providers
             return new EcKey(content, keyType, keyLength, curveName);
         }
 
+        // Based on RFCs 5480 and 5915, a named curve is used whenever possible.
         public IEcKey GetPublicKey(byte[] q, string curve)
+        {
+            ECPublicKeyParameters ecPublicKeyParameter;
+            if (curve == "curve25519")
+            {
+                ecPublicKeyParameter = GetNonStandardCurve(q, curve);
+            }
+            else
+            {
+                DerObjectIdentifier curveOid = ECNamedCurveTable.GetOid(curve) ?? CustomNamedCurves.GetOid(curve);
+                X9ECParameters curveParameters = CustomNamedCurves.GetByOid(curveOid) ?? ECNamedCurveTable.GetByOid(curveOid);
+            
+                ECPoint qPoint = curveParameters.Curve.DecodePoint(q);
+                ecPublicKeyParameter = new ECPublicKeyParameters("EC", qPoint, curveOid);;
+            }
+            
+            byte[] publicKeyContent = GetPublicKey(ecPublicKeyParameter);
+            int keyLength = GetKeyLength(ecPublicKeyParameter);
+            string curveName = curveNameMapper.MapCurveToName(ecPublicKeyParameter.Parameters.Curve);
+            
+            return new EcKey(publicKeyContent, AsymmetricKeyType.Public, keyLength, curveName);
+        }
+
+        private ECPublicKeyParameters GetNonStandardCurve(byte[] q, string curve)
         {
             X9ECParameters curveParameters = ECNamedCurveTable.GetByName(curve) ?? CustomNamedCurves.GetByName(curve);
             var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
@@ -63,15 +88,9 @@ namespace Crypto.Providers
                                                             curveParameters.GetSeed());
 
             ECPoint qPoint = ecDomainParameters.Curve.DecodePoint(q);
-            var ecPublicKeyParameter = new ECPublicKeyParameters(qPoint, ecDomainParameters);
-
-            byte[] publicKeyContent = GetPublicKey(ecPublicKeyParameter);
-            int keyLength = GetKeyLength(ecPublicKeyParameter);
-            
-            string curveName = curveNameMapper.MapCurveToName(ecDomainParameters.Curve);
-            return new EcKey(publicKeyContent, AsymmetricKeyType.Public, keyLength, curveName);
+            return new ECPublicKeyParameters(qPoint, ecDomainParameters);
         }
-
+        
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)
         {
             ECPrivateKeyParameters privateKey;

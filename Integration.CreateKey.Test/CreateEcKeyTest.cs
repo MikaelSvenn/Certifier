@@ -70,7 +70,7 @@ namespace Integration.CreateKey.Test
             public void ShouldIndicateNonSupportedCurve()
             {
                 var exception = Assert.Throws<ArgumentException>(() => { Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "foo", "-e", "pkcs", "--privatekey", "private.pem", "--publickey", "public.pem"}); });
-                Assert.AreEqual("Curve not supported.", exception.Message);
+                Assert.AreEqual("Curve foo is not supported.", exception.Message);
             }
 
             [TestCase("K-233")]
