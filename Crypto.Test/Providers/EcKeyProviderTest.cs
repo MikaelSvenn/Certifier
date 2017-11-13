@@ -97,17 +97,10 @@ namespace Crypto.Test.Providers
                 Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
             }
             
-            //.NET supports named NIST and Brainpool curves.
+            // Older Windows cng supports only NIST curves, while the version included in Windows 10
+            // supports wider range of curves, including Brainpool suite and curve25519.
             [TestCase("P-256")]
             [TestCase("P-521")]
-            [TestCase("brainpoolP256r1")]
-            [TestCase("brainpoolP320t1")]
-            [TestCase("brainpoolP512r1")]
-            [TestCase("prime192v3")]
-            [TestCase("secp160r2")]
-            [TestCase("secp192k1")]
-            [TestCase("secp256r1")]
-            [TestCase("secp521r1")]
             public void ShouldCreateInteroperablePkcs8PrivateKey(string curveName)
             {
                 keyPair = keyProvider.CreateKeyPair(curveName);
