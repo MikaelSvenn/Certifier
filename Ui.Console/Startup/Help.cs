@@ -38,14 +38,16 @@ namespace Ui.Console.Startup
                 new Tuple<string, string>("Operation arguments (* = default):", newLine),
                 new Tuple<string, string>("Public key path", "--publickey [path]"),
                 new Tuple<string, string>("Private key path", "--privatekey [path]"),
-                new Tuple<string, string>("Key type", "--keytype (-k) [*rsa | dsa | ec]"),
+                new Tuple<string, string>("Key type", "--keytype (-k) [*rsa | dsa | ec | elgamal]"),
                 new Tuple<string, string>("Key size", "--keysize (-b) [size in bits *4096]"),
+                new Tuple<string, string>("EC key curve", "--curve [curve name *curve25519]"),
+                new Tuple<string, string>("Use RFC 3526 prime for ElGamal", "--fast"),
                 new Tuple<string, string>("Key encryption", "--encryption (-e) [pkcs]"),
                 new Tuple<string, string>("Encryption password", "--password (-p) [password]"),
                 new Tuple<string, string>("Input file path", "--file (-f) [path]"),
                 new Tuple<string, string>("Stdin content", "--in (-i) [content]"),
                 new Tuple<string, string>("Output path", "--out (-o) [output path]"),
-                new Tuple<string, string>("Key output type", "--type (-t) [pem | *der]"),
+                new Tuple<string, string>("Key output type", "--type (-t) [pem | *der | openssh | ssh2]"),
                 new Tuple<string, string>("Signature path or content", "--signature (-s) [path or content]"),
                 new Tuple<string, string>("", lineBreak)
             };
@@ -54,11 +56,13 @@ namespace Ui.Console.Startup
             {
                 "Examples:",
                 "",
-                "Create key: cc -c key -b 2048 -e pkcs -p mypassword --privatekey private.pem --publickey public.pem",
-                "Create signature: cc -c signature --privatekey private.pem -p mypassword -f foobar.file -o foobar.file.signature",
-                "Verify keypair: cc -v key --privatekey private.pem -p mypassword --publickey public.pem",
-                "Verify signature: cc -v signature --publickey public.pem -f foobar.file -s foobar.file.signature",
-                "Convert pem to der: cc --convert -t der --privatekey private.pem --publickey public.pem"
+                "Create key: cc -c key -b 2048 -e pkcs -p mypassword --privatekey private.der --publickey public.der",
+                "Create EC key: cc -c key -k ec --curve curve25519 --privatekey private.der --publickey public.der",
+                "Create signature: cc -c signature --privatekey private.der -p mypassword -f foobar.file -o foobar.file.signature",
+                "Verify keypair: cc -v key --privatekey private.der -p mypassword --publickey public.der",
+                "Verify signature: cc -v signature --publickey public.der -f foobar.file -s foobar.file.signature",
+                "Convert der to pem: cc --convert -t pem --privatekey private.der --publickey public.der",
+                "Convert pem to openssh: cc --convert -t openssh --publickey public.pem"
             };
         }
 
