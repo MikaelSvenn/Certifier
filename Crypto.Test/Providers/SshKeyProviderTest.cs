@@ -226,15 +226,24 @@ namespace Crypto.Test.Providers
             private IEcKey key;
             private byte[] result;
 
+            private byte[] rawIdentifier;
             private byte[] rawHeader;
             private byte[] rawQ;
             
-            private readonly Dictionary<string, string> sshCurveIdentifiers = new Dictionary<string, string>
+            private readonly Dictionary<string, string> sshCurveHeaders = new Dictionary<string, string>
             {
                 {"curve25519", "ed25519"},
                 {"P-256", "nistp256"},
                 {"P-384", "nistp384"},
                 {"P-521", "nistp521"}
+            };
+            
+            private readonly Dictionary<string, string> sshCurveIdentifiers = new Dictionary<string, string>
+            {
+                {"curve25519", "ssh-ed25519"},
+                {"P-256", "ecdsa-sha2-nistp256"},
+                {"P-384", "ecdsa-sha2-nistp384"},
+                {"P-521", "ecdsa-sha2-nistp521"}
             };
             
             private void SetupForCurve(string curveName)
@@ -248,6 +257,7 @@ namespace Crypto.Test.Providers
 
                 using (var stream = new MemoryStream(result))
                 {
+                    rawIdentifier = ReadNextContent(stream);
                     rawHeader = ReadNextContent(stream);
                     rawQ = ReadNextContent(stream);
                 }
@@ -257,11 +267,22 @@ namespace Crypto.Test.Providers
             [TestCase("P-256")]
             [TestCase("P-384")]
             [TestCase("P-521")]
+            public void ShouldSetIdentifier(string curve)
+            {
+                SetupForCurve(curve);
+                string identifier = Encoding.UTF8.GetString(rawIdentifier);
+                Assert.AreEqual(sshCurveIdentifiers[curve], identifier);
+            }
+            
+            [TestCase("curve25519")]
+            [TestCase("P-256")]
+            [TestCase("P-384")]
+            [TestCase("P-521")]
             public void ShouldSetHeader(string curve)
             {
                 SetupForCurve(curve);
                 string headerContent = Encoding.UTF8.GetString(rawHeader);
-                Assert.AreEqual(sshCurveIdentifiers[curve], headerContent);
+                Assert.AreEqual(sshCurveHeaders[curve], headerContent);
             }
 
             [TestCase("curve25519")]
