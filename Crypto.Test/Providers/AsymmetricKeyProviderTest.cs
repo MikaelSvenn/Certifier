@@ -21,7 +21,7 @@ namespace Crypto.Test.Providers
         private EcKeyProvider ecKeyProvider;
         private ElGamalKeyProvider elGamalKeyProvider;
         private OidToCipherTypeMapper cipherTypeMapper;
-        private PkcsEncryptionProvider pkcsEncryptionProvider;
+        private Pkcs8EncryptionProvider pkcsEncryptionProvider;
         private Mock<KeyInfoWrapper> keyInfoWrapper;
         private IAsymmetricKeyPair rsaKeyPair;
         private IAsymmetricKeyPair dsaKeyPair;
@@ -48,7 +48,7 @@ namespace Crypto.Test.Providers
             SetupValidKeyInfo();
             SetupValidKeyProvider();
             
-            pkcsEncryptionProvider = new PkcsEncryptionProvider(configuration, secureRandom, keyProvider, new PkcsEncryptionGenerator());
+            pkcsEncryptionProvider = new Pkcs8EncryptionProvider(configuration, secureRandom, keyProvider, new Pkcs12EncryptionGenerator());
             
             rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
             dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);

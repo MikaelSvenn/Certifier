@@ -6,7 +6,9 @@ using Crypto.Generators;
 using Crypto.Mappers;
 using Crypto.Providers;
 using NUnit.Framework;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 
 namespace Crypto.Test.Providers
@@ -245,6 +247,90 @@ namespace Crypto.Test.Providers
             public void ShouldSetCurve()
             {
                 Assert.AreEqual("curve25519", result.Curve);
+            }
+        }
+
+        [TestFixture]
+        public class GetPkcs8PrivateKeyAsSec1 : EcKeyProviderTest
+        {
+            private IEcKey sec1Key;
+            private DerSequence keySequence;
+            
+            [SetUp]
+            public void Setup()
+            {
+                sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
+                keySequence = (DerSequence)Asn1Object.FromByteArray(sec1Key.Content);
+            }
+            
+            [Test]
+            public void ShouldSetSec1FormatVersion()
+            {
+                var formatVersion = (DerInteger) keySequence[0];
+                var expectedVersion = new BigInteger("1");
+                Assert.AreEqual(expectedVersion, formatVersion.Value);
+            }
+
+            [Test]
+            public void ShouldSetDValue()
+            {
+                var privateKey = (DerOctetString) keySequence[1];
+                var privateKeyContent = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
+                var d = new BigInteger(privateKey.GetOctets());
+                Assert.AreEqual(privateKeyContent.D, d);
+            }
+
+            [Test]
+            public void ShouldSetOid()
+            {
+                var encodedOid = (DerTaggedObject) keySequence[2];
+                DerObjectIdentifier oid = DerObjectIdentifier.GetInstance(encodedOid.GetObject());
+                Assert.AreEqual("1.3.36.3.3.2.8.1.1.12", oid.Id);
+            }
+        }
+
+        [TestFixture]
+        public class GetSec1PrivateKeyAsPkcs8 : EcKeyProviderTest
+        {
+            private IEcKey convertedKey;
+            private DerSequence keySequence;
+            
+            [SetUp]
+            public void Setup()
+            {
+                var sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
+                convertedKey = keyProvider.GetSec1PrivateKeyAsPkcs8(sec1Key.Content);
+                keySequence = (DerSequence)Asn1Object.FromByteArray(convertedKey.Content);
+            }
+
+            [Test]
+            public void ShouldSetPkcs8FormatVersion()
+            {
+                var formatVersion = (DerInteger) keySequence[0];
+                var expectedVersion = new BigInteger("0");
+                Assert.AreEqual(expectedVersion, formatVersion.Value);
+            }
+
+            [Test]
+            public void ShouldSetIdEcPublicKeyOid()
+            {
+                var identifiers = (DerSequence) keySequence[1];
+                var oid = (DerObjectIdentifier) identifiers[0];
+                Assert.AreEqual("1.2.840.10045.2.1", oid.Id);
+            }
+
+            [Test]
+            public void ShouldSetCurveOid()
+            {
+                var identifiers = (DerSequence) keySequence[1];
+                var oid = (DerObjectIdentifier) identifiers[1];
+                Assert.AreEqual("1.3.36.3.3.2.8.1.1.12", oid.Id);
+            }
+
+            [Test]
+            public void ShouldReturnValidPkcs8Key()
+            {
+                Assert.IsTrue(keyProvider.VerifyKeyPair(new AsymmetricKeyPair(convertedKey, keyPair.PublicKey)));
             }
         }
     }

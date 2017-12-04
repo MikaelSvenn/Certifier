@@ -18,8 +18,8 @@ namespace Crypto.Test.Providers
         private Mock<SecureRandomGenerator> secureRandom;
         private Mock<IKeyProvider<RsaKey>> rsaKeyProvider;
         private AsymmetricKeyProvider asymmetricKeyProvider;
-        private PkcsEncryptionProvider encryptionProvider;
-        private Mock<PkcsEncryptionGenerator> encryptionGenerator;
+        private Pkcs8EncryptionProvider encryptionProvider;
+        private Mock<Pkcs12EncryptionGenerator> encryptionGenerator;
 
         [OneTimeSetUp]
         public void SetupPkcsEncryptionProviderTest()
@@ -30,15 +30,15 @@ namespace Crypto.Test.Providers
             secureRandom = new Mock<SecureRandomGenerator>();
             rsaKeyProvider = new Mock<IKeyProvider<RsaKey>>();
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider.Object, null, null, null);
-            encryptionGenerator = new Mock<PkcsEncryptionGenerator>();
+            encryptionGenerator = new Mock<Pkcs12EncryptionGenerator>();
             encryptionGenerator.Setup(e => e.Encrypt(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<byte[]>()))
                 .Returns<string, byte[], int, byte[]>((password, salt, iterationCount, content) =>
                 {
-                    var generator = new PkcsEncryptionGenerator();
+                    var generator = new Pkcs12EncryptionGenerator();
                     return generator.Encrypt(password, salt, iterationCount, content);
                 });
 
-            encryptionProvider = new PkcsEncryptionProvider(configuration, secureRandom.Object, asymmetricKeyProvider, encryptionGenerator.Object);
+            encryptionProvider = new Pkcs8EncryptionProvider(configuration, secureRandom.Object, asymmetricKeyProvider, encryptionGenerator.Object);
         }
 
         [TestFixture]
@@ -126,7 +126,7 @@ namespace Crypto.Test.Providers
                 keyPair = rsaProvider.CreateKeyPair(1024);
 
                 var oidToCipherTypeMapper = new OidToCipherTypeMapper();
-                encryptionProvider = new PkcsEncryptionProvider(configuration, secureRandomGenerator, new AsymmetricKeyProvider(oidToCipherTypeMapper, new KeyInfoWrapper(), rsaProvider, null, null, null), new PkcsEncryptionGenerator());
+                encryptionProvider = new Pkcs8EncryptionProvider(configuration, secureRandomGenerator, new AsymmetricKeyProvider(oidToCipherTypeMapper, new KeyInfoWrapper(), rsaProvider, null, null, null), new Pkcs12EncryptionGenerator());
 
                 encryptedKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foobar");
                 result = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobar");

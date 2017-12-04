@@ -119,7 +119,7 @@ namespace Integration.CreateKey.Test
                     string publicKeyContent = encoding.GetString(publicKeyFileContent);
                 
                     var container = ContainerProvider.GetContainer();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
 
                     IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
@@ -169,9 +169,9 @@ namespace Integration.CreateKey.Test
                         string publicKeyContent = encoding.GetString(publicKeyFileContent);
             
                         var container = ContainerProvider.GetContainer();
-                        var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                        var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                         var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
-                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
         
                         IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
                         IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
@@ -217,7 +217,7 @@ namespace Integration.CreateKey.Test
                         var container = ContainerProvider.GetContainer();
                         var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
                         var rsaKeyProvider = container.GetInstance<IKeyProvider<RsaKey>>();
-                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
 
                         IAsymmetricKey encryptedPrivateKey = asymmetricKeyProvider.GetEncryptedPrivateKey(privateKeyFileContent);
                         IAsymmetricKey privateKey = encryptionProvider.DecryptPrivateKey(encryptedPrivateKey, "foobar");
@@ -268,7 +268,7 @@ namespace Integration.CreateKey.Test
                     var container = ContainerProvider.GetContainer();
                     var sshKeyProvider = container.GetInstance<ISshKeyProvider>();
                     var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     
                     string privateKeyContent = encoding.GetString(fileOutput["private.pem"]);
                     IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent); 
@@ -317,7 +317,7 @@ namespace Integration.CreateKey.Test
                     var container = ContainerProvider.GetContainer();
                     var sshFormattingProvider = container.GetInstance<ISshFormattingProvider>();
                     var rsaKeyProvider = container.GetInstance<RsaKeyProvider>();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     
                     string privateKeyContent = encoding.GetString(fileOutput["private.pem"]);
                     IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent); 

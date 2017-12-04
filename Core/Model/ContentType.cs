@@ -6,6 +6,7 @@
         Pem,
         Der,
         OpenSsh,
-        Ssh2
+        Ssh2,
+        Sec1
     }
 }

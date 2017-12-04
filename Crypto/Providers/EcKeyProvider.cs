@@ -5,11 +5,15 @@ using Core.Model;
 using Crypto.Generators;
 using Crypto.Mappers;
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.EC;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Security;
 
 namespace Crypto.Providers
 {
@@ -68,7 +72,7 @@ namespace Crypto.Providers
                 X9ECParameters curveParameters = CustomNamedCurves.GetByOid(curveOid) ?? ECNamedCurveTable.GetByOid(curveOid);
             
                 ECPoint qPoint = curveParameters.Curve.DecodePoint(q);
-                ecPublicKeyParameter = new ECPublicKeyParameters("EC", qPoint, curveOid);;
+                ecPublicKeyParameter = new ECPublicKeyParameters("EC", qPoint, curveOid);
             }
             
             byte[] publicKeyContent = GetPublicKey(ecPublicKeyParameter);
@@ -90,7 +94,35 @@ namespace Crypto.Providers
             ECPoint qPoint = ecDomainParameters.Curve.DecodePoint(q);
             return new ECPublicKeyParameters(qPoint, ecDomainParameters);
         }
-        
+
+        public IEcKey GetPkcs8PrivateKeyAsSec1(IEcKey key)
+        {
+            AsymmetricKeyParameter keyContent = PrivateKeyFactory.CreateKey(key.Content);
+            byte[] privateKey = PrivateKeyInfoFactory.CreatePrivateKeyInfo(keyContent)
+                                                            .ParsePrivateKey()
+                                                            .GetDerEncoded();
+            
+            return new EcKey(privateKey, AsymmetricKeyType.Private, key.KeySize, key.Curve);
+        }
+
+        public IEcKey GetSec1PrivateKeyAsPkcs8(byte[] sec1KeyContent)
+        {
+            var keySequence = (DerSequence)Asn1Object.FromByteArray(sec1KeyContent);
+            var privateKeyPrimitive = (DerOctetString)keySequence[1];
+            var encodedOid = (DerTaggedObject)keySequence[2];
+
+            var d = new BigInteger(privateKeyPrimitive.GetOctets());
+            DerObjectIdentifier oid = DerObjectIdentifier.GetInstance(encodedOid.GetObject());
+            var key = new ECPrivateKeyParameters("EC", d, oid);
+            
+            int keyLength = GetKeyLength(key);
+            ECCurve curve = key.Parameters.Curve;
+            string curveName = curveNameMapper.MapCurveToName(curve);
+
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(key);
+            return new EcKey(privateKeyInfo.GetDerEncoded(), AsymmetricKeyType.Private, keyLength, curveName);            
+        }
+
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)
         {
             ECPrivateKeyParameters privateKey;

@@ -16,7 +16,7 @@ namespace Ui.Console.Test.Decorator
     {
         private Pkcs8PemWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommand;
-        private Mock<IPkcsFormattingProvider<IAsymmetricKey>> formattingProvider;
+        private Mock<IPemFormattingProvider<IAsymmetricKey>> formattingProvider;
         private EncodingWrapper encoding;
         private IAsymmetricKey key;
         private byte[] keyContent;
@@ -25,7 +25,7 @@ namespace Ui.Console.Test.Decorator
         public void Setup()
         {
             decoratedCommand = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
-            formattingProvider = new Mock<IPkcsFormattingProvider<IAsymmetricKey>>();
+            formattingProvider = new Mock<IPemFormattingProvider<IAsymmetricKey>>();
 
             encoding = new EncodingWrapper();
             decorator = new Pkcs8PemWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommand.Object, formattingProvider.Object, encoding);

@@ -22,8 +22,8 @@ namespace Integration.ConvertKey.Test
         private Dictionary<string, byte[]> files;
         private Mock<FileWrapper> file;
         private AsymmetricKeyProvider asymmetricKeyProvider;
-        private PkcsEncryptionProvider encryptionProvider;
-        private Pkcs8FormattingProvider pkcs8FormattingProvider;
+        private Pkcs8EncryptionProvider encryptionProvider;
+        private Pkcs8PemFormattingProvider pkcs8PemFormattingProvider;
         private EncodingWrapper encodingWrapper;
         private ISshFormattingProvider sshFormattingProvider;
         
@@ -51,8 +51,8 @@ namespace Integration.ConvertKey.Test
             var rsaKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var rsaKeyProvider = new RsaKeyProvider(rsaKeyPairGenerator);
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, null, null, null);
-            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
-            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
+            pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
             sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), rsaKeyProvider, null, null), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
             
@@ -60,12 +60,12 @@ namespace Integration.ConvertKey.Test
             
             files.Add("private.rsa.der", rsaKeyPair.PrivateKey.Content);
             files.Add("public.rsa.der", rsaKeyPair.PublicKey.Content);
-            files.Add("private.rsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(rsaKeyPair.PrivateKey)));
-            files.Add("public.rsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(rsaKeyPair.PublicKey)));
+            files.Add("private.rsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(rsaKeyPair.PrivateKey)));
+            files.Add("public.rsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(rsaKeyPair.PublicKey)));
             files.Add("public.rsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(rsaKeyPair.PublicKey, "openssh-key")));
             files.Add("public.rsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(rsaKeyPair.PublicKey, "ssh2-key")));
             files.Add("private.rsa.encrypted.der", encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz").Content);
-            files.Add("private.rsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz"))));
+            files.Add("private.rsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz"))));
         }
         
         public void PopulateDsaKeys()
@@ -73,8 +73,8 @@ namespace Integration.ConvertKey.Test
             var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var dsaKeyProvider = new DsaKeyProvider(keyPairGenerator);
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, dsaKeyProvider, null, null);
-            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
-            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
+            pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
             sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, dsaKeyProvider, null), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
             
@@ -82,12 +82,12 @@ namespace Integration.ConvertKey.Test
             
             files.Add("private.dsa.der", dsaKeyPair.PrivateKey.Content);
             files.Add("public.dsa.der", dsaKeyPair.PublicKey.Content);
-            files.Add("private.dsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(dsaKeyPair.PrivateKey)));
-            files.Add("public.dsa.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(dsaKeyPair.PublicKey)));
+            files.Add("private.dsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(dsaKeyPair.PrivateKey)));
+            files.Add("public.dsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(dsaKeyPair.PublicKey)));
             files.Add("public.dsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(dsaKeyPair.PublicKey, "openssh-key")));
             files.Add("public.dsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(dsaKeyPair.PublicKey, "ssh2-key")));
             files.Add("private.dsa.encrypted.der", encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz").Content);
-            files.Add("private.dsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz"))));
+            files.Add("private.dsa.encrypted.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz"))));
         }
         
         public void PopulateEcKeys()
@@ -95,21 +95,24 @@ namespace Integration.ConvertKey.Test
             var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var ecKeyProvider = new EcKeyProvider(keyPairGenerator, new FieldToCurveNameMapper());
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, ecKeyProvider, null);
-            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
-            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
+            pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
             sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, null, ecKeyProvider), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
+            var sec1FormattingProvider = new EcPemFormattingProvider(ecKeyProvider);
             
             IAsymmetricKeyPair ecKeyPair = ecKeyProvider.CreateKeyPair("prime256v1");
+            var sec1PrivateKey = ecKeyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)ecKeyPair.PrivateKey);
             
             files.Add("private.ec.der", ecKeyPair.PrivateKey.Content);
             files.Add("public.ec.der", ecKeyPair.PublicKey.Content);
-            files.Add("private.ec.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(ecKeyPair.PrivateKey)));
-            files.Add("public.ec.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(ecKeyPair.PublicKey)));
+            files.Add("private.ec.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(ecKeyPair.PrivateKey)));
+            files.Add("public.ec.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(ecKeyPair.PublicKey)));
             files.Add("public.ec.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(ecKeyPair.PublicKey, "openssh-key")));
             files.Add("public.ec.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(ecKeyPair.PublicKey, "ssh2-key")));
+            files.Add("private.ec.sec1", encodingWrapper.GetBytes(sec1FormattingProvider.GetAsPem(sec1PrivateKey)));
             files.Add("private.ec.encrypted.der", encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz").Content);
-            files.Add("private.ec.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz"))));
+            files.Add("private.ec.encrypted.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz"))));
         }
 
         public void PopulateElGamalKeys()
@@ -117,18 +120,18 @@ namespace Integration.ConvertKey.Test
             var keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             var elGamalKeyProvider = new ElGamalKeyProvider(keyPairGenerator, new Rfc3526PrimeMapper());
             asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, null, elGamalKeyProvider);
-            encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
-            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
+            pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
             
             IAsymmetricKeyPair elGamalKeyPair = elGamalKeyProvider.CreateKeyPair(2048, true);
             
             files.Add("private.elgamal.der", elGamalKeyPair.PrivateKey.Content);
             files.Add("public.elgamal.der", elGamalKeyPair.PublicKey.Content);
-            files.Add("private.elgamal.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(elGamalKeyPair.PrivateKey)));
-            files.Add("public.elgamal.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(elGamalKeyPair.PublicKey)));
+            files.Add("private.elgamal.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(elGamalKeyPair.PrivateKey)));
+            files.Add("public.elgamal.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(elGamalKeyPair.PublicKey)));
             files.Add("private.elgamal.encrypted.der", encryptionProvider.EncryptPrivateKey(elGamalKeyPair.PrivateKey, "foobarbaz").Content);
-            files.Add("private.elgamal.encrypted.pem", encodingWrapper.GetBytes(pkcs8FormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(elGamalKeyPair.PrivateKey, "foobarbaz"))));
+            files.Add("private.elgamal.encrypted.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(elGamalKeyPair.PrivateKey, "foobarbaz"))));
         }
         
         [TearDown]
@@ -343,10 +346,10 @@ namespace Integration.ConvertKey.Test
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.rsa.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
                 
                 string keyContent = encodingWrapper.GetString(files["private.rsa.encrypted.der.pem"]);
-                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey encryptedKey = pkcs8PemFormattingProvider.GetAsDer(keyContent);
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
-                CollectionAssert.AreEqual(files["private.rsa.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+                CollectionAssert.AreEqual(files["private.rsa.pem"], pkcs8PemFormattingProvider.GetAsPem(decryptedKey));
             }
         }
 
@@ -525,10 +528,10 @@ namespace Integration.ConvertKey.Test
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.dsa.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
                 
                 string keyContent = encodingWrapper.GetString(files["private.dsa.encrypted.der.pem"]);
-                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey encryptedKey = pkcs8PemFormattingProvider.GetAsDer(keyContent);
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
-                CollectionAssert.AreEqual(files["private.dsa.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+                CollectionAssert.AreEqual(files["private.dsa.pem"], pkcs8PemFormattingProvider.GetAsPem(decryptedKey));
             }
         }
         
@@ -579,7 +582,21 @@ namespace Integration.ConvertKey.Test
                     Certifier.Main(new[] {"--convert", "--publickey", "public.ec.pem", "-t", "ssh2"});
                     CollectionAssert.AreEqual(files["public.ec.ssh2"], files["public.ec.pem.ssh2"]);
                 }
-                
+
+                [Test]
+                public void ShouldConvertPublicKeyToPemInsteadOfSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--publickey", "public.ec.pem", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["public.ec.pem"], files["public.ec.pem.sec1"]);
+                }
+
+                [Test]
+                public void ShouldConvertPrivateKeyToSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--privatekey", "private.ec.pem", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["private.ec.sec1"], files["private.ec.pem.sec1"]);
+                }
+
                 [Test]
                 public void ShouldNotConvertPrivateKeyToOpenSsh()
                 {
@@ -632,6 +649,20 @@ namespace Integration.ConvertKey.Test
                     Certifier.Main(new[] {"--convert", "--publickey", "public.ec.der", "-t", "ssh2"});
                     CollectionAssert.AreEqual(files["public.ec.ssh2"], files["public.ec.der.ssh2"]);
                 }
+
+                [Test]
+                public void ShouldConvertPrivateKeyToSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--privatekey", "private.ec.der", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["private.ec.sec1"], files["private.ec.der.sec1"]);
+                }
+                
+                [Test]
+                public void ShouldConvertPublicKeyToPemInsteadOfSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--publickey", "public.ec.der", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["public.ec.pem"], files["public.ec.der.sec1"]);
+                }
                 
                 [Test]
                 public void ShouldNotConvertPrivateKeyToOpenSsh()
@@ -662,6 +693,13 @@ namespace Integration.ConvertKey.Test
                     Certifier.Main(new[] {"--convert", "--publickey", "public.ec.openssh", "-t", "der"});
                     CollectionAssert.AreEqual(files["public.ec.der"], files["public.ec.openssh.der"]);
                 }
+
+                [Test]
+                public void ShouldConvertPublicKeyToPemInsteadOfSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--publickey", "public.ec.openssh", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["public.ec.pem"], files["public.ec.openssh.sec1"]);
+                }
             }
             
             [TestFixture]
@@ -679,6 +717,13 @@ namespace Integration.ConvertKey.Test
                 {
                     Certifier.Main(new[] {"--convert", "--publickey", "public.ec.ssh2", "-t", "der"});
                     CollectionAssert.AreEqual(files["public.ec.der"], files["public.ec.ssh2.der"]);
+                }
+                
+                [Test]
+                public void ShouldConvertPublicKeyToPemInsteadOfSec1()
+                {
+                    Certifier.Main(new[] {"--convert", "--publickey", "public.ec.ssh2", "-t", "sec1"});
+                    CollectionAssert.AreEqual(files["public.ec.pem"], files["public.ec.ssh2.sec1"]);
                 }
             }
         }
@@ -708,10 +753,22 @@ namespace Integration.ConvertKey.Test
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.ec.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
                 
                 string keyContent = encodingWrapper.GetString(files["private.ec.encrypted.der.pem"]);
-                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey encryptedKey = pkcs8PemFormattingProvider.GetAsDer(keyContent);
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
-                CollectionAssert.AreEqual(files["private.ec.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+                CollectionAssert.AreEqual(files["private.ec.pem"], pkcs8PemFormattingProvider.GetAsPem(decryptedKey));
+            }
+
+            [Test]
+            public void ShouldNotConvertPkcs8PemToSec1()
+            {
+                Assert.Throws<InvalidOperationException>(() => Certifier.Main(new[] {"--convert", "--privatekey", "private.ec.encrypted.pem", "-p", "foobarbaz", "-t", "sec1"}));
+            }
+
+            [Test]
+            public void ShouldNotConvertPkcs8DerToSec1()
+            {
+                Assert.Throws<InvalidOperationException>(() => Certifier.Main(new[] {"--convert", "--privatekey", "private.ec.encrypted.der", "-p", "foobarbaz", "-t", "sec1"}));
             }
         }
         
@@ -851,10 +908,10 @@ namespace Integration.ConvertKey.Test
                 Certifier.Main(new[] {"--convert", "--privatekey", "private.elgamal.encrypted.der", "-p", "foobarbaz", "-t", "pem"});
                 
                 string keyContent = encodingWrapper.GetString(files["private.elgamal.encrypted.der.pem"]);
-                IAsymmetricKey encryptedKey = pkcs8FormattingProvider.GetAsDer(keyContent);
+                IAsymmetricKey encryptedKey = pkcs8PemFormattingProvider.GetAsDer(keyContent);
                 IAsymmetricKey decryptedKey = encryptionProvider.DecryptPrivateKey(encryptedKey, "foobarbaz");
                 
-                CollectionAssert.AreEqual(files["private.elgamal.pem"], pkcs8FormattingProvider.GetAsPem(decryptedKey));
+                CollectionAssert.AreEqual(files["private.elgamal.pem"], pkcs8PemFormattingProvider.GetAsPem(decryptedKey));
             }
         }
     }

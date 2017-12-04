@@ -47,7 +47,7 @@ namespace Ui.Console.Startup
                 new Tuple<string, string>("Input file path", "--file (-f) [path]"),
                 new Tuple<string, string>("Stdin content", "--in (-i) [content]"),
                 new Tuple<string, string>("Output path", "--out (-o) [output path]"),
-                new Tuple<string, string>("Key output type", "--type (-t) [pem | *der | openssh | ssh2]"),
+                new Tuple<string, string>("Key output type", "--type (-t) [pem | *der | openssh | ssh2 | sec1]"),
                 new Tuple<string, string>("Signature path or content", "--signature (-s) [path or content]"),
                 new Tuple<string, string>("", lineBreak)
             };

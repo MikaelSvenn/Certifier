@@ -101,7 +101,7 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class VerifyKeyPair : DsaKeyProviderTest
         {
-            private PkcsEncryptionProvider encryptionProvider;
+            private Pkcs8EncryptionProvider encryptionProvider;
             
             [TestFixture]
             public class ShouldReturnFalseWhen : VerifyKeyPair
@@ -110,7 +110,7 @@ namespace Crypto.Test.Providers
                 public void Setup()
                 {
                     var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, null, null);
-                    encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+                    encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
                 }
                 
                 [Test]

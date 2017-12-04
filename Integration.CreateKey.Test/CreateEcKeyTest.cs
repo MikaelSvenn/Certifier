@@ -104,7 +104,7 @@ namespace Integration.CreateKey.Test
                 }
     
                 [Test]
-                public void ShouldWritePkcs8PemFormattedPublicKey()
+                public void ShouldWriteX509PemFormattedPublicKey()
                 {
                     Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem"});
                     
@@ -116,7 +116,7 @@ namespace Integration.CreateKey.Test
                 }
     
                 [Test]
-                public void ShouldCreateValidPkcs8PemFormattedKeyPair()
+                public void ShouldCreateValidPemFormattedKeyPair()
                 {
                     Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "pem", "--privatekey", "private.pem", "--publickey", "public.pem"});
                     
@@ -127,7 +127,7 @@ namespace Integration.CreateKey.Test
                     string publicKeyContent = encoding.GetString(publicKeyFileContent);
                     
                     var container = ContainerProvider.GetContainer();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
     
                     IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
@@ -151,9 +151,9 @@ namespace Integration.CreateKey.Test
                         string publicKeyContent = encoding.GetString(publicKeyFileContent);
             
                         var container = ContainerProvider.GetContainer();
-                        var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                        var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                         var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
-                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
         
                         IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
                         IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
@@ -221,7 +221,7 @@ namespace Integration.CreateKey.Test
                         var container = ContainerProvider.GetContainer();
                         var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
                         var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
-                        var encryptionProvider = container.GetInstance<PkcsEncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
 
                         IAsymmetricKey encryptedPrivateKey = asymmetricKeyProvider.GetEncryptedPrivateKey(privateKeyFileContent);
                         IAsymmetricKey privateKey = encryptionProvider.DecryptPrivateKey(encryptedPrivateKey, "foobar");
@@ -278,10 +278,10 @@ namespace Integration.CreateKey.Test
                     var container = ContainerProvider.GetContainer();
                     var sshFormattingProvider = container.GetInstance<ISshFormattingProvider>();
                     var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pemFormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     
                     string privateKeyContent = encoding.GetString(fileOutput["private.pem"]);
-                    IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent); 
+                    IAsymmetricKey privateKey = pemFormattingProvider.GetAsDer(privateKeyContent); 
                     IAsymmetricKey publicKey = sshFormattingProvider.GetAsDer(content);
 
                     Assert.IsTrue(ecKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
@@ -334,13 +334,76 @@ namespace Integration.CreateKey.Test
                     var container = ContainerProvider.GetContainer();
                     var sshFormattingProvider = container.GetInstance<ISshFormattingProvider>();
                     var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
-                    var pkcs8FormattingProvider = container.GetInstance<IPkcsFormattingProvider<IAsymmetricKey>>();
+                    var pemFormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                     
                     string privateKeyContent = encoding.GetString(fileOutput["private.pem"]);
-                    IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent); 
+                    IAsymmetricKey privateKey = pemFormattingProvider.GetAsDer(privateKeyContent); 
                     IAsymmetricKey publicKey = sshFormattingProvider.GetAsDer(content);
 
                     Assert.IsTrue(ecKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                }
+            }
+
+            [TestFixture]
+            public class Sec1 : CreateKeyPair
+            {
+                [Test]
+                public void ShouldWriteSec1PemFormattedPrivateKey()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "prime256v1", "-t", "sec1", "--privatekey", "private.sec1", "--publickey", "public.pem"});
+                
+                    byte[] fileContent = fileOutput["private.sec1"];
+                    string content = encoding.GetString(fileContent);
+                
+                    Assert.IsTrue(content.Length > 120 && content.Length < 150);
+                    Assert.IsTrue(content.StartsWith($"-----BEGIN EC PRIVATE KEY-----{Environment.NewLine}"));
+                    Assert.IsTrue(content.EndsWith($"-----END EC PRIVATE KEY-----{Environment.NewLine}"));
+                }
+
+                [Test]
+                public void ShouldWriteX509PemFormattedPublicKey()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "prime256v1", "-t", "sec1", "--privatekey", "private.pem", "--publickey", "public.pem"});
+                    
+                    byte[] fileContent = fileOutput["public.pem"];
+                    string content = encoding.GetString(fileContent);
+                    
+                    Assert.IsTrue(content.Length > 160 && content.Length < 190);
+                    Assert.IsTrue(content.StartsWith($"-----BEGIN PUBLIC KEY-----{Environment.NewLine}"));
+                    Assert.IsTrue(content.EndsWith($"-----END PUBLIC KEY-----{Environment.NewLine}"));
+                }
+
+                [Test]
+                public void ShouldCreateValidKeyPair()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "prime256v1", "-t", "sec1", "--privatekey", "private.sec1", "--publickey", "public.pem"});
+                    
+                    var container = ContainerProvider.GetContainer();
+                    var ecKeyProvider = container.GetInstance<IEcKeyProvider>();
+                    var pemFormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
+                    var ecPemFormattingProvider = container.GetInstance<IPemFormattingProvider<IEcKey>>();
+                    
+                    string privateKeyContent = encoding.GetString(fileOutput["private.sec1"]);
+                    string publicKeyContent = encoding.GetString(fileOutput["public.pem"]);
+                    
+                    IAsymmetricKey privateKey = ecPemFormattingProvider.GetAsDer(privateKeyContent); 
+                    IAsymmetricKey publicKey = pemFormattingProvider.GetAsDer(publicKeyContent);
+
+                    Assert.IsTrue(ecKeyProvider.VerifyKeyPair(new AsymmetricKeyPair(privateKey, publicKey)));
+                }
+
+                [Test]
+                public void ShouldThrowExceptionWhenNonEcKeyIsSec1Formatted()
+                {
+                    var exception = Assert.Throws<InvalidOperationException>(() => Certifier.Main(new[] {"-c", "key", "-k", "elgamal", "--fast", "-t", "sec1", "--privatekey", "private.sec1", "--publickey", "public.pem"}));
+                    Assert.AreEqual("Only EC keys can be formatted in SECG SEC 1 compatible format.", exception.Message);
+                }
+
+                [Test]
+                public void ShouldThrowExceptionWhenSec1FormattedKeyIsEncrypted()
+                {
+                    var exception = Assert.Throws<InvalidOperationException>(() => Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "prime256v1", "-t", "sec1", "--privatekey", "private.sec1", "--publickey", "public.pem", "-e", "pkcs", "-p", "foobar"}));
+                    Assert.AreEqual("Encryption of SEC 1 formatted EC keys is not supported.", exception.Message);
                 }
             }
         }

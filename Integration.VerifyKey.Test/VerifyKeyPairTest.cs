@@ -26,7 +26,7 @@ namespace Integration.VerifyKey.Test
         private EcKeyProvider ecKeyProvider;
         private ElGamalKeyProvider elGamalKeyProvider;
         private EncodingWrapper encoding;
-        private Pkcs8FormattingProvider pkcs8Formatter;
+        private Pkcs8PemFormattingProvider pkcs8PemFormatter;
         
         [SetUp]
         public void SetupVerifyKeyPairTest()
@@ -41,7 +41,7 @@ namespace Integration.VerifyKey.Test
             elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator, primeMapper);
             
             encoding = new EncodingWrapper();
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
+            pkcs8PemFormatter = new Pkcs8PemFormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
             
             files = new Dictionary<string, byte[]>();
             file = new Mock<FileWrapper>();            
@@ -58,16 +58,16 @@ namespace Integration.VerifyKey.Test
         private void PopulateRsaKeys()
         {
             IAsymmetricKeyPair rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
-            string firstPublicKey = pkcs8Formatter.GetAsPem(rsaKeyPair.PublicKey);
-            string firstPrivateKey = pkcs8Formatter.GetAsPem(rsaKeyPair.PrivateKey);
+            string firstPublicKey = pkcs8PemFormatter.GetAsPem(rsaKeyPair.PublicKey);
+            string firstPrivateKey = pkcs8PemFormatter.GetAsPem(rsaKeyPair.PrivateKey);
 
             files.Add("private.rsa.first", encoding.GetBytes(firstPrivateKey));
             files.Add("public.rsa.first", encoding.GetBytes(firstPublicKey));
 
             rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
 
-            string secondPublicKey = pkcs8Formatter.GetAsPem(rsaKeyPair.PublicKey);
-            string secondPrivateKey = pkcs8Formatter.GetAsPem(rsaKeyPair.PrivateKey);
+            string secondPublicKey = pkcs8PemFormatter.GetAsPem(rsaKeyPair.PublicKey);
+            string secondPrivateKey = pkcs8PemFormatter.GetAsPem(rsaKeyPair.PrivateKey);
             files.Add("private.rsa.second", encoding.GetBytes(secondPrivateKey));
             files.Add("public.rsa.second", encoding.GetBytes(secondPublicKey));
         }
@@ -75,16 +75,16 @@ namespace Integration.VerifyKey.Test
         private void PopulateDsaKeys()
         {
             IAsymmetricKeyPair dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
-            string firstPublicKey = pkcs8Formatter.GetAsPem(dsaKeyPair.PublicKey);
-            string firstPrivateKey = pkcs8Formatter.GetAsPem(dsaKeyPair.PrivateKey);
+            string firstPublicKey = pkcs8PemFormatter.GetAsPem(dsaKeyPair.PublicKey);
+            string firstPrivateKey = pkcs8PemFormatter.GetAsPem(dsaKeyPair.PrivateKey);
 
             files.Add("private.dsa.first", encoding.GetBytes(firstPrivateKey));
             files.Add("public.dsa.first", encoding.GetBytes(firstPublicKey));
 
             dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
 
-            string secondPublicKey = pkcs8Formatter.GetAsPem(dsaKeyPair.PublicKey);
-            string secondPrivateKey = pkcs8Formatter.GetAsPem(dsaKeyPair.PrivateKey);
+            string secondPublicKey = pkcs8PemFormatter.GetAsPem(dsaKeyPair.PublicKey);
+            string secondPrivateKey = pkcs8PemFormatter.GetAsPem(dsaKeyPair.PrivateKey);
             files.Add("private.dsa.second", encoding.GetBytes(secondPrivateKey));
             files.Add("public.dsa.second", encoding.GetBytes(secondPublicKey));
         }
@@ -92,16 +92,16 @@ namespace Integration.VerifyKey.Test
         private void PopulateEcKeys()
         {
             IAsymmetricKeyPair ecKeyPair = ecKeyProvider.CreateKeyPair("sect283r1");
-            string firstPublicKey = pkcs8Formatter.GetAsPem(ecKeyPair.PublicKey);
-            string firstPrivateKey = pkcs8Formatter.GetAsPem(ecKeyPair.PrivateKey);
+            string firstPublicKey = pkcs8PemFormatter.GetAsPem(ecKeyPair.PublicKey);
+            string firstPrivateKey = pkcs8PemFormatter.GetAsPem(ecKeyPair.PrivateKey);
 
             files.Add("private.ec.first", encoding.GetBytes(firstPrivateKey));
             files.Add("public.ec.first", encoding.GetBytes(firstPublicKey));
 
             ecKeyPair = ecKeyProvider.CreateKeyPair("sect283r1");
 
-            string secondPublicKey = pkcs8Formatter.GetAsPem(ecKeyPair.PublicKey);
-            string secondPrivateKey = pkcs8Formatter.GetAsPem(ecKeyPair.PrivateKey);
+            string secondPublicKey = pkcs8PemFormatter.GetAsPem(ecKeyPair.PublicKey);
+            string secondPrivateKey = pkcs8PemFormatter.GetAsPem(ecKeyPair.PrivateKey);
             files.Add("private.ec.second", encoding.GetBytes(secondPrivateKey));
             files.Add("public.ec.second", encoding.GetBytes(secondPublicKey));
         }
@@ -188,12 +188,12 @@ namespace Integration.VerifyKey.Test
             public void ShouldThrowException()
             {
                 IAsymmetricKeyPair rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
-                string publicKey = pkcs8Formatter.GetAsPem(rsaKeyPair.PublicKey);
+                string publicKey = pkcs8PemFormatter.GetAsPem(rsaKeyPair.PublicKey);
 
                 files.Add("public.rsa", encoding.GetBytes(publicKey));
             
                 IAsymmetricKeyPair dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
-                string privateKey = pkcs8Formatter.GetAsPem(dsaKeyPair.PrivateKey);
+                string privateKey = pkcs8PemFormatter.GetAsPem(dsaKeyPair.PrivateKey);
 
                 files.Add("private.dsa", encoding.GetBytes(privateKey));
             

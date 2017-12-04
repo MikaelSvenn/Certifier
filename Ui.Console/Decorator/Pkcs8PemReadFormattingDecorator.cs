@@ -10,10 +10,10 @@ namespace Ui.Console.Decorator
     public class Pkcs8PemReadFormattingDecorator<T> : ICommandHandler<T> where T : ReadKeyFromFileCommand
     {
         private readonly ICommandHandler<T> decoratedHandler;
-        private readonly IPkcsFormattingProvider<IAsymmetricKey> formattingProvider;
+        private readonly IPemFormattingProvider<IAsymmetricKey> formattingProvider;
         private readonly EncodingWrapper encoding;
 
-        public Pkcs8PemReadFormattingDecorator(ICommandHandler<T> decoratedHandler, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
+        public Pkcs8PemReadFormattingDecorator(ICommandHandler<T> decoratedHandler, IPemFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
         {
             this.decoratedHandler = decoratedHandler;
             this.formattingProvider = formattingProvider;
@@ -24,7 +24,8 @@ namespace Ui.Console.Decorator
         {
             decoratedHandler.Execute(command);
             string keyContent = encoding.GetString(command.FileContent);
-            if (!keyContent.StartsWith("-----BEGIN", StringComparison.InvariantCulture))
+            if (!keyContent.StartsWith("-----BEGIN P", StringComparison.InvariantCulture) &&
+                !keyContent.StartsWith("-----BEGIN ENCRYPTED", StringComparison.InvariantCulture))
             {
                 return;
             }

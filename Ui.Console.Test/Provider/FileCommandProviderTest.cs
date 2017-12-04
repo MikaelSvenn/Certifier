@@ -187,6 +187,14 @@ namespace Ui.Console.Test.Provider
                 result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.OpenSsh);
                 Assert.AreEqual(ContentType.Pem, result.ContentType);
             }
+
+            [Test]
+            public void ShouldMapContentTypeToPemWhenContentTypeForPublicKeyIsSec1()
+            {
+                key = Mock.Of<IAsymmetricKey>(k => !k.IsPrivateKey);
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.Sec1);
+                Assert.AreEqual(ContentType.Pem, result.ContentType);
+            }
         }
         
         [TestFixture]

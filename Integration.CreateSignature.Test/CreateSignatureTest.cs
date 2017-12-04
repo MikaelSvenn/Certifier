@@ -31,7 +31,7 @@ namespace Integration.CreateSignature.Test
         private RsaKeyProvider rsaKeyProvider;
         private DsaKeyProvider dsaKeyProvider;
         private EcKeyProvider ecKeyProvider;
-        private Pkcs8FormattingProvider pkcs8Formatter;
+        private Pkcs8PemFormattingProvider pkcs8PemFormatter;
         
         [SetUp]
         public void SetupCreateSignatureTest()
@@ -67,7 +67,7 @@ namespace Integration.CreateSignature.Test
             ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, new FieldToCurveNameMapper());
             
             var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, null, null);
-            pkcs8Formatter = new Pkcs8FormattingProvider(asymmetricKeyProvider);
+            pkcs8PemFormatter = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
         }
 
         [TearDown]
@@ -80,7 +80,7 @@ namespace Integration.CreateSignature.Test
         {
             keyPair = rsaKeyProvider.CreateKeyPair(2048);
             var privateRsaKey = keyPair.PrivateKey;
-            privateKey = pkcs8Formatter.GetAsPem(privateRsaKey);
+            privateKey = pkcs8PemFormatter.GetAsPem(privateRsaKey);
 
             file.Setup(f => f.ReadAllBytes("private.pem"))
                 .Returns(encoding.GetBytes(privateKey));
@@ -90,7 +90,7 @@ namespace Integration.CreateSignature.Test
         {
             keyPair = dsaKeyProvider.CreateKeyPair(2048);
             var privateDsaKey = keyPair.PrivateKey;
-            privateKey = pkcs8Formatter.GetAsPem(privateDsaKey);
+            privateKey = pkcs8PemFormatter.GetAsPem(privateDsaKey);
 
             file.Setup(f => f.ReadAllBytes("private.pem"))
                 .Returns(encoding.GetBytes(privateKey));
@@ -100,7 +100,7 @@ namespace Integration.CreateSignature.Test
         {
             keyPair = ecKeyProvider.CreateKeyPair("brainpoolp512t1");
             var privateEcKey = keyPair.PrivateKey;
-            privateKey = pkcs8Formatter.GetAsPem(privateEcKey);
+            privateKey = pkcs8PemFormatter.GetAsPem(privateEcKey);
 
             file.Setup(f => f.ReadAllBytes("private.pem"))
                 .Returns(encoding.GetBytes(privateKey));

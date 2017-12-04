@@ -29,8 +29,9 @@ namespace Ui.Console.Startup
             container.Register<IElGamalKeyProvider, ElGamalKeyProvider>();
             container.Register<IEcKeyProvider, EcKeyProvider>();
             container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
-            container.Register<IKeyEncryptionProvider, PkcsEncryptionProvider>();
-            container.Register<IPkcsFormattingProvider<IAsymmetricKey>, Pkcs8FormattingProvider>();
+            container.Register<IKeyEncryptionProvider, Pkcs8EncryptionProvider>();
+            container.Register<IPemFormattingProvider<IAsymmetricKey>, Pkcs8PemFormattingProvider>();
+            container.Register<IPemFormattingProvider<IEcKey>, EcPemFormattingProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
             container.Register<Ssh2ContentFormatter>();
             container.Register<ISshFormattingProvider, SshFormattingProvider>();
@@ -49,32 +50,48 @@ namespace Ui.Console.Startup
             
             container.Register<Help>();
 
-            // Commands
+            // Command handler
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });
             container.Register<ICommandHandler<WriteFileCommand<IAsymmetricKey>>, WriteToFileCommandHandler<IAsymmetricKey>>();
             container.Register<ICommandHandler<WriteFileCommand<Signature>>, WriteToFileCommandHandler<Signature>>();
             container.Register<ICommandHandler<WriteToStdOutCommand<Signature>>, WriteToStdOutCommandHandler<Signature>>();
             container.Register<ICommandHandler<ReadFileCommand<byte[]>>, ReadFileCommandHandler<byte[]>>();
             
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
+            //Create key
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(RsaKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(DsaKeySizeValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ElGamalKeySizeValidationDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(VerifyKeyTypeValidationDecorator<>));
+
+            //Read file
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(FilePathValidationDecorator<,>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteKeyToFilePathValidationDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyFromFilePathValidationDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(SshReadFormattingDecorator<>));
+            
+            //Read key
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8PemReadFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1PemReadFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(SshReadFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerReadFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyDecryptionDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8PemWriteFormattingDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshWriteFormattingDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Ssh2WriteFormattingDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerWriteFormattingDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyFromFilePathValidationDecorator<>));
+
+            //Write content
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToFileBase64FormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteToStdOutBase64FormattingDecorator<>));
+            
+            //Write key
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Ssh2WriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8PemWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1PemWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1WriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1EncryptionValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1ValidationDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(WriteKeyToFilePathValidationDecorator<>));
+
+            //Verify key
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(VerifyKeyTypeValidationDecorator<>));
 
             container.Verify();
 

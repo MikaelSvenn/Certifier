@@ -9,10 +9,10 @@ namespace Ui.Console.Decorator
     public class Pkcs8PemWriteFormattingDecorator<T> : ICommandHandler<T> where T : WriteFileCommand<IAsymmetricKey>
     {
         private readonly ICommandHandler<T> decoratedCommand;
-        private readonly IPkcsFormattingProvider<IAsymmetricKey> formattingProvider;
+        private readonly IPemFormattingProvider<IAsymmetricKey> formattingProvider;
         private readonly EncodingWrapper encoding;
 
-        public Pkcs8PemWriteFormattingDecorator(ICommandHandler<T> decoratedCommand, IPkcsFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
+        public Pkcs8PemWriteFormattingDecorator(ICommandHandler<T> decoratedCommand, IPemFormattingProvider<IAsymmetricKey> formattingProvider, EncodingWrapper encoding)
         {
             this.decoratedCommand = decoratedCommand;
             this.formattingProvider = formattingProvider;

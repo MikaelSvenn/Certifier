@@ -13,14 +13,14 @@ namespace Crypto.Test.Generators
     [TestFixture]
     public class PkcsEncryptionGeneratorTest
     {
-        private PkcsEncryptionGenerator encryptionGenerator;
+        private Pkcs12EncryptionGenerator encryptionGenerator;
         private IAsymmetricKeyPair keyPair;
         private byte[] encryptedKey;
 
         [OneTimeSetUp]
         public void SetupPkcsEncryptionGeneratorTest()
         {
-            encryptionGenerator = new PkcsEncryptionGenerator();
+            encryptionGenerator = new Pkcs12EncryptionGenerator();
 
             var secureRandom = new SecureRandomGenerator();
             var rsaProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandom));

@@ -184,7 +184,7 @@ namespace Crypto.Test.Providers
         public class VerifyKeyPairTest : RsaKeyProviderTest
         {
             private IAsymmetricKeyPair keyPair;
-            private PkcsEncryptionProvider encryptionProvider;
+            private Pkcs8EncryptionProvider encryptionProvider;
 
             [OneTimeSetUp]
             public void SetupVerifyKeyPairTest()
@@ -199,7 +199,7 @@ namespace Crypto.Test.Providers
                 public void Setup()
                 {
                     var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), keyProvider, null, null, null);
-                    encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+                    encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
                 }
 
                 [Test]

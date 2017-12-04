@@ -30,7 +30,7 @@ namespace Integration.VerifySignature.Test
         private EcKeyProvider ecKeyProvider;
         private ElGamalKeyProvider elGamalKeyProvider;
         private SignatureProvider signatureProvider;
-        private Pkcs8FormattingProvider pkcs8Formatter;
+        private Pkcs8PemFormattingProvider pkcs8PemFormatter;
         private SecureRandomGenerator random;
 
         [SetUp]
@@ -56,7 +56,7 @@ namespace Integration.VerifySignature.Test
             elGamalKeyProvider = new ElGamalKeyProvider(asymmetricKeyPairGenerator, primeMapper);
             
             signatureProvider = new SignatureProvider(new SignatureAlgorithmIdentifierMapper(), new SecureRandomGenerator(), new SignerUtilitiesWrapper());
-            pkcs8Formatter = new Pkcs8FormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
+            pkcs8PemFormatter = new Pkcs8PemFormattingProvider(new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider));
 
             base64 = new Base64Wrapper();
             encoding = new EncodingWrapper();
@@ -95,7 +95,7 @@ namespace Integration.VerifySignature.Test
             Signature inputSignature = signatureProvider.CreateSignature(keyPair.PrivateKey, encoding.GetBytes("FooBarBaz"));
             base64InputSignature = base64.ToBase64String(inputSignature.Content);
 
-            string pemFormattedPublicKey = pkcs8Formatter.GetAsPem(keyPair.PublicKey);
+            string pemFormattedPublicKey = pkcs8PemFormatter.GetAsPem(keyPair.PublicKey);
 
             var tamperedFileContent = (byte[]) fileContent.Clone();
             tamperedFileContent[10] = (byte) (tamperedFileContent[10] >> 1);

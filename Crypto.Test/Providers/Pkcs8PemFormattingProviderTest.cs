@@ -11,9 +11,9 @@ using NUnit.Framework;
 namespace Crypto.Test.Providers
 {
     [TestFixture]
-    public class Pkcs8FormattingProviderTest
+    public class Pkcs8PemFormattingProviderTest
     {
-        private Pkcs8FormattingProvider pkcs8FormattingProvider;
+        private Pkcs8PemFormattingProvider pkcs8PemFormattingProvider;
         private RsaKeyProvider rsaKeyProvider;
         private IAsymmetricKeyPair keyPair;
         private IAsymmetricKey encryptedKey;
@@ -27,17 +27,17 @@ namespace Crypto.Test.Providers
 
             var oidMapper = new OidToCipherTypeMapper();
             var asymmetricKeyConverter = new AsymmetricKeyProvider(oidMapper, new KeyInfoWrapper(), rsaKeyProvider, null, null, null);
-            pkcs8FormattingProvider = new Pkcs8FormattingProvider(asymmetricKeyConverter);
+            pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyConverter);
 
             var configuration = Mock.Of<IConfiguration>(m => m.Get<int>("SaltLengthInBytes") == 100 &&
                                                          m.Get<int>("KeyDerivationIterationCount") == 1);
 
-            var pkcsEncryptionProvider = new PkcsEncryptionProvider(configuration, secureRandom, asymmetricKeyConverter, new PkcsEncryptionGenerator());
+            var pkcsEncryptionProvider = new Pkcs8EncryptionProvider(configuration, secureRandom, asymmetricKeyConverter, new Pkcs12EncryptionGenerator());
             encryptedKey = pkcsEncryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "password");
         }
 
         [TestFixture]
-        public class GetAsPem : Pkcs8FormattingProviderTest
+        public class GetAsPem : Pkcs8PemFormattingProviderTest
         {
             private string publicKey;
             private string privateKey;
@@ -46,9 +46,9 @@ namespace Crypto.Test.Providers
             [SetUp]
             public void Setup()
             {
-                publicKey = pkcs8FormattingProvider.GetAsPem(keyPair.PublicKey);
-                privateKey = pkcs8FormattingProvider.GetAsPem(keyPair.PrivateKey);
-                encryptedPrivateKey = pkcs8FormattingProvider.GetAsPem(encryptedKey);
+                publicKey = pkcs8PemFormattingProvider.GetAsPem(keyPair.PublicKey);
+                privateKey = pkcs8PemFormattingProvider.GetAsPem(keyPair.PrivateKey);
+                encryptedPrivateKey = pkcs8PemFormattingProvider.GetAsPem(encryptedKey);
             }
 
             [Test]
@@ -80,7 +80,7 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        public class GetAsDer : Pkcs8FormattingProviderTest
+        public class GetAsDer : Pkcs8PemFormattingProviderTest
         {
             private string publicKeyAsPem;
             private string privateKeyAsPem;
@@ -89,29 +89,29 @@ namespace Crypto.Test.Providers
             [SetUp]
             public void Setup()
             {
-                publicKeyAsPem = pkcs8FormattingProvider.GetAsPem(keyPair.PublicKey);
-                privateKeyAsPem = pkcs8FormattingProvider.GetAsPem(keyPair.PrivateKey);
-                encryptedPrivateKeyAsPem = pkcs8FormattingProvider.GetAsPem(encryptedKey);
+                publicKeyAsPem = pkcs8PemFormattingProvider.GetAsPem(keyPair.PublicKey);
+                privateKeyAsPem = pkcs8PemFormattingProvider.GetAsPem(keyPair.PrivateKey);
+                encryptedPrivateKeyAsPem = pkcs8PemFormattingProvider.GetAsPem(encryptedKey);
             }
 
             [Test]
             public void ShouldFormatPublicKey()
             {
-                var result = pkcs8FormattingProvider.GetAsDer(publicKeyAsPem);
+                var result = pkcs8PemFormattingProvider.GetAsDer(publicKeyAsPem);
                 Assert.AreEqual(keyPair.PublicKey.Content, result.Content);
             }
 
             [Test]
             public void ShouldFormatPrivateKey()
             {
-                var result = pkcs8FormattingProvider.GetAsDer(privateKeyAsPem);
+                var result = pkcs8PemFormattingProvider.GetAsDer(privateKeyAsPem);
                 Assert.AreEqual(keyPair.PrivateKey.Content, result.Content);
             }
 
             [Test]
             public void ShouldFormatEncryptedPrivateKey()
             {
-                var result = pkcs8FormattingProvider.GetAsDer(encryptedPrivateKeyAsPem);
+                var result = pkcs8PemFormattingProvider.GetAsDer(encryptedPrivateKeyAsPem);
                 Assert.AreEqual(encryptedKey.Content, result.Content);
             }
         }

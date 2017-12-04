@@ -4,11 +4,11 @@ using Org.BouncyCastle.Utilities.IO.Pem;
 
 namespace Crypto.Providers
 {
-    public class Pkcs8FormattingProvider : IPkcsFormattingProvider<IAsymmetricKey>
+    public class Pkcs8PemFormattingProvider : IPemFormattingProvider<IAsymmetricKey>
     {
         private readonly IAsymmetricKeyProvider keyProvider;
 
-        public Pkcs8FormattingProvider(IAsymmetricKeyProvider keyProvider)
+        public Pkcs8PemFormattingProvider(IAsymmetricKeyProvider keyProvider)
         {
             this.keyProvider = keyProvider;
         }

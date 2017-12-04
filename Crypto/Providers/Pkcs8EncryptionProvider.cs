@@ -7,14 +7,14 @@ using Org.BouncyCastle.Security;
 
 namespace Crypto.Providers
 {
-    public class PkcsEncryptionProvider : IKeyEncryptionProvider
+    public class Pkcs8EncryptionProvider : IKeyEncryptionProvider
     {
         private readonly IConfiguration configuration;
         private readonly SecureRandomGenerator secureRandomGenerator;
         private readonly IAsymmetricKeyProvider keyProvider;
-        private readonly PkcsEncryptionGenerator encryptionGenerator;
+        private readonly Pkcs12EncryptionGenerator encryptionGenerator;
 
-        public PkcsEncryptionProvider(IConfiguration configuration, SecureRandomGenerator secureRandomGenerator, IAsymmetricKeyProvider keyProvider, PkcsEncryptionGenerator encryptionGenerator)
+        public Pkcs8EncryptionProvider(IConfiguration configuration, SecureRandomGenerator secureRandomGenerator, IAsymmetricKeyProvider keyProvider, Pkcs12EncryptionGenerator encryptionGenerator)
         {
             this.configuration = configuration;
             this.secureRandomGenerator = secureRandomGenerator;
@@ -51,7 +51,7 @@ namespace Crypto.Providers
                 throw new ArgumentException("Incorrect password was provided or the key is corrupt.");
             }
 
-            var privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(asymmetricKey);;
+            var privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(asymmetricKey);
             byte[] privateKey = privateKeyInfo
                 .ToAsn1Object()
                 .GetDerEncoded();

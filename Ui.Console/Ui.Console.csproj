@@ -49,12 +49,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FluentCommandLineParser, Version=1.4.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\FluentCommandLineParser.1.4.3\lib\net35\FluentCommandLineParser.dll</HintPath>
+    <Reference Include="FluentCommandLineParser, Version=1.5.0.18, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\FluentCommandLineParser.1.5.0.18-commands\lib\net35\FluentCommandLineParser.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="SimpleInjector, Version=4.0.8.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleInjector.4.0.8\lib\net45\SimpleInjector.dll</HintPath>
+    <Reference Include="SimpleInjector, Version=4.0.12.0, Culture=neutral, PublicKeyToken=984cb50dea722e99">
+      <HintPath>..\packages\SimpleInjector.4.0.12\lib\net45\SimpleInjector.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -97,6 +97,11 @@
     <Compile Include="Command\VerifySignatureCommand.cs" />
     <Compile Include="Command\WriteFileCommand.cs" />
     <Compile Include="Command\WriteToStdOutCommand.cs" />
+    <Compile Include="Decorator\EcSec1PemReadFormattingDecorator.cs" />
+    <Compile Include="Decorator\EcSec1EncryptionValidationDecorator.cs" />
+    <Compile Include="Decorator\EcSec1ValidationDecorator.cs" />
+    <Compile Include="Decorator\EcSec1WriteFormattingDecorator.cs" />
+    <Compile Include="Decorator\EcSec1PemWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\SshReadFormattingDecorator.cs" />
     <Compile Include="Decorator\Pkcs8DerWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\DsaKeySizeValidationDecorator.cs" />
@@ -159,6 +164,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

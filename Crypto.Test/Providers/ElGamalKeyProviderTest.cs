@@ -86,13 +86,13 @@ namespace Crypto.Test.Providers
             [TestFixture]
             public class ShouldReturnFalseWhen : VerifyKeyPairTest
             {
-                private PkcsEncryptionProvider encryptionProvider;
+                private Pkcs8EncryptionProvider encryptionProvider;
                 
                 [OneTimeSetUp]
                 public void Setup()
                 {
                     var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, null, null);
-                    encryptionProvider = new PkcsEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new PkcsEncryptionGenerator());
+                    encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
                 }
                 
                 [Test]
