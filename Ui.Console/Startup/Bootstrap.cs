@@ -29,7 +29,7 @@ namespace Ui.Console.Startup
             container.Register<IElGamalKeyProvider, ElGamalKeyProvider>();
             container.Register<IEcKeyProvider, EcKeyProvider>();
             container.Register<IAsymmetricKeyProvider, AsymmetricKeyProvider>();
-            container.Register<IKeyEncryptionProvider, Pkcs8EncryptionProvider>();
+            container.Register<IKeyEncryptionProvider, KeyEncryptionProvider>();
             container.Register<IPemFormattingProvider<IAsymmetricKey>, Pkcs8PemFormattingProvider>();
             container.Register<IPemFormattingProvider<IEcKey>, EcPemFormattingProvider>();
             container.Register<ISignatureProvider, SignatureProvider>();
@@ -71,6 +71,7 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(SshReadFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerReadFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyDecryptionDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AesKeyDecryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ReadKeyFromFilePathValidationDecorator<>));
 
             //Write content
@@ -84,6 +85,7 @@ namespace Ui.Console.Startup
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1PemWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AesKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1WriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1EncryptionValidationDecorator<>));

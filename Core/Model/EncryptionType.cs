@@ -3,6 +3,7 @@
     public enum EncryptionType
     {
         None,
-        Pkcs
+        Pkcs,
+        Aes
     }
 }

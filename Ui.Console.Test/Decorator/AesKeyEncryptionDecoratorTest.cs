@@ -1,4 +1,3 @@
-using System.Net;
 using Core.Interfaces;
 using Core.Model;
 using Moq;
@@ -10,18 +9,18 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class PkcsKeyEncryptionDecoratorTest
+    public class AesKeyEncryptionDecoratorTest
     {
-        private PkcsKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
+        private AesKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>> decorator;
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decorated;
         private Mock<IKeyEncryptionProvider> keyEncryptionProvider;
 
         [SetUp]
-        public void SetupPkcsKeyEncryptionDecoratorTest()
+        public void SetupAesKeyEncryptionDecoratorTest()
         {
             decorated = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
             keyEncryptionProvider = new Mock<IKeyEncryptionProvider>();
-            decorator = new PkcsKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>>(decorated.Object, keyEncryptionProvider.Object);
+            decorator = new AesKeyEncryptionDecorator<WriteFileCommand<IAsymmetricKey>>(decorated.Object, keyEncryptionProvider.Object);
         }
 
         [Test]
@@ -34,16 +33,16 @@ namespace Ui.Console.Test.Decorator
         }
 
         [Test]
-        public void ShouldNotEncryptPrivateKeyWhenEncryptionTypeIsNotPkcs()
+        public void ShouldNotEncryptPrivateKeyWhenEncryptionTypeIsNotAes()
         {
-            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.None);
+            var command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Pkcs);
             decorator.Execute(command);
 
-            keyEncryptionProvider.Verify(k => k.EncryptPrivateKey(It.IsAny<IAsymmetricKey>(), It.IsAny<string>(), EncryptionType.Pkcs), Times.Never());
+            keyEncryptionProvider.Verify(k => k.EncryptPrivateKey(It.IsAny<IAsymmetricKey>(), It.IsAny<string>(), EncryptionType.Aes), Times.Never());
         }
 
         [TestFixture]
-        public class WhenEncryptionTypeIsPkcs : PkcsKeyEncryptionDecoratorTest
+        public class WhenEncryptionTypeIsAes : AesKeyEncryptionDecoratorTest
         {
             private WriteFileCommand<IAsymmetricKey> command;
             private IAsymmetricKey privateKey;
@@ -55,10 +54,10 @@ namespace Ui.Console.Test.Decorator
                 privateKey = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
                 encryptedPrivateKey = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey && k.IsEncrypted);
 
-                keyEncryptionProvider.Setup(kep => kep.EncryptPrivateKey(privateKey, "fooPassword", EncryptionType.Pkcs))
+                keyEncryptionProvider.Setup(kep => kep.EncryptPrivateKey(privateKey, "fooPassword", EncryptionType.Aes))
                     .Returns(encryptedPrivateKey);
 
-                command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Pkcs &&
+                command = Mock.Of<WriteFileCommand<IAsymmetricKey>>(c => c.EncryptionType == EncryptionType.Aes &&
                                                                     c.Password == "fooPassword" &&
                                                                     c.Out == privateKey);
             }
@@ -67,7 +66,7 @@ namespace Ui.Console.Test.Decorator
             public void ShouldEncryptPrivateKeyWithGivenPassword()
             {
                 decorator.Execute(command);
-                keyEncryptionProvider.Verify(kep => kep.EncryptPrivateKey(privateKey, "fooPassword", EncryptionType.Pkcs));
+                keyEncryptionProvider.Verify(kep => kep.EncryptPrivateKey(privateKey, "fooPassword", EncryptionType.Aes));
             }
 
             [Test]

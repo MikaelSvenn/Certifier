@@ -97,6 +97,8 @@
     <Compile Include="Command\VerifySignatureCommand.cs" />
     <Compile Include="Command\WriteFileCommand.cs" />
     <Compile Include="Command\WriteToStdOutCommand.cs" />
+    <Compile Include="Decorator\AesKeyDecryptionDecorator.cs" />
+    <Compile Include="Decorator\AesKeyEncryptionDecorator.cs" />
     <Compile Include="Decorator\EcSec1PemReadFormattingDecorator.cs" />
     <Compile Include="Decorator\EcSec1EncryptionValidationDecorator.cs" />
     <Compile Include="Decorator\EcSec1ValidationDecorator.cs" />

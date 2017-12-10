@@ -8,6 +8,7 @@
         ElGamal,
         Unknown,
         Pkcs5Encrypted,
-        Pkcs12Encrypted
+        Pkcs12Encrypted,
+        AesEncrypted
     }
 }

@@ -11,16 +11,16 @@ using Org.BouncyCastle.Security;
 namespace Crypto.Test.Generators
 {
     [TestFixture]
-    public class PkcsEncryptionGeneratorTest
+    public class PkcsKeyEncryptionGeneratorTest
     {
-        private Pkcs12EncryptionGenerator encryptionGenerator;
+        private Pkcs12KeyEncryptionGenerator encryptionGenerator;
         private IAsymmetricKeyPair keyPair;
         private byte[] encryptedKey;
 
         [OneTimeSetUp]
         public void SetupPkcsEncryptionGeneratorTest()
         {
-            encryptionGenerator = new Pkcs12EncryptionGenerator();
+            encryptionGenerator = new Pkcs12KeyEncryptionGenerator();
 
             var secureRandom = new SecureRandomGenerator();
             var rsaProvider = new RsaKeyProvider(new AsymmetricKeyPairGenerator(secureRandom));

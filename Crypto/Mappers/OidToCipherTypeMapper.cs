@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Model;
+using Org.BouncyCastle.Asn1.BC;
 using Org.BouncyCastle.Asn1.CryptoPro;
 using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
@@ -36,7 +37,13 @@ namespace Crypto.Mappers
                 {PkcsObjectIdentifiers.Pkcs12PbeIds + ".3", CipherType.Pkcs12Encrypted},
                 {PkcsObjectIdentifiers.Pkcs12PbeIds + ".4", CipherType.Pkcs12Encrypted},
                 {PkcsObjectIdentifiers.Pkcs12PbeIds + ".5", CipherType.Pkcs12Encrypted},
-                {PkcsObjectIdentifiers.Pkcs12PbeIds + ".6", CipherType.Pkcs12Encrypted}
+                {PkcsObjectIdentifiers.Pkcs12PbeIds + ".6", CipherType.Pkcs12Encrypted},
+                {BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes128_cbc.Id, CipherType.AesEncrypted},
+                {BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes192_cbc.Id, CipherType.AesEncrypted},
+                {BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes256_cbc.Id, CipherType.AesEncrypted},
+                {BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes128_cbc.Id, CipherType.AesEncrypted},
+                {BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes192_cbc.Id, CipherType.AesEncrypted},
+                {BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes256_cbc.Id, CipherType.AesEncrypted}
             };
         }
 

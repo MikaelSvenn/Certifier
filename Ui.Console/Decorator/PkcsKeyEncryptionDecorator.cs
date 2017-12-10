@@ -20,7 +20,7 @@ namespace Ui.Console.Decorator
         {
             if (writeToFileCommand.EncryptionType == EncryptionType.Pkcs)
             {
-                writeToFileCommand.Out = keyEncryptionProvider.EncryptPrivateKey(writeToFileCommand.Out, writeToFileCommand.Password);
+                writeToFileCommand.Out = keyEncryptionProvider.EncryptPrivateKey(writeToFileCommand.Out, writeToFileCommand.Password, EncryptionType.Pkcs);
             }
 
             decoratedCommandHandler.Execute(writeToFileCommand);

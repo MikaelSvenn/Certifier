@@ -1,10 +1,11 @@
-﻿using Org.BouncyCastle.Asn1.Pkcs;
+﻿using Core.Interfaces;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 
 namespace Crypto.Generators
 {
-    public class Pkcs12EncryptionGenerator
+    public class Pkcs12KeyEncryptionGenerator : IKeyEncryptionGenerator
     {
         public virtual byte[] Encrypt(string password, byte[] salt, int iterationCount, byte[] content)
         {

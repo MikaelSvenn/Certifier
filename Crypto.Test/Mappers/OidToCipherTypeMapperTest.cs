@@ -2,6 +2,7 @@ using System.Collections;
 using Core.Model;
 using Crypto.Mappers;
 using NUnit.Framework;
+using Org.BouncyCastle.Asn1.BC;
 using Org.BouncyCastle.Asn1.CryptoPro;
 using Org.BouncyCastle.Asn1.Oiw;
 using Org.BouncyCastle.Asn1.Pkcs;
@@ -123,6 +124,30 @@ namespace Crypto.Test.Mappers
                 yield return new TestCaseData(PkcsObjectIdentifiers.Pkcs12PbeIds + ".6")
                     .SetName("PKCS12 (PBE with SHA1 and 40bit RC2 CBC)")
                     .Returns(CipherType.Pkcs12Encrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes128_cbc.Id)
+                    .SetName("AES (PBE with SHA1 and AES 128)")
+                    .Returns(CipherType.AesEncrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes192_cbc.Id)
+                    .SetName("AES (PBE with SHA1 and AES 192)")
+                    .Returns(CipherType.AesEncrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha1_pkcs12_aes256_cbc.Id)
+                    .SetName("AES (PBE with SHA1 and AES 256)")
+                    .Returns(CipherType.AesEncrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes128_cbc.Id)
+                    .SetName("AES (PBE with SHA256 and AES 128)")
+                    .Returns(CipherType.AesEncrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes192_cbc.Id)
+                    .SetName("AES (PBE with SHA256 and AES 192)")
+                    .Returns(CipherType.AesEncrypted);
+                
+                yield return new TestCaseData(BCObjectIdentifiers.bc_pbe_sha256_pkcs12_aes256_cbc.Id)
+                    .SetName("AES (PBE with SHA256 and AES 256)")
+                    .Returns(CipherType.AesEncrypted);
             }
         }
     }

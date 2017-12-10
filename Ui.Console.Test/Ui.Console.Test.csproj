@@ -62,6 +62,8 @@
     <Compile Include="CommandHandler\VerifySignatureCommandHandlerTest.cs" />
     <Compile Include="CommandHandler\WriteToStdOutCommandHandler.cs" />
     <Compile Include="CommandHandler\WriteToTextFileCommandHandlerTest.cs" />
+    <Compile Include="Decorator\AesKeyDecryptionDecoratorTest.cs" />
+    <Compile Include="Decorator\AesKeyEncryptionDecoratorTest.cs" />
     <Compile Include="Decorator\EcSec1EncryptionValidationDecoratorTest.cs" />
     <Compile Include="Decorator\EcSec1PemReadFormattingDecoratorTest.cs" />
     <Compile Include="Decorator\EcSec1ValidationDecoratorTest.cs" />

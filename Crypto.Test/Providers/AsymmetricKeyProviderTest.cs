@@ -21,7 +21,7 @@ namespace Crypto.Test.Providers
         private EcKeyProvider ecKeyProvider;
         private ElGamalKeyProvider elGamalKeyProvider;
         private OidToCipherTypeMapper cipherTypeMapper;
-        private Pkcs8EncryptionProvider pkcsEncryptionProvider;
+        private KeyEncryptionProvider pkcsEncryptionProvider;
         private Mock<KeyInfoWrapper> keyInfoWrapper;
         private IAsymmetricKeyPair rsaKeyPair;
         private IAsymmetricKeyPair dsaKeyPair;
@@ -48,7 +48,7 @@ namespace Crypto.Test.Providers
             SetupValidKeyInfo();
             SetupValidKeyProvider();
             
-            pkcsEncryptionProvider = new Pkcs8EncryptionProvider(configuration, secureRandom, keyProvider, new Pkcs12EncryptionGenerator());
+            pkcsEncryptionProvider = new KeyEncryptionProvider(configuration, secureRandom, keyProvider, new Pkcs12KeyEncryptionGenerator(), new AesKeyEncryptionGenerator());
             
             rsaKeyPair = rsaKeyProvider.CreateKeyPair(2048);
             dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
@@ -276,25 +276,57 @@ namespace Crypto.Test.Providers
             private IAsymmetricKey encryptedPrivateKey;
 
             [SetUp]
-            public void Setup()
+            public void SetupGetEncryptedPrivateKey()
             {
                 keyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, elGamalKeyProvider);
-                var key = pkcsEncryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobar");
-
-                encryptedPrivateKey = keyProvider.GetEncryptedPrivateKey(key.Content);
             }
 
-            [Test]
-            public void ShouldReturnEncryptedPrivateKey()
+            [TestFixture]
+            public class PkcsEncrypted : GetEncryptedPrivateKey
             {
-                Assert.IsAssignableFrom<EncryptedKey>(encryptedPrivateKey);
-                CollectionAssert.AreNotEqual(encryptedPrivateKey.Content, rsaKeyPair.PrivateKey.Content);
+                [SetUp]
+                public void Setup()
+                {
+                    var key = pkcsEncryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobar", EncryptionType.Pkcs);
+                    encryptedPrivateKey = keyProvider.GetEncryptedPrivateKey(key.Content);
+                }
+                
+                [Test]
+                public void ShouldSetCipherType()
+                {
+                    Assert.AreEqual(CipherType.Pkcs12Encrypted, encryptedPrivateKey.CipherType);
+                }
+                
+                [Test]
+                public void ShouldReturnEncryptedPrivateKey()
+                {
+                    Assert.IsAssignableFrom<EncryptedKey>(encryptedPrivateKey);
+                    CollectionAssert.AreNotEqual(encryptedPrivateKey.Content, rsaKeyPair.PrivateKey.Content);
+                }
             }
-
-            [Test]
-            public void ShouldSetCipherType()
+            
+            [TestFixture]
+            public class AesEncrypted : GetEncryptedPrivateKey
             {
-                Assert.AreEqual(CipherType.Pkcs12Encrypted, encryptedPrivateKey.CipherType);
+                [SetUp]
+                public void Setup()
+                {
+                    var key = pkcsEncryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobar", EncryptionType.Aes);
+                    encryptedPrivateKey = keyProvider.GetEncryptedPrivateKey(key.Content);
+                }
+                
+                [Test]
+                public void ShouldSetCipherType()
+                {
+                    Assert.AreEqual(CipherType.AesEncrypted, encryptedPrivateKey.CipherType);
+                }
+                
+                [Test]
+                public void ShouldReturnEncryptedPrivateKey()
+                {
+                    Assert.IsAssignableFrom<EncryptedKey>(encryptedPrivateKey);
+                    CollectionAssert.AreNotEqual(encryptedPrivateKey.Content, rsaKeyPair.PrivateKey.Content);
+                }
             }
         }
     }

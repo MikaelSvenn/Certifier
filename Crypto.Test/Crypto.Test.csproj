@@ -52,7 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Formatters\Ssh2ContentFormatterTest.cs" />
-    <Compile Include="Generators\PkcsEncryptionGeneratorTest.cs" />
+    <Compile Include="Generators\AesKeyEncryptionGeneratorTest.cs" />
+    <Compile Include="Generators\PkcsKeyEncryptionGeneratorTest.cs" />
     <Compile Include="Generators\AsymmetricKeyPairGeneratorTest.cs" />
     <Compile Include="Generators\SecureRandomGeneratorTest.cs" />
     <Compile Include="Mappers\FieldToCurveNameMapperTest.cs" />
@@ -66,7 +67,7 @@
     <Compile Include="Providers\EcPemFormattingProviderTest.cs" />
     <Compile Include="Providers\ElGamalKeyProviderTest.cs" />
     <Compile Include="Providers\Pkcs8PemFormattingProviderTest.cs" />
-    <Compile Include="Providers\PkcsEncryptionProviderTest.cs" />
+    <Compile Include="Providers\KeyEncryptionProviderTest.cs" />
     <Compile Include="Providers\RsaKeyProviderTest.cs" />
     <Compile Include="Providers\SignatureProviderTest.cs" />
     <Compile Include="Providers\SshFormattingProviderTest.cs" />

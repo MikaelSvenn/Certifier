@@ -178,7 +178,7 @@ namespace Integration.CreateKey.Test
                         var container = ContainerProvider.GetContainer();
                         var pkcs8FormattingProvider = container.GetInstance<IPemFormattingProvider<IAsymmetricKey>>();
                         var dsaKeyProvider = container.GetInstance<DsaKeyProvider>();
-                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<KeyEncryptionProvider>();
 
                         IAsymmetricKey privateKey = pkcs8FormattingProvider.GetAsDer(privateKeyContent);
                         IAsymmetricKey publicKey = pkcs8FormattingProvider.GetAsDer(publicKeyContent);
@@ -224,7 +224,7 @@ namespace Integration.CreateKey.Test
                         var container = ContainerProvider.GetContainer();
                         var asymmetricKeyProvider = container.GetInstance<IAsymmetricKeyProvider>();
                         var dsaKeyProvider = container.GetInstance<IKeyProvider<DsaKey>>();
-                        var encryptionProvider = container.GetInstance<Pkcs8EncryptionProvider>();
+                        var encryptionProvider = container.GetInstance<KeyEncryptionProvider>();
 
                         IAsymmetricKey encryptedPrivateKey = asymmetricKeyProvider.GetEncryptedPrivateKey(privateKeyFileContent);
                         IAsymmetricKey privateKey = encryptionProvider.DecryptPrivateKey(encryptedPrivateKey, "foobar");

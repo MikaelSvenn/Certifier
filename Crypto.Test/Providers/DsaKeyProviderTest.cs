@@ -101,7 +101,7 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class VerifyKeyPair : DsaKeyProviderTest
         {
-            private Pkcs8EncryptionProvider encryptionProvider;
+            private KeyEncryptionProvider encryptionProvider;
             
             [TestFixture]
             public class ShouldReturnFalseWhen : VerifyKeyPair
@@ -110,7 +110,7 @@ namespace Crypto.Test.Providers
                 public void Setup()
                 {
                     var asymmetricKeyProvider = new AsymmetricKeyProvider(new OidToCipherTypeMapper(), new KeyInfoWrapper(), null, null, null, null);
-                    encryptionProvider = new Pkcs8EncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12EncryptionGenerator());
+                    encryptionProvider = new KeyEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12KeyEncryptionGenerator(), new AesKeyEncryptionGenerator());
                 }
                 
                 [Test]
@@ -126,9 +126,16 @@ namespace Crypto.Test.Providers
                 }
 
                 [Test]
-                public void WhenPrivateKeyIsEncrypted()
+                public void WhenPrivateKeyIsPkcsEncrypted()
                 {
-                    IAsymmetricKey encryptedPrivateKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foo");
+                    IAsymmetricKey encryptedPrivateKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foo", EncryptionType.Pkcs);
+                    Assert.IsFalse(keyProvider.VerifyKeyPair(new AsymmetricKeyPair(encryptedPrivateKey, keyPair.PublicKey)));
+                }
+                
+                [Test]
+                public void WhenPrivateKeyIsAesEncrypted()
+                {
+                    IAsymmetricKey encryptedPrivateKey = encryptionProvider.EncryptPrivateKey(keyPair.PrivateKey, "foo", EncryptionType.Aes);
                     Assert.IsFalse(keyProvider.VerifyKeyPair(new AsymmetricKeyPair(encryptedPrivateKey, keyPair.PublicKey)));
                 }
                 
