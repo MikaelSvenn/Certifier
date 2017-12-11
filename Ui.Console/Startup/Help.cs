@@ -42,7 +42,7 @@ namespace Ui.Console.Startup
                 new Tuple<string, string>("Key size", "--keysize (-b) [size in bits *4096]"),
                 new Tuple<string, string>("EC key curve", "--curve [curve name *curve25519]"),
                 new Tuple<string, string>("Use RFC 3526 prime for ElGamal", "--fast"),
-                new Tuple<string, string>("Key encryption", "--encryption (-e) [pkcs]"),
+                new Tuple<string, string>("Key encryption", "--encryption (-e) [*pkcs | aes]"),
                 new Tuple<string, string>("Encryption password", "--password (-p) [password]"),
                 new Tuple<string, string>("Input file path", "--file (-f) [path]"),
                 new Tuple<string, string>("Stdin content", "--in (-i) [content]"),
