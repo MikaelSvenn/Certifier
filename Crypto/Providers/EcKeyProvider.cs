@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using Core.Interfaces;
 using Core.Model;
@@ -123,6 +124,29 @@ namespace Crypto.Providers
             return new EcKey(privateKeyInfo.GetDerEncoded(), AsymmetricKeyType.Private, keyLength, curveName);            
         }
 
+        // Montgomery X-coordinate to Edwards Y-coordinate
+        // https://moderncrypto.org/mail-archive/curves/2014/000205.html
+        public byte[] GetEd25519PublicKeyFromCurve25519(byte[] q)
+        {
+            ECPublicKeyParameters curveParameters = GetNonStandardCurve(q, "curve25519");
+            ECFieldElement montgomeryX = curveParameters.Q.XCoord;
+            ECFieldElement montgomeryZ = curveParameters.Q.GetZCoord(0); //Z[0] == 1
+            
+            var xMinusZ = montgomeryX.Subtract(montgomeryZ);
+            var inverseXPlusZ = montgomeryX.Add(montgomeryZ).Invert();
+    
+            byte[] edwardsY = xMinusZ.Multiply(inverseXPlusZ).GetEncoded();
+            
+            if (!BitConverter.IsLittleEndian) //RFC 8032 5.1.2
+            {
+                edwardsY[0] |= (byte) (montgomeryX.GetEncoded()[0] & 0x80);
+                return edwardsY.Reverse().ToArray();
+            }
+
+            edwardsY[31] |= (byte) (montgomeryX.GetEncoded()[31] & 0x80);
+            return edwardsY;
+        }
+
         public bool VerifyKeyPair(IAsymmetricKeyPair keyPair)
         {
             ECPrivateKeyParameters privateKey;
@@ -137,7 +161,7 @@ namespace Crypto.Providers
             {
                 return false;
             }
-
+            
             return privateKey.Parameters.Equals(publicKey.Parameters) &&
                    publicKey.Parameters.Curve.A.FieldName == privateKey.Parameters.Curve.A.FieldName &&
                    publicKey.Q.Equals(privateKey.Parameters.G.Multiply(privateKey.D));

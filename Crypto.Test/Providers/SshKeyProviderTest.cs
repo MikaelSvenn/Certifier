@@ -22,6 +22,7 @@ namespace Crypto.Test.Providers
     public class SshKeyProviderTest
     {
         private SshKeyProvider provider;
+        private EcKeyProvider ecKeyProvider;
         private AsymmetricKeyPairGenerator keyPairGenerator;
         private Base64Wrapper base64;
 
@@ -29,7 +30,9 @@ namespace Crypto.Test.Providers
         public void SetupSshKeyProviderTest()
         {
             keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
-            provider = new SshKeyProvider(new EncodingWrapper(), new Base64Wrapper(), Mock.Of<IRsaKeyProvider>(), Mock.Of<IDsaKeyProvider>(), Mock.Of<IEcKeyProvider>());
+            ecKeyProvider = new EcKeyProvider(keyPairGenerator, new FieldToCurveNameMapper());
+            provider = new SshKeyProvider(new EncodingWrapper(), new Base64Wrapper(), Mock.Of<IRsaKeyProvider>(), Mock.Of<IDsaKeyProvider>(), ecKeyProvider);
+            
             base64 = new Base64Wrapper();
         }
 
@@ -258,7 +261,10 @@ namespace Crypto.Test.Providers
                 using (var stream = new MemoryStream(result))
                 {
                     rawIdentifier = ReadNextContent(stream);
-                    rawHeader = ReadNextContent(stream);
+                    if (curveName != "curve25519")
+                    {
+                        rawHeader = ReadNextContent(stream);
+                    }
                     rawQ = ReadNextContent(stream);
                 }
             }
@@ -274,7 +280,6 @@ namespace Crypto.Test.Providers
                 Assert.AreEqual(sshCurveIdentifiers[curve], identifier);
             }
             
-            [TestCase("curve25519")]
             [TestCase("P-256")]
             [TestCase("P-384")]
             [TestCase("P-521")]
@@ -285,7 +290,6 @@ namespace Crypto.Test.Providers
                 Assert.AreEqual(sshCurveHeaders[curve], headerContent);
             }
 
-            [TestCase("curve25519")]
             [TestCase("P-256")]
             [TestCase("P-384")]
             [TestCase("P-521")]
@@ -303,6 +307,16 @@ namespace Crypto.Test.Providers
 
                 var expected = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(key.Content);
                 Assert.AreEqual(expected.Q, qPoint);
+            }
+
+            [Test]
+            public void ShouldSetQForCurve25519InEdwardsForm()
+            {
+                SetupForCurve("curve25519");
+                var keyParameters = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(key.Content);
+                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyParameters.Q.GetEncoded());
+                
+                CollectionAssert.AreEqual(expected, rawQ);
             }
         }
 
@@ -382,7 +396,6 @@ namespace Crypto.Test.Providers
                     result = provider.GetKeyFromSsh(sshKeyContent);
                 }
 
-                [TestCase("curve25519")]
                 [TestCase("P-256")]
                 [TestCase("P-384")]
                 [TestCase("P-521")]
@@ -395,13 +408,19 @@ namespace Crypto.Test.Providers
                 [Test]
                 public void ShouldThrowExceptionWhenHeaderIsNotIdentified()
                 {
-                    SetupForCurve("curve25519");
+                    SetupForCurve("P-256");
                     byte[] content = base64.FromBase64String(sshKeyContent);
                     content[4] = (byte)(content[4] >> 1);
 
                     string alteredContent = base64.ToBase64String(content);
 
                     Assert.Throws<ArgumentException>(() => provider.GetKeyFromSsh(alteredContent));
+                }
+
+                [Test]
+                public void ShouldThrowOnNonSupportedCurve()
+                {
+                    Assert.Throws<ArgumentException>(() => SetupForCurve("curve25519"));
                 }
             }
         }

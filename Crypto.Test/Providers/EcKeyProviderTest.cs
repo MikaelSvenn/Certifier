@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using Core.Interfaces;
 using Core.Model;
@@ -331,6 +332,36 @@ namespace Crypto.Test.Providers
             public void ShouldReturnValidPkcs8Key()
             {
                 Assert.IsTrue(keyProvider.VerifyKeyPair(new AsymmetricKeyPair(convertedKey, keyPair.PublicKey)));
+            }
+        }
+
+        [TestFixture]
+        public class GetEd25519PublicKeyFromCurve25519 : EcKeyProviderTest
+        {
+            private byte[] result;
+
+            [SetUp]
+            public void Setup()
+            {
+                keyPair = keyProvider.CreateKeyPair("curve25519");
+                var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+
+                byte[] q = publicKeyParameters.Q.GetEncoded();
+                result = keyProvider.GetEd25519PublicKeyFromCurve25519(q);
+            }
+            
+            [Test]
+            public void ShouldReturn32ByteResult()
+            {
+                Assert.AreEqual(32, result.Length);
+            }
+
+            [Test]
+            [Repeat(1000)]
+            public void MostSignificantBitShouldBeZeroInLittleEndianByteOrder()
+            {
+                string mostSignificantByte = Convert.ToString(result.First(), 2).PadLeft(8, '0');
+                Assert.IsTrue(mostSignificantByte.StartsWith("0"));
             }
         }
     }

@@ -10,5 +10,6 @@ namespace Core.Model
         }
         
         public string Curve { get; }
+        public bool IsCurve25519 => Curve == "curve25519";
     }
 }

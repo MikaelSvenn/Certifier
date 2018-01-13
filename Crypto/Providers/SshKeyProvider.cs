@@ -62,10 +62,26 @@ namespace Crypto.Providers
 
             byte[] identifier = encoding.GetBytes(sshCurveHeaders[curve]);
             byte[] header = encoding.GetBytes(sshCurveIdentifiers[curve]);
-            byte[] q = keyParameters.Q.GetEncoded(false);
+            byte[] q;
+            
+            if (ecKey.IsCurve25519)
+            {
+                q = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyParameters.Q.GetEncoded());
+                using (var stream = new MemoryStream())
+                {
+                    stream.Write(LengthAsBytes(identifier.Length), 0, 4);
+                    stream.Write(identifier, 0, identifier.Length);
+                    stream.Write(LengthAsBytes(q.Length), 0, 4);
+                    stream.Write(q, 0, q.Length);
+                    stream.Flush();
+                    return base64.ToBase64String(stream.ToArray());
+                }
+            }
             
             using (var stream = new MemoryStream())
             {
+                q = keyParameters.Q.GetEncoded(false);
+                
                 stream.Write(LengthAsBytes(identifier.Length), 0, 4);
                 stream.Write(identifier, 0, identifier.Length);
                 stream.Write(LengthAsBytes(header.Length), 0, 4);
@@ -130,6 +146,7 @@ namespace Crypto.Providers
             {
                 Array.Reverse(bytes);
             }
+            
             return bytes;
         }
         
@@ -162,7 +179,6 @@ namespace Crypto.Providers
                     return GetPublicRsaKey(content);
                 case "ssh-dss":
                     return GetPublicDsaKey(content);
-                case "ssh-ed25519":
                 case "ecdsa-sha2-nistp256":
                 case "ecdsa-sha2-nistp384":
                 case "ecdsa-sha2-nistp521":

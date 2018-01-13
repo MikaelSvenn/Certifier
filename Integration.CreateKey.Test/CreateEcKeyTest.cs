@@ -270,7 +270,7 @@ namespace Integration.CreateKey.Test
                 [Test]
                 public void ShouldCreateValidKeyPair()
                 {
-                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "openssh", "--privatekey", "private.pem", "--publickey", "public.openssh"});
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "openssh", "--curve", "P-256", "--privatekey", "private.pem", "--publickey", "public.openssh"});
                     
                     byte[] fileContent = fileOutput["public.openssh"];
                     string content = encoding.GetString(fileContent);
@@ -316,7 +316,6 @@ namespace Integration.CreateKey.Test
                     Assert.IsTrue(content.EndsWith($"---- END SSH2 PUBLIC KEY ----"));
                 }
 
-                [TestCase("curve25519")]
                 [TestCase("P-256")]
                 [TestCase("secp256r1")]
                 [TestCase("prime256v1")]
