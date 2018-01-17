@@ -36,7 +36,7 @@ namespace Ui.Console.Test.Decorator
                 Out = key
             };
 
-            formattingProvider.Setup(fp => fp.GetAsOpenSsh(key, "openssh-key")).Returns("openSshFormattedKey");
+            formattingProvider.Setup(fp => fp.GetAsOpenSshPublicKey(key, "openssh-key")).Returns("openSshFormattedKey");
         }
 
         [Test]

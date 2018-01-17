@@ -23,7 +23,7 @@ namespace Ui.Console.Decorator
         {
             if (command.ContentType == ContentType.OpenSsh)
             {
-                string sshFormattedKey = sshFormattingProvider.GetAsOpenSsh(command.Out, "openssh-key");
+                string sshFormattedKey = sshFormattingProvider.GetAsOpenSshPublicKey(command.Out, "openssh-key");
                 command.FileContent = encoding.GetBytes(sshFormattedKey);
             }
             

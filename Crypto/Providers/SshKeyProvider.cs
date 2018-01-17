@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Core.Interfaces;
 using Core.SystemWrappers;
+using Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -16,17 +17,19 @@ namespace Crypto.Providers
         private readonly IRsaKeyProvider rsaKeyProvider;
         private readonly IDsaKeyProvider dsaKeyProvider;
         private readonly IEcKeyProvider ecKeyProvider;
+        private readonly SecureRandomGenerator randomGenerator;
         private readonly IEnumerable<string[]> sshSupportedCurves;
         private readonly Dictionary<string, string> sshCurveHeaders;
         private readonly Dictionary<string, string> sshCurveIdentifiers;
         
-        public SshKeyProvider(EncodingWrapper encoding, Base64Wrapper base64, IRsaKeyProvider rsaKeyProvider, IDsaKeyProvider dsaKeyProvider, IEcKeyProvider ecKeyProvider)
+        public SshKeyProvider(EncodingWrapper encoding, Base64Wrapper base64, IRsaKeyProvider rsaKeyProvider, IDsaKeyProvider dsaKeyProvider, IEcKeyProvider ecKeyProvider, SecureRandomGenerator randomGenerator)
         {
             this.encoding = encoding;
             this.base64 = base64;
             this.rsaKeyProvider = rsaKeyProvider;
             this.dsaKeyProvider = dsaKeyProvider;
             this.ecKeyProvider = ecKeyProvider;
+            this.randomGenerator = randomGenerator;
 
             sshSupportedCurves = new []
             {
@@ -136,6 +139,84 @@ namespace Crypto.Providers
                 stream.Write(y, 0, y.Length);
                 stream.Flush();
                 return base64.ToBase64String(stream.ToArray());
+            }
+        }
+
+        //Based on https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.key
+        public string GetOpenSshEd25519PrivateKey(IAsymmetricKeyPair keyPair, string comment)
+        {
+            var privateKey = (IEcKey) keyPair.PrivateKey;
+            if (keyPair.PrivateKey.IsEncrypted || !privateKey.IsCurve25519)
+            {
+                throw new InvalidOperationException("Only non-encrypted ed25519 keys are supported.");
+            }
+            
+            byte[] openSshVersionHeader = encoding.GetBytes("openssh-key-v1\0");
+            byte[] cipherName = encoding.GetBytes("none");
+            byte[] kdf = encoding.GetBytes("none");
+            byte[] kdfOptions = encoding.GetBytes("");
+            
+            byte[] numberOfKeys = BitConverter.GetBytes(1);
+            if (BitConverter.IsLittleEndian)
+            {
+                numberOfKeys = numberOfKeys.Reverse().ToArray();
+            }
+
+            byte[] publicKeyWithHeader = base64.FromBase64String(GetEcPublicKeyContent(keyPair.PublicKey));
+            var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+            byte[] publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(publicKeyParameters.Q.GetEncoded());
+            
+            byte[] checkSumContent = randomGenerator.NextBytes(4);
+            var parameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKey.Content);
+            byte[] privateKeyContent = parameters.D.ToByteArray();
+            byte[] commentContent = encoding.GetBytes(comment);
+            
+            using (var keyStream = new MemoryStream())
+            {
+                //Header ('encoded' buffer in https://github.com/openssh/openssh-portable/blob/master/sshkey.c :2957)
+                using (var header = new MemoryStream())
+                {
+                    header.Write(openSshVersionHeader, 0, openSshVersionHeader.Length);
+                    header.Write(LengthAsBytes(cipherName.Length), 0, 4);
+                    header.Write(cipherName, 0, cipherName.Length);
+                    header.Write(LengthAsBytes(kdf.Length), 0, 4);
+                    header.Write(kdf, 0, kdf.Length);
+                    header.Write(LengthAsBytes(kdfOptions.Length), 0, 4);
+                    header.Write(kdfOptions, 0, kdfOptions.Length);
+                    header.Write(numberOfKeys, 0, numberOfKeys.Length);
+                    header.Write(LengthAsBytes(publicKeyWithHeader.Length), 0, 4);
+                    header.Write(publicKeyWithHeader, 0, publicKeyWithHeader.Length);
+                    
+                    header.Flush();
+                    header.WriteTo(keyStream);
+                }
+
+                //KeyContent ('encrypted' buffer in https://github.com/openssh/openssh-portable/blob/master/sshkey.c :2957)
+                using (var content = new MemoryStream())
+                {
+                    content.Write(checkSumContent, 0, checkSumContent.Length);
+                    content.Write(checkSumContent, 0, checkSumContent.Length);
+                    content.Write(LengthAsBytes(publicKeyWithHeader.Length), 0, 4);
+                    content.Write(publicKeyWithHeader, 0, publicKeyWithHeader.Length);
+                    content.Write(LengthAsBytes(privateKeyContent.Length), 0, 4);
+                    content.Write(privateKeyContent, 0, privateKeyContent.Length);
+                    content.Write(publicKeyContent, 0, publicKeyContent.Length);
+                    content.Write(LengthAsBytes(commentContent.Length), 0, 4);
+                    content.Write(commentContent, 0, commentContent.Length);
+
+                    //Block size for cipher "none" defined in https://github.com/openssh/openssh-portable/blob/master/cipher.c
+                    byte iterator = 1;
+                    while ((content.Length % 8) != 0)
+                    {
+                        content.WriteByte(iterator++);
+                    }
+                    
+                    content.Flush();
+                    content.WriteTo(keyStream);
+                }
+                
+                keyStream.Flush();
+                return base64.ToBase64String(keyStream.ToArray());
             }
         }
 

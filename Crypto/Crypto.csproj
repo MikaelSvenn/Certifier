@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Formatters\OpenSshContentFormatter.cs" />
     <Compile Include="Formatters\Ssh2ContentFormatter.cs" />
     <Compile Include="Generators\AesKeyEncryptionGenerator.cs" />
     <Compile Include="Generators\Pkcs12KeyEncryptionGenerator.cs" />

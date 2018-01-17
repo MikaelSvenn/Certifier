@@ -36,7 +36,7 @@ namespace Ui.Console.Test.Decorator
                 Out = key
             };
 
-            formattingProvider.Setup(fp => fp.GetAsSsh2(key, "ssh2-key")).Returns("ssh2FormattedKey");
+            formattingProvider.Setup(fp => fp.GetAsSsh2PublicKey(key, "ssh2-key")).Returns("ssh2FormattedKey");
         }
 
         [Test]

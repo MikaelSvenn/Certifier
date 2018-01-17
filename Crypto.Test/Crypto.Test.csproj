@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Formatters\OpenSshContentFormatterTest.cs" />
     <Compile Include="Formatters\Ssh2ContentFormatterTest.cs" />
     <Compile Include="Generators\AesKeyEncryptionGeneratorTest.cs" />
     <Compile Include="Generators\PkcsKeyEncryptionGeneratorTest.cs" />

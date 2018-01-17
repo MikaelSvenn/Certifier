@@ -55,7 +55,7 @@ namespace Integration.ConvertKey.Test
             encryptionProvider = new KeyEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12KeyEncryptionGenerator(), new AesKeyEncryptionGenerator());
             pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
-            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), rsaKeyProvider, null, null), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
+            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), rsaKeyProvider, null, null, null), encodingWrapper, new Ssh2ContentFormatter(), null, new Base64Wrapper());
             
             IAsymmetricKeyPair rsaKeyPair = rsaKeyProvider.CreateKeyPair(1024);
             
@@ -63,8 +63,8 @@ namespace Integration.ConvertKey.Test
             files.Add("public.rsa.der", rsaKeyPair.PublicKey.Content);
             files.Add("private.rsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(rsaKeyPair.PrivateKey)));
             files.Add("public.rsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(rsaKeyPair.PublicKey)));
-            files.Add("public.rsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(rsaKeyPair.PublicKey, "openssh-key")));
-            files.Add("public.rsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(rsaKeyPair.PublicKey, "ssh2-key")));
+            files.Add("public.rsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSshPublicKey(rsaKeyPair.PublicKey, "openssh-key")));
+            files.Add("public.rsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2PublicKey(rsaKeyPair.PublicKey, "ssh2-key")));
             files.Add("private.rsa.encrypted.pkcs.der", encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs).Content);
             files.Add("private.rsa.encrypted.pkcs.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs))));
             files.Add("private.rsa.encrypted.aes.der", encryptionProvider.EncryptPrivateKey(rsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Aes).Content);
@@ -79,7 +79,7 @@ namespace Integration.ConvertKey.Test
             encryptionProvider = new KeyEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12KeyEncryptionGenerator(), new AesKeyEncryptionGenerator());
             pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
-            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, dsaKeyProvider, null), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
+            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, dsaKeyProvider, null, null), encodingWrapper, new Ssh2ContentFormatter(), null, new Base64Wrapper());
             
             IAsymmetricKeyPair dsaKeyPair = dsaKeyProvider.CreateKeyPair(2048);
             
@@ -87,8 +87,8 @@ namespace Integration.ConvertKey.Test
             files.Add("public.dsa.der", dsaKeyPair.PublicKey.Content);
             files.Add("private.dsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(dsaKeyPair.PrivateKey)));
             files.Add("public.dsa.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(dsaKeyPair.PublicKey)));
-            files.Add("public.dsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(dsaKeyPair.PublicKey, "openssh-key")));
-            files.Add("public.dsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(dsaKeyPair.PublicKey, "ssh2-key")));
+            files.Add("public.dsa.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSshPublicKey(dsaKeyPair.PublicKey, "openssh-key")));
+            files.Add("public.dsa.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2PublicKey(dsaKeyPair.PublicKey, "ssh2-key")));
             files.Add("private.dsa.encrypted.pkcs.der", encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs).Content);
             files.Add("private.dsa.encrypted.pkcs.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs))));
             files.Add("private.dsa.encrypted.aes.der", encryptionProvider.EncryptPrivateKey(dsaKeyPair.PrivateKey, "foobarbaz", EncryptionType.Aes).Content);
@@ -103,7 +103,7 @@ namespace Integration.ConvertKey.Test
             encryptionProvider = new KeyEncryptionProvider(new PbeConfiguration(), new SecureRandomGenerator(), asymmetricKeyProvider, new Pkcs12KeyEncryptionGenerator(), new AesKeyEncryptionGenerator());
             pkcs8PemFormattingProvider = new Pkcs8PemFormattingProvider(asymmetricKeyProvider);
             encodingWrapper = new EncodingWrapper();
-            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, null, ecKeyProvider), encodingWrapper, new Ssh2ContentFormatter(), new Base64Wrapper());
+            sshFormattingProvider = new SshFormattingProvider(new SshKeyProvider(encodingWrapper, new Base64Wrapper(), null, null, ecKeyProvider, null), encodingWrapper, new Ssh2ContentFormatter(), null, new Base64Wrapper());
             var sec1FormattingProvider = new EcPemFormattingProvider(ecKeyProvider);
             
             IAsymmetricKeyPair ecKeyPair = ecKeyProvider.CreateKeyPair("prime256v1");
@@ -113,8 +113,8 @@ namespace Integration.ConvertKey.Test
             files.Add("public.ec.der", ecKeyPair.PublicKey.Content);
             files.Add("private.ec.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(ecKeyPair.PrivateKey)));
             files.Add("public.ec.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(ecKeyPair.PublicKey)));
-            files.Add("public.ec.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSsh(ecKeyPair.PublicKey, "openssh-key")));
-            files.Add("public.ec.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2(ecKeyPair.PublicKey, "ssh2-key")));
+            files.Add("public.ec.openssh", encodingWrapper.GetBytes(sshFormattingProvider.GetAsOpenSshPublicKey(ecKeyPair.PublicKey, "openssh-key")));
+            files.Add("public.ec.ssh2", encodingWrapper.GetBytes(sshFormattingProvider.GetAsSsh2PublicKey(ecKeyPair.PublicKey, "ssh2-key")));
             files.Add("private.ec.sec1", encodingWrapper.GetBytes(sec1FormattingProvider.GetAsPem(sec1PrivateKey)));
             files.Add("private.ec.encrypted.pkcs.der", encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs).Content);
             files.Add("private.ec.encrypted.pkcs.pem", encodingWrapper.GetBytes(pkcs8PemFormattingProvider.GetAsPem(encryptionProvider.EncryptPrivateKey(ecKeyPair.PrivateKey, "foobarbaz", EncryptionType.Pkcs))));

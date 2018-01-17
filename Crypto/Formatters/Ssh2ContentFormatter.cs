@@ -5,7 +5,7 @@ namespace Crypto.Formatters
 {
     public class Ssh2ContentFormatter
     {
-        public virtual string FormatToSsh2Header(string header)
+        public virtual string FormatToSsh2HeaderLength(string header)
         {
             if (header.Length <= 71)
             {
@@ -16,7 +16,7 @@ namespace Crypto.Formatters
             return regex.Replace(header, "$&" + $"\\{Environment.NewLine}");
         }
 
-        public virtual string FormatToSsh2KeyContent(string key)
+        public virtual string FormatToSsh2KeyContentLength(string key)
         {
             if (key.Length <= 72)
             {

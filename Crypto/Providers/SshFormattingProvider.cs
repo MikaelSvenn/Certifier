@@ -20,21 +20,23 @@ namespace Crypto.Providers
         private readonly ISshKeyProvider sshKeyProvider;
         private readonly EncodingWrapper encoding;
         private readonly Ssh2ContentFormatter ssh2ContentFormatter;
+        private readonly OpenSshContentFormatter openSshContentFormatter;
         private readonly Base64Wrapper base64;
 
         private readonly IEnumerable<string> supportedSshHeaders;
         
-        public SshFormattingProvider(ISshKeyProvider sshKeyProvider, EncodingWrapper encoding, Ssh2ContentFormatter ssh2ContentFormatter, Base64Wrapper base64)
+        public SshFormattingProvider(ISshKeyProvider sshKeyProvider, EncodingWrapper encoding, Ssh2ContentFormatter ssh2ContentFormatter, OpenSshContentFormatter openSshContentFormatter, Base64Wrapper base64)
         {
             this.sshKeyProvider = sshKeyProvider;
             this.encoding = encoding;
             this.ssh2ContentFormatter = ssh2ContentFormatter;
+            this.openSshContentFormatter = openSshContentFormatter;
             this.base64 = base64;
 
             supportedSshHeaders = new[] {"---- BEGIN SSH2 PUBLIC", "ssh-rsa ", "ssh-dss ", "ssh-ed25519 ", "ecdsa-sha2-nistp256 ", "ecdsa-sha2-nistp384 ", "ecdsa-sha2-nistp521 "};
         }
 
-        public string GetAsOpenSsh(IAsymmetricKey key, string comment)
+        public string GetAsOpenSshPublicKey(IAsymmetricKey key, string comment)
         {
             if (key.IsPrivateKey)
             {
@@ -65,6 +67,21 @@ namespace Crypto.Providers
             return $"{header} {content} {comment}";
         }
 
+        public string GetAsOpenSshPrivateKey(IAsymmetricKeyPair keyPair, string comment)
+        {
+            var privateKey = keyPair.PrivateKey as EcKey;
+            if (privateKey == null || !privateKey.IsCurve25519)
+            {
+                throw new InvalidOperationException("Only curve25519 keypair can be stored in OpenSSH private key format.");
+            }
+            
+            string keyContent = sshKeyProvider.GetOpenSshEd25519PrivateKey(keyPair, comment);
+            string formattedContent = openSshContentFormatter.FormatToOpenSshKeyContentLength(keyContent);
+            return "-----BEGIN OPENSSH PRIVATE KEY-----\n" +
+                   $"{formattedContent}\n" +
+                   "-----END OPENSSH PRIVATE KEY-----\n";
+        }
+
         private void VerifyEcCurve(IAsymmetricKey key)
         {
             string curve = ((IEcKey) key).Curve;
@@ -74,7 +91,7 @@ namespace Crypto.Providers
             }
         }
         
-        public string GetAsSsh2(IAsymmetricKey key, string comment)
+        public string GetAsSsh2PublicKey(IAsymmetricKey key, string comment)
         {
             if (key.IsPrivateKey)
             {
@@ -104,8 +121,8 @@ namespace Crypto.Providers
                     throw new InvalidOperationException("Cipher type not supported for SSH2 key.");
             }
 
-            string content = ssh2ContentFormatter.FormatToSsh2KeyContent(contentLine);
-            string formattedComment = ssh2ContentFormatter.FormatToSsh2Header(comment);
+            string content = ssh2ContentFormatter.FormatToSsh2KeyContentLength(contentLine);
+            string formattedComment = ssh2ContentFormatter.FormatToSsh2HeaderLength(comment);
             
             return $"---- BEGIN SSH2 PUBLIC KEY ----{Environment.NewLine}" + 
                    $"Comment: {formattedComment + Environment.NewLine}" + 

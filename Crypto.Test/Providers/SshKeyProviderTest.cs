@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Core.Interfaces;
+using Core.Model;
 using Core.SystemWrappers;
 using Crypto.Generators;
 using Crypto.Mappers;
@@ -25,13 +27,15 @@ namespace Crypto.Test.Providers
         private EcKeyProvider ecKeyProvider;
         private AsymmetricKeyPairGenerator keyPairGenerator;
         private Base64Wrapper base64;
-
+        private EncodingWrapper encoding;
+        
         [SetUp]
         public void SetupSshKeyProviderTest()
         {
+            encoding = new EncodingWrapper();
             keyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
             ecKeyProvider = new EcKeyProvider(keyPairGenerator, new FieldToCurveNameMapper());
-            provider = new SshKeyProvider(new EncodingWrapper(), new Base64Wrapper(), Mock.Of<IRsaKeyProvider>(), Mock.Of<IDsaKeyProvider>(), ecKeyProvider);
+            provider = new SshKeyProvider(encoding, new Base64Wrapper(), Mock.Of<IRsaKeyProvider>(), Mock.Of<IDsaKeyProvider>(), ecKeyProvider, new SecureRandomGenerator());
             
             base64 = new Base64Wrapper();
         }
@@ -124,7 +128,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetHeader()
             {               
-                string headerContent = Encoding.UTF8.GetString(rawHeader);
+                string headerContent = encoding.GetString(rawHeader);
                 Assert.AreEqual("ssh-rsa", headerContent);
             }
 
@@ -182,7 +186,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetHeader()
             {               
-                string headerContent = Encoding.UTF8.GetString(rawHeader);
+                string headerContent = encoding.GetString(rawHeader);
                 Assert.AreEqual("ssh-dss", headerContent);
             }
 
@@ -276,7 +280,7 @@ namespace Crypto.Test.Providers
             public void ShouldSetIdentifier(string curve)
             {
                 SetupForCurve(curve);
-                string identifier = Encoding.UTF8.GetString(rawIdentifier);
+                string identifier = encoding.GetString(rawIdentifier);
                 Assert.AreEqual(sshCurveIdentifiers[curve], identifier);
             }
             
@@ -286,7 +290,7 @@ namespace Crypto.Test.Providers
             public void ShouldSetHeader(string curve)
             {
                 SetupForCurve(curve);
-                string headerContent = Encoding.UTF8.GetString(rawHeader);
+                string headerContent = encoding.GetString(rawHeader);
                 Assert.AreEqual(sshCurveHeaders[curve], headerContent);
             }
 
@@ -325,8 +329,6 @@ namespace Crypto.Test.Providers
         {
             private RsaKeyProvider rsaKeyProvider;
             private DsaKeyProvider dsaKeyProvider;
-            private EcKeyProvider ecKeyProvider;
-
             private IAsymmetricKey key;
             private IAsymmetricKey result;
             
@@ -336,9 +338,8 @@ namespace Crypto.Test.Providers
                 var asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
                 rsaKeyProvider = new RsaKeyProvider(asymmetricKeyPairGenerator);
                 dsaKeyProvider = new DsaKeyProvider(asymmetricKeyPairGenerator);
-                ecKeyProvider = new EcKeyProvider(asymmetricKeyPairGenerator, new FieldToCurveNameMapper());
                 
-                provider = new SshKeyProvider(new EncodingWrapper(), new Base64Wrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider);
+                provider = new SshKeyProvider(new EncodingWrapper(), new Base64Wrapper(), rsaKeyProvider, dsaKeyProvider, ecKeyProvider, null);
             }
             
             
@@ -422,6 +423,295 @@ namespace Crypto.Test.Providers
                 {
                     Assert.Throws<ArgumentException>(() => SetupForCurve("curve25519"));
                 }
+            }
+        }
+
+        [TestFixture]
+        public class GetOpenSshEd25519PrivateKey : SshKeyProviderTest
+        {
+            private string encodedResult;
+            private byte[] result;
+            private IAsymmetricKeyPair keyPair;
+            private byte[] publicKeyContent;
+            private readonly int headerLength = 94;
+            
+            [SetUp]
+            public void Setup()
+            {
+                keyPair = ecKeyProvider.CreateKeyPair("curve25519");
+                
+                var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+                byte[] q = publicKeyParameters.Q.GetEncoded();
+                publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(q);
+
+                encodedResult = provider.GetOpenSshEd25519PrivateKey(keyPair, "comment");
+                result = base64.FromBase64String(encodedResult);
+            }
+            
+            [Test]
+            public void ShouldThrowWhenPrivateKeyIsEncrypted()
+            {
+                var privateKey = Mock.Of<IEcKey>(k => k.IsEncrypted);
+                keyPair = new AsymmetricKeyPair(privateKey, null);
+                var exception = Assert.Throws<InvalidOperationException>(() => provider.GetOpenSshEd25519PrivateKey(keyPair, "comment"));
+                Assert.AreEqual("Only non-encrypted ed25519 keys are supported.", exception.Message);
+            }
+
+            [Test]
+            public void ShouldThrowWhenKeyIsNotCurve25519()
+            {
+                var privateKey = Mock.Of<IEcKey>(k => !k.IsCurve25519);
+                keyPair = new AsymmetricKeyPair(privateKey, null);
+                var exception = Assert.Throws<InvalidOperationException>(() => provider.GetOpenSshEd25519PrivateKey(keyPair, "comment"));
+                Assert.AreEqual("Only non-encrypted ed25519 keys are supported.", exception.Message);
+            }
+
+            [Test]
+            public void ShouldSetOpenSshVersionHeaderWithExplicitNullTerminator()
+            {
+                byte[] headerContent = result.Take(15).ToArray();
+                string header = encoding.GetString(headerContent);
+                Assert.AreEqual("openssh-key-v1\0", header);
+            }
+
+            [Test]
+            public void ShouldSetCipherNameLengthInBigEndian()
+            {
+                byte[] cipherNameLength = result.Skip(15)
+                                                .Take(4)
+                                                .ToArray();
+
+                EnsureBigEndian(ref cipherNameLength);               
+                Assert.AreEqual(4, BitConverter.ToInt32(cipherNameLength, 0));
+            }
+
+            private void EnsureBigEndian(ref byte[] content)
+            {
+                if (BitConverter.IsLittleEndian)
+                {
+                    content = content.Reverse()
+                                     .ToArray();
+                }
+            }
+            
+            [Test]
+            public void ShouldSetCipherNameToNone()
+            {
+                byte[] cipherNameContent = result.Skip(19)
+                                                 .Take(4)
+                                                 .ToArray();
+                
+                string cipherName = encoding.GetString(cipherNameContent);
+                Assert.AreEqual("none", cipherName);
+            }
+
+            [Test]
+            public void ShouldSetKdfLengthInBigEndian()
+            {
+                byte[] kdfLength = result.Skip(23)
+                                         .Take(4)
+                                         .ToArray();
+
+                EnsureBigEndian(ref kdfLength);
+                Assert.AreEqual(4, BitConverter.ToInt32(kdfLength, 0));
+            }
+            
+            [Test]
+            public void ShouldSetKdfToNone()
+            {
+                byte[] kdfContent = result.Skip(27)
+                                          .Take(4)
+                                          .ToArray();
+                
+                string kdf = encoding.GetString(kdfContent);
+                Assert.AreEqual("none", kdf);
+            }
+
+            [Test]
+            public void ShouldSetKdfOptionsLengthInBigEndian()
+            {
+                byte[] optionsLength = result.Skip(31)
+                                             .Take(4)
+                                             .ToArray();
+
+                EnsureBigEndian(ref optionsLength);
+                Assert.AreEqual(0, BitConverter.ToInt32(optionsLength, 0));
+            }
+            
+            [Test]
+            public void ShouldSetKdfOptionsToEmptyString()
+            {
+                byte[] kdfOptions = result.Skip(35)
+                                          .Take(1)
+                                          .ToArray();
+                
+                string options = encoding.GetString(kdfOptions);
+                Assert.AreEqual("\0", options);
+            }
+
+            [Test]
+            public void ShouldSetNumberOfKeysTo1InBigEndian()
+            {
+                byte[] numberOfKeys = result.Skip(35)
+                                            .Take(4)
+                                            .ToArray();
+
+                EnsureBigEndian(ref numberOfKeys);
+                Assert.AreEqual(1, BitConverter.ToInt32(numberOfKeys, 0));
+            }
+
+            [Test]
+            public void ShouldSetCombinedLengthOfPublicKeyHeaderAndPublicKeyInBigEndian()
+            {
+                byte[] publicKeyWithHeaderLength = result.Skip(39)
+                                                         .Take(4)
+                                                         .ToArray();
+
+                EnsureBigEndian(ref publicKeyWithHeaderLength);
+                int expected = 4 + 11 + 4 + publicKeyContent.Length;
+                Assert.AreEqual(expected, BitConverter.ToInt32(publicKeyWithHeaderLength, 0));
+            }
+
+            [Test]
+            public void ShouldSetPublicKey()
+            {
+                List<byte> expected = CreateExpectedPublicKeyWithHeader();
+                
+                byte[] publicKey = result.Skip(43)
+                                         .Take(19 + publicKeyContent.Length)
+                                         .ToArray();
+                                
+                CollectionAssert.AreEqual(expected.ToArray(), publicKey);
+            }
+
+            private List<byte> CreateExpectedPublicKeyWithHeader()
+            {
+                byte[] identifier = encoding.GetBytes("ssh-ed25519");
+                byte[] identifierLength = BitConverter.GetBytes(identifier.Length);
+                EnsureBigEndian(ref identifierLength);
+
+                byte[] publicKeyLength = BitConverter.GetBytes(publicKeyContent.Length);
+                EnsureBigEndian(ref publicKeyLength);
+
+                var expected = new List<byte>();
+                expected.AddRange(identifierLength);
+                expected.AddRange(identifier);
+                expected.AddRange(publicKeyLength);
+                expected.AddRange(publicKeyContent);
+                return expected;
+            }
+
+            [Test]
+            public void ShouldSetSameChecksumTwice()
+            {
+                byte[] publicKey = result.Skip(headerLength)
+                                         .Take(8)
+                                         .ToArray();
+
+                int checksum = BitConverter.ToInt32(publicKey, 0);
+                int duplicateChecksum = BitConverter.ToInt32(publicKey, 4);
+                
+                Assert.AreEqual(checksum, duplicateChecksum);
+            }
+
+            [Test]
+            public void ShouldSetCombinedPublicKeyLengthInBigEndianAgain()
+            {
+                byte[] publicKeyWithHeaderLength = result.Skip(headerLength + 8)
+                                                         .Take(4)
+                                                         .ToArray();
+                
+                EnsureBigEndian(ref publicKeyWithHeaderLength);
+                Assert.AreEqual(51, BitConverter.ToInt32(publicKeyWithHeaderLength, 0));
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyAgain()
+            {
+                List<byte> expected = CreateExpectedPublicKeyWithHeader();
+                
+                byte[] publicKey = result.Skip(headerLength + 12)
+                                         .Take(51)
+                                         .ToArray();
+                
+                CollectionAssert.AreEqual(expected.ToArray(), publicKey);
+            }
+
+            [Test]
+            public void ShouldSetPrivateKeyLengthInBigEndian()
+            {
+                byte[] privateKeyLength = result.Skip(headerLength + 63)
+                                                .Take(4)
+                                                .ToArray();
+                
+                if (BitConverter.IsLittleEndian)
+                {
+                    privateKeyLength = privateKeyLength.Reverse().ToArray();
+                }
+                
+                Assert.AreEqual(32, BitConverter.ToInt32(privateKeyLength, 0));
+            }
+
+            [Test]
+            public void ShouldSetPrivateKey()
+            {
+                var parameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
+                byte[] expected = parameters.D.ToByteArray();
+                
+                byte[] privateKey = result.Skip(headerLength + 67)
+                                          .Take(32)
+                                          .ToArray();
+                
+                Assert.AreEqual(expected, privateKey);
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyContentWithoutLength()
+            {
+                byte[] publicKey = result.Skip(headerLength + 99)
+                                          .Take(32)
+                                          .ToArray();
+                
+                CollectionAssert.AreEqual(publicKeyContent, publicKey);
+            }
+
+            [Test]
+            public void ShouldSetCommentLengthInBigEndian()
+            {
+                int expectedLength = encoding.GetBytes("comment").Length;
+                
+                byte[] commentLength = result.Skip(headerLength + 131)
+                                         .Take(4)
+                                         .ToArray();
+                
+                if (BitConverter.IsLittleEndian)
+                {
+                    commentLength = commentLength.Reverse().ToArray();
+                }
+                
+                Assert.AreEqual(expectedLength, BitConverter.ToInt32(commentLength, 0));
+            }
+
+            [Test]
+            public void ShouldSetComment()
+            {
+                byte[] commentContent = result.Skip(headerLength + 135)
+                                              .Take(7)
+                                              .ToArray();
+
+                string comment = encoding.GetString(commentContent);
+                Assert.AreEqual("comment", comment);
+            }
+
+            [Test]
+            public void ShouldAddPaddingByCipherBlockSize()
+            {
+                var expectedPadding = new byte[] {1, 2};
+                
+                byte[] padding = result.Skip(headerLength + 142)
+                                       .ToArray();
+
+                CollectionAssert.AreEqual(expectedPadding, padding);
             }
         }
     }
