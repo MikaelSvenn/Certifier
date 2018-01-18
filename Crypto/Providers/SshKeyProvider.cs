@@ -167,6 +167,8 @@ namespace Crypto.Providers
             byte[] publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(publicKeyParameters.Q.GetEncoded());
             
             byte[] checkSumContent = randomGenerator.NextBytes(4);
+            byte[] identifier = encoding.GetBytes(sshCurveHeaders[privateKey.Curve]);
+            
             var parameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKey.Content);
             byte[] privateKeyContent = parameters.D.ToByteArray();
             byte[] commentContent = encoding.GetBytes(comment);
@@ -196,11 +198,12 @@ namespace Crypto.Providers
                 {
                     content.Write(checkSumContent, 0, checkSumContent.Length);
                     content.Write(checkSumContent, 0, checkSumContent.Length);
-                    content.Write(LengthAsBytes(publicKeyWithHeader.Length), 0, 4);
-                    content.Write(publicKeyWithHeader, 0, publicKeyWithHeader.Length);
+                    content.Write(LengthAsBytes(identifier.Length), 0, 4);
+                    content.Write(identifier, 0, identifier.Length);
+                    content.Write(LengthAsBytes(publicKeyContent.Length), 0, 4);
+                    content.Write(publicKeyContent, 0, publicKeyContent.Length);
                     content.Write(LengthAsBytes(privateKeyContent.Length), 0, 4);
                     content.Write(privateKeyContent, 0, privateKeyContent.Length);
-                    content.Write(publicKeyContent, 0, publicKeyContent.Length);
                     content.Write(LengthAsBytes(commentContent.Length), 0, 4);
                     content.Write(commentContent, 0, commentContent.Length);
 

@@ -615,34 +615,66 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            public void ShouldSetCombinedPublicKeyLengthInBigEndianAgain()
+            public void ShouldSetPublicKeyHeaderLengthInBigEndian()
             {
-                byte[] publicKeyWithHeaderLength = result.Skip(headerLength + 8)
+                byte[] publicKeyHeaderLength = result.Skip(headerLength + 8)
                                                          .Take(4)
                                                          .ToArray();
                 
-                EnsureBigEndian(ref publicKeyWithHeaderLength);
-                Assert.AreEqual(51, BitConverter.ToInt32(publicKeyWithHeaderLength, 0));
+                if (BitConverter.IsLittleEndian)
+                {
+                    publicKeyHeaderLength = publicKeyHeaderLength.Reverse().ToArray();
+                }
+                
+                Assert.AreEqual("ssh-ed25519".Length, BitConverter.ToInt32(publicKeyHeaderLength, 0));
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyHeader()
+            {
+                byte[] publicKeyHeader = result.Skip(headerLength + 12)
+                                         .Take(11)
+                                         .ToArray();
+
+                byte[] expected = encoding.GetBytes("ssh-ed25519");
+                CollectionAssert.AreEqual(expected, publicKeyHeader);
+            }
+
+            [Test]
+            public void ShouldSetPublicKeyLengthInBigEndian()
+            {
+                byte[] publicKeyLength = result.Skip(headerLength + 23)
+                                                .Take(4)
+                                                .ToArray();
+                
+                if (BitConverter.IsLittleEndian)
+                {
+                    publicKeyLength = publicKeyLength.Reverse().ToArray();
+                }
+                
+                Assert.AreEqual(32, BitConverter.ToInt32(publicKeyLength, 0));
             }
 
             [Test]
             public void ShouldSetPublicKeyAgain()
             {
-                List<byte> expected = CreateExpectedPublicKeyWithHeader();
+                var parameters = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
+                byte[] q = parameters.Q.GetEncoded();
+                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(q);
                 
-                byte[] publicKey = result.Skip(headerLength + 12)
-                                         .Take(51)
-                                         .ToArray();
+                byte[] publicKey = result.Skip(headerLength + 27)
+                                          .Take(32)
+                                          .ToArray();
                 
-                CollectionAssert.AreEqual(expected.ToArray(), publicKey);
+                Assert.AreEqual(expected, publicKey);
             }
 
             [Test]
             public void ShouldSetPrivateKeyLengthInBigEndian()
             {
-                byte[] privateKeyLength = result.Skip(headerLength + 63)
-                                                .Take(4)
-                                                .ToArray();
+                byte[] privateKeyLength = result.Skip(headerLength + 59)
+                                          .Take(4)
+                                          .ToArray();
                 
                 if (BitConverter.IsLittleEndian)
                 {
@@ -658,29 +690,19 @@ namespace Crypto.Test.Providers
                 var parameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
                 byte[] expected = parameters.D.ToByteArray();
                 
-                byte[] privateKey = result.Skip(headerLength + 67)
+                byte[] privateKey = result.Skip(headerLength + 63)
                                           .Take(32)
                                           .ToArray();
                 
                 Assert.AreEqual(expected, privateKey);
             }
-
-            [Test]
-            public void ShouldSetPublicKeyContentWithoutLength()
-            {
-                byte[] publicKey = result.Skip(headerLength + 99)
-                                          .Take(32)
-                                          .ToArray();
-                
-                CollectionAssert.AreEqual(publicKeyContent, publicKey);
-            }
-
+            
             [Test]
             public void ShouldSetCommentLengthInBigEndian()
             {
                 int expectedLength = encoding.GetBytes("comment").Length;
                 
-                byte[] commentLength = result.Skip(headerLength + 131)
+                byte[] commentLength = result.Skip(headerLength + 95)
                                          .Take(4)
                                          .ToArray();
                 
@@ -695,7 +717,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetComment()
             {
-                byte[] commentContent = result.Skip(headerLength + 135)
+                byte[] commentContent = result.Skip(headerLength + 99)
                                               .Take(7)
                                               .ToArray();
 
@@ -706,9 +728,9 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldAddPaddingByCipherBlockSize()
             {
-                var expectedPadding = new byte[] {1, 2};
+                var expectedPadding = new byte[] {1, 2, 3, 4, 5, 6};
                 
-                byte[] padding = result.Skip(headerLength + 142)
+                byte[] padding = result.Skip(headerLength + 106)
                                        .ToArray();
 
                 CollectionAssert.AreEqual(expectedPadding, padding);
