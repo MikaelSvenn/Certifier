@@ -76,7 +76,6 @@ namespace Crypto.Providers
                     stream.Write(identifier, 0, identifier.Length);
                     stream.Write(LengthAsBytes(q.Length), 0, 4);
                     stream.Write(q, 0, q.Length);
-                    stream.Flush();
                     return base64.ToBase64String(stream.ToArray());
                 }
             }
@@ -91,7 +90,6 @@ namespace Crypto.Providers
                 stream.Write(header, 0, header.Length);
                 stream.Write(LengthAsBytes(q.Length), 0, 4);
                 stream.Write(q, 0, q.Length);
-                stream.Flush();
                 return base64.ToBase64String(stream.ToArray());
             }
         }
@@ -111,7 +109,6 @@ namespace Crypto.Providers
                 stream.Write(e, 0, e.Length);
                 stream.Write(LengthAsBytes(n.Length), 0, 4);
                 stream.Write(n, 0, n.Length);
-                stream.Flush();
                 return base64.ToBase64String(stream.ToArray());
             }
         }
@@ -137,7 +134,6 @@ namespace Crypto.Providers
                 stream.Write(g, 0, g.Length);
                 stream.Write(LengthAsBytes(y.Length), 0, 4);
                 stream.Write(y, 0, y.Length);
-                stream.Flush();
                 return base64.ToBase64String(stream.ToArray());
             }
         }
@@ -169,8 +165,8 @@ namespace Crypto.Providers
             byte[] checkSumContent = randomGenerator.NextBytes(4);
             byte[] identifier = encoding.GetBytes(sshCurveHeaders[privateKey.Curve]);
             
-            var parameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKey.Content);
-            byte[] privateKeyContent = parameters.D.ToByteArray();
+            var privateKeyParameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKey.Content);
+            byte[] privateKeyContent = privateKeyParameters.D.ToByteArray();
             byte[] commentContent = encoding.GetBytes(comment);
             
             using (var keyStream = new MemoryStream())
@@ -189,7 +185,6 @@ namespace Crypto.Providers
                     header.Write(LengthAsBytes(publicKeyWithHeader.Length), 0, 4);
                     header.Write(publicKeyWithHeader, 0, publicKeyWithHeader.Length);
                     
-                    header.Flush();
                     header.WriteTo(keyStream);
                 }
 
@@ -202,8 +197,9 @@ namespace Crypto.Providers
                     content.Write(identifier, 0, identifier.Length);
                     content.Write(LengthAsBytes(publicKeyContent.Length), 0, 4);
                     content.Write(publicKeyContent, 0, publicKeyContent.Length);
-                    content.Write(LengthAsBytes(privateKeyContent.Length), 0, 4);
+                    content.Write(LengthAsBytes(privateKeyContent.Length + publicKeyContent.Length), 0, 4);
                     content.Write(privateKeyContent, 0, privateKeyContent.Length);
+                    content.Write(publicKeyContent, 0, publicKeyContent.Length);
                     content.Write(LengthAsBytes(commentContent.Length), 0, 4);
                     content.Write(commentContent, 0, commentContent.Length);
 
@@ -214,11 +210,16 @@ namespace Crypto.Providers
                         content.WriteByte(iterator++);
                     }
                     
-                    content.Flush();
+                    byte[] contentLength = BitConverter.GetBytes((int)content.Length);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        contentLength = contentLength.Reverse().ToArray();
+                    }
+                    
+                    keyStream.Write(contentLength, 0, 4);
                     content.WriteTo(keyStream);
                 }
                 
-                keyStream.Flush();
                 return base64.ToBase64String(keyStream.ToArray());
             }
         }
