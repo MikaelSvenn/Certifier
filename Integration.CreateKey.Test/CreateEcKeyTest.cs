@@ -6,6 +6,7 @@ using Core.SystemWrappers;
 using Crypto.Providers;
 using Moq;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using SimpleInjector;
 using Ui.Console;
 using Ui.Console.Provider;
@@ -238,14 +239,27 @@ namespace Integration.CreateKey.Test
                 [Test]
                 public void ShouldWritePkcs8PemFormattedPrivateKey()
                 {
-                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "openssh", "--privatekey", "private.pem", "--publickey", "public.openssh"});
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "P-256", "-t", "openssh", "--privatekey", "private.pem", "--publickey", "public.openssh"});
                 
                     byte[] fileContent = fileOutput["private.pem"];
                     string content = encoding.GetString(fileContent);
-                
-                    Assert.IsTrue(content.Length > 720 && content.Length < 780);
+
+                    Assert.IsTrue(content.Length > 150 && content.Length < 170);
                     Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
                     Assert.IsTrue(content.EndsWith($"-----END PRIVATE KEY-----{Environment.NewLine}"));
+                }
+
+                [Test]
+                public void ShouldWriteOpenSshPrivateKeyWhenKeyIsCurve25519()
+                {
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "curve25519", "-t", "openssh", "--privatekey", "private.pem", "--publickey", "public.openssh"});
+                
+                    byte[] fileContent = fileOutput["private.pem"];
+                    string content = encoding.GetString(fileContent);
+
+                    Assert.IsTrue(content.Length == 399);
+                    Assert.IsTrue(content.StartsWith($"-----BEGIN OPENSSH PRIVATE KEY-----\n"));
+                    Assert.IsTrue(content.EndsWith($"-----END OPENSSH PRIVATE KEY-----\n"));
                 }
 
                 [TestCase("curve25519", ExpectedResult = "ssh-ed25519")]
@@ -294,12 +308,12 @@ namespace Integration.CreateKey.Test
                 [Test]
                 public void ShouldWritePkcs8PemFormattedPrivateKey()
                 {
-                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.ssh2"});
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "P-256", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.ssh2"});
                 
                     byte[] fileContent = fileOutput["private.pem"];
                     string content = encoding.GetString(fileContent);
-                
-                    Assert.IsTrue(content.Length > 720 && content.Length < 780);
+                    
+                    Assert.IsTrue(content.Length > 150 && content.Length < 170);
                     Assert.IsTrue(content.StartsWith($"-----BEGIN PRIVATE KEY-----{Environment.NewLine}"));
                     Assert.IsTrue(content.EndsWith($"-----END PRIVATE KEY-----{Environment.NewLine}"));
                 }
@@ -307,7 +321,7 @@ namespace Integration.CreateKey.Test
                 [Test]
                 public void ShouldWriteSsh2FormattedPublicKey()
                 {
-                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.ssh2"});
+                    Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "P-256", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.ssh2"});
                 
                     byte[] fileContent = fileOutput["public.ssh2"];
                     string content = encoding.GetString(fileContent);
@@ -315,7 +329,13 @@ namespace Integration.CreateKey.Test
                     Assert.IsTrue(content.StartsWith($"---- BEGIN SSH2 PUBLIC KEY ----{Environment.NewLine}"));
                     Assert.IsTrue(content.EndsWith($"---- END SSH2 PUBLIC KEY ----"));
                 }
-
+                
+                [Test]
+                public void ShouldThrowWhenCurve25519IsFormattedAsSsh2()
+                {
+                    Assert.Throws<InvalidOperationException>(() => Certifier.Main(new[] {"-c", "key", "-k", "ec", "--curve", "curve25519", "-t", "ssh2", "--privatekey", "private.pem", "--publickey", "public.openssh"}));
+                }
+                
                 [TestCase("P-256")]
                 [TestCase("secp256r1")]
                 [TestCase("prime256v1")]

@@ -30,6 +30,7 @@ namespace Ui.Console.Test.Provider
         {
             private IAsymmetricKey privateKey;
             private IAsymmetricKey publicKey;
+            private AsymmetricKeyPair createdKeyPair;
 
             [OneTimeSetUp]
             public void Setup()
@@ -37,9 +38,17 @@ namespace Ui.Console.Test.Provider
                 privateKey = Mock.Of<IAsymmetricKey>();
                 publicKey = Mock.Of<IAsymmetricKey>();
 
-                var createdKeyPair = new AsymmetricKeyPair(privateKey, publicKey);
+                createdKeyPair = new AsymmetricKeyPair(privateKey, publicKey);
                 commandExecutor.Setup(c => c.Execute(It.IsAny<object>()))
-                               .Callback<object>(c => ((ICommandWithResult<IAsymmetricKeyPair>)c).Result = createdKeyPair);
+                               .Callback<object>(c =>
+                                {
+                                    if (c is WriteFileCommand<IAsymmetricKey> || c is WriteFileCommand<IAsymmetricKeyPair>)
+                                    {
+                                        return;
+                                    }
+                                    
+                                    ((ICreateAsymmetricKeyCommand) c).Result = createdKeyPair;
+                                });
 
                 arguments = new ApplicationArguments
                 {
@@ -93,23 +102,58 @@ namespace Ui.Console.Test.Provider
                 arguments.KeyType = cipherType;
                 Assert.Throws<ArgumentException>(() => { provider.CreateKeyPair(arguments); });
             }
+
             
             [Test]
             public void ShouldWriteCreatedPrivateKeyToFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.First().Out == privateKey && 
-                                                                                                                          w.First().FilePath == "private.pem" &&
-                                                                                                                          w.First().ContentType == ContentType.Pem &&
-                                                                                                                          w.First().EncryptionType == EncryptionType.Pkcs)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(w => w.Out == privateKey && 
+                                                                                                     w.FilePath == "private.pem" &&
+                                                                                                     w.ContentType == ContentType.Pem &&
+                                                                                                     w.EncryptionType == EncryptionType.Pkcs)));
             }
 
             [Test]
             public void ShouldWriteCreatedPublicKeyToFile()
             {
-                commandExecutor.Verify(ce => ce.ExecuteSequence(It.Is<IEnumerable<WriteFileCommand<IAsymmetricKey>>>(w => w.Last().Out == publicKey && 
-                                                                                                                          w.Last().FilePath == "public.pem" &&
-                                                                                                                          w.Last().ContentType == ContentType.Pem &&
-                                                                                                                          w.Last().EncryptionType == EncryptionType.None)));
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(w => w.Out == publicKey && 
+                                                                                                     w.FilePath == "public.pem" &&
+                                                                                                     w.ContentType == ContentType.Pem &&
+                                                                                                     w.EncryptionType == EncryptionType.None)));
+            }
+
+            [Test]
+            public void ShouldWriteKeyPairAsPrivateKeyWhenKeyIsCurve25519OpenSsh()
+            {
+                Setup25519OpenSsh();
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<IAsymmetricKeyPair>>(w => w.Out == createdKeyPair && 
+                                                                                                         w.FilePath == "private.pem" &&
+                                                                                                         w.ContentType == ContentType.OpenSsh &&
+                                                                                                         w.EncryptionType == EncryptionType.None)));
+            }
+
+            private void Setup25519OpenSsh()
+            {
+                arguments = new ApplicationArguments
+                {
+                    Curve = "curve25519",
+                    PrivateKeyPath = "private.pem",
+                    PublicKeyPath = "public.pem",
+                    ContentType = ContentType.OpenSsh,
+                    KeyType = CipherType.Ec
+                };
+
+                provider.CreateKeyPair(arguments);
+            }
+
+            [Test]
+            public void ShouldWritePrivateKeyAsPublicKeyWhenKeyIsCurve25519OpenSsh()
+            {
+                Setup25519OpenSsh();
+                commandExecutor.Verify(ce => ce.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(w => w.Out == privateKey && 
+                                                                                                     w.FilePath == "public.pem" &&
+                                                                                                     w.ContentType == ContentType.OpenSsh &&
+                                                                                                     w.EncryptionType == EncryptionType.None)));
             }
         }
 

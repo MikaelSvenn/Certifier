@@ -29,7 +29,15 @@ namespace Crypto.Test.Providers
         private Base64Wrapper base64;
         private EncodingWrapper encoding;
         
-        [SetUp]
+        private readonly Dictionary<string, string> sshCurveIdentifiers = new Dictionary<string, string>
+        {
+            {"curve25519", "ssh-ed25519"},
+            {"P-256", "ecdsa-sha2-nistp256"},
+            {"P-384", "ecdsa-sha2-nistp384"},
+            {"P-521", "ecdsa-sha2-nistp521"}
+        };
+        
+        [OneTimeSetUp]
         public void SetupSshKeyProviderTest()
         {
             encoding = new EncodingWrapper();
@@ -230,7 +238,7 @@ namespace Crypto.Test.Providers
         [TestFixture]
         public class GetEcPublicKeyContent : SshKeyProviderTest
         {
-            private IEcKey key;
+            private IEcKey publicKey;
             private byte[] result;
 
             private byte[] rawIdentifier;
@@ -239,41 +247,27 @@ namespace Crypto.Test.Providers
             
             private readonly Dictionary<string, string> sshCurveHeaders = new Dictionary<string, string>
             {
-                {"curve25519", "ed25519"},
                 {"P-256", "nistp256"},
                 {"P-384", "nistp384"},
                 {"P-521", "nistp521"}
             };
             
-            private readonly Dictionary<string, string> sshCurveIdentifiers = new Dictionary<string, string>
-            {
-                {"curve25519", "ssh-ed25519"},
-                {"P-256", "ecdsa-sha2-nistp256"},
-                {"P-384", "ecdsa-sha2-nistp384"},
-                {"P-521", "ecdsa-sha2-nistp521"}
-            };
-            
             private void SetupForCurve(string curveName)
             {
-                var ecKeyProvider = new EcKeyProvider(keyPairGenerator, new FieldToCurveNameMapper());
                 IAsymmetricKeyPair keyPair = ecKeyProvider.CreateKeyPair(curveName);
-                key = (IEcKey)keyPair.PublicKey;
-
-                string keyContent = provider.GetEcPublicKeyContent(key);
+                publicKey = (IEcKey)keyPair.PublicKey;
+                
+                string keyContent = provider.GetEcPublicKeyContent(publicKey);
                 result = base64.FromBase64String(keyContent);
 
                 using (var stream = new MemoryStream(result))
                 {
                     rawIdentifier = ReadNextContent(stream);
-                    if (curveName != "curve25519")
-                    {
-                        rawHeader = ReadNextContent(stream);
-                    }
+                    rawHeader = ReadNextContent(stream);
                     rawQ = ReadNextContent(stream);
                 }
             }
 
-            [TestCase("curve25519")]
             [TestCase("P-256")]
             [TestCase("P-384")]
             [TestCase("P-521")]
@@ -309,21 +303,54 @@ namespace Crypto.Test.Providers
 
                 ECPoint qPoint = ecDomainParameters.Curve.DecodePoint(rawQ);
 
-                var expected = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(key.Content);
+                var expected = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(publicKey.Content);
                 Assert.AreEqual(expected.Q, qPoint);
             }
 
             [Test]
-            public void ShouldSetQForCurve25519InEdwardsForm()
+            public void ShouldThrowWhenKeyCurveIs25519()
             {
-                SetupForCurve("curve25519");
-                var keyParameters = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(key.Content);
-                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyParameters.Q.GetEncoded());
-                
-                CollectionAssert.AreEqual(expected, rawQ);
+                Assert.Throws<InvalidOperationException>(() => SetupForCurve("curve25519"));
             }
         }
 
+        [TestFixture]
+        public class GetEd25519PublicKeyContent : SshKeyProviderTest
+        {
+            private IAsymmetricKeyPair keyPair;
+            private byte[] rawIdentifier;
+            private byte[] rawQ;
+
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = ecKeyProvider.CreateKeyPair("curve25519");
+                
+                string keyContent = provider.GetEd25519PublicKeyContent(keyPair.PrivateKey);
+                byte[] result = base64.FromBase64String(keyContent);
+
+                using (var stream = new MemoryStream(result))
+                {
+                    rawIdentifier = ReadNextContent(stream);
+                    rawQ = ReadNextContent(stream);
+                }
+            }
+            
+            [Test]
+            public void ShouldSetIdentifier()
+            {
+                string identifier = encoding.GetString(rawIdentifier);
+                Assert.AreEqual("ssh-ed25519", identifier);
+            }
+
+            [Test]
+            public void ShouldSetQInEdwardsForm()
+            {
+                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
+                Assert.AreEqual(expected, rawQ);
+            }
+        }
+        
         [TestFixture]
         public class GetKeyFromSsh : SshKeyProviderTest
         {
@@ -421,7 +448,10 @@ namespace Crypto.Test.Providers
                 [Test]
                 public void ShouldThrowOnNonSupportedCurve()
                 {
-                    Assert.Throws<ArgumentException>(() => SetupForCurve("curve25519"));
+                    IAsymmetricKeyPair keyPair = ecKeyProvider.CreateKeyPair("curve25519");
+
+                    sshKeyContent = provider.GetEd25519PublicKeyContent(keyPair.PrivateKey);
+                    Assert.Throws<ArgumentException>(() => provider.GetKeyFromSsh(sshKeyContent));
                 }
             }
         }
@@ -435,14 +465,11 @@ namespace Crypto.Test.Providers
             private byte[] publicKeyContent;
             private readonly int headerLength = 94;
             
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 keyPair = ecKeyProvider.CreateKeyPair("curve25519");
-                
-                var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
-                byte[] q = publicKeyParameters.Q.GetEncoded();
-                publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(q);
+                publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
 
                 encodedResult = provider.GetOpenSshEd25519PrivateKey(keyPair, "comment");
                 result = base64.FromBase64String(encodedResult);
@@ -668,10 +695,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldSetPublicKeyAgain()
             {
-                var parameters = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
-                byte[] q = parameters.Q.GetEncoded();
-                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(q);
-                
+                byte[] expected = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
                 byte[] publicKey = result.Skip(headerLength + 31)
                                           .Take(32)
                                           .ToArray();
@@ -698,10 +722,9 @@ namespace Crypto.Test.Providers
             public void ShouldSetPrivateKey()
             {
                 var privateKeyParameters = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
-                var publicKeyParameters = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
                 
                 byte[] d = privateKeyParameters.D.ToByteArray();
-                byte[] q = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(publicKeyParameters.Q.GetEncoded());
+                byte[] q = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
 
                 byte[] expected = d.Concat(q)
                                    .ToArray();

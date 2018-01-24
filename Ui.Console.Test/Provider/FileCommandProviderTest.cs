@@ -173,7 +173,7 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
-            public void ShouldMapContentTypeToPemWhenContentIsSsh2()
+            public void ShouldMapPrivateKeyContentTypeToPemWhenContentIsSsh2()
             {
                 key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
                 result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.Ssh2);
@@ -181,15 +181,31 @@ namespace Ui.Console.Test.Provider
             }
 
             [Test]
-            public void ShouldMapContentTypeToPemWhenContentIsOpenSsh()
+            public void ShouldMapPrivateKeyContentTypeToPemWhenContentIsOpenSshAndPrivateKeyIsNonCurve25519EcKey()
             {
-                key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
+                key = Mock.Of<IEcKey>(k => k.IsPrivateKey && k.CipherType == CipherType.Ec && !k.IsCurve25519);
                 result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.OpenSsh);
                 Assert.AreEqual(ContentType.Pem, result.ContentType);
             }
 
             [Test]
-            public void ShouldMapContentTypeToPemWhenContentTypeForPublicKeyIsSec1()
+            public void ShouldMapPrivateKeyContentTypeToPemWhenContentIsOpenSshAndPrivateKeyIsNotEcKey()
+            {
+                key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey && k.CipherType == CipherType.Rsa);
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.OpenSsh);
+                Assert.AreEqual(ContentType.Pem, result.ContentType);
+            }
+
+            [Test]
+            public void ShouldNotMapPrivateKeyContentTypeToPemWhenContentIsOpenSshAndPrivateKeyIsCurve25519()
+            {
+                key = Mock.Of<IEcKey>(k => k.IsPrivateKey && k.CipherType == CipherType.Ec && k.IsCurve25519);
+                result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.OpenSsh);
+                Assert.AreEqual(ContentType.OpenSsh, result.ContentType);
+            }
+            
+            [Test]
+            public void ShouldMapPrivateKeyContentTypeToPemWhenContentTypeForPublicKeyIsSec1()
             {
                 key = Mock.Of<IAsymmetricKey>(k => !k.IsPrivateKey);
                 result = provider.GetWriteKeyToFileCommand(key, "key", ContentType.Sec1);

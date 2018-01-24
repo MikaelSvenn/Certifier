@@ -42,12 +42,19 @@ namespace Crypto.Test.Providers
             private string[] result;
 
             [Test]
-            public void ShouldThrowExceptionWhenPrivateKeyIsGiven()
+            public void ShouldThrowExceptionWhenPrivateNonEcKeyIsGiven()
             {
                 var key = Mock.Of<IAsymmetricKey>(k => k.IsPrivateKey);
                 Assert.Throws<InvalidOperationException>(() => provider.GetAsOpenSshPublicKey(key, "foobarcomment"));
             }
 
+            [Test]
+            public void ShouldThrowExceptionWhenPrivateNon25519EcKeyIsGiven()
+            {
+                var key = Mock.Of<IEcKey>(k => k.IsPrivateKey && k.CipherType == CipherType.Ec);
+                Assert.Throws<InvalidOperationException>(() => provider.GetAsOpenSshPublicKey(key, "foobarcomment"));
+            }
+            
             [Test]
             public void ShouldThrowExceptionWhenCipherTypeIsNotSupported()
             {
@@ -59,11 +66,13 @@ namespace Crypto.Test.Providers
             public class EllipticCurveKey : GetAsOpenSshPublicKey
             {
                 private IEcKey key;
-                
+                private IEcKey edKey;
+
                 [SetUp]
                 public void Setup()
                 {
                     key = Mock.Of<IEcKey>(k => k.Curve == "foo" && k.CipherType == CipherType.Ec);
+                    edKey = Mock.Of<IEcKey>(k => k.Curve == "foo" && k.CipherType == CipherType.Ec && k.IsCurve25519);
                     
                     keyProvider.Setup(kp => kp.IsSupportedCurve("foo"))
                                .Returns(true);
@@ -71,6 +80,8 @@ namespace Crypto.Test.Providers
                                .Returns("fooHeader");
                     keyProvider.Setup(kp => kp.GetEcPublicKeyContent(key))
                                .Returns("EcKeyContent");
+                    keyProvider.Setup(kp => kp.GetEd25519PublicKeyContent(edKey))
+                               .Returns("25519KeyContent");
                     
                     rawResult  = provider.GetAsOpenSshPublicKey(key, "eccomment");
                     result = rawResult.Split(' ');
@@ -95,6 +106,14 @@ namespace Crypto.Test.Providers
                     Assert.AreEqual("EcKeyContent", result[1]);
                 }
 
+                [Test]
+                public void ShouldSetContentForEdKey()
+                {
+                    rawResult  = provider.GetAsOpenSshPublicKey(edKey, "eccomment");
+                    result = rawResult.Split(' ');
+                    Assert.AreEqual("25519KeyContent", result[1]);
+                }
+                
                 [Test]
                 public void ShouldSetComment()
                 {
@@ -217,7 +236,7 @@ namespace Crypto.Test.Providers
             private IEnumerable<string> resultLines;
             private SshKeyProvider sshKeyProvider;
 
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 var randomGenerator = new Mock<SecureRandomGenerator>();
@@ -242,7 +261,7 @@ namespace Crypto.Test.Providers
                 keyPair = new AsymmetricKeyPair(privateKey, publicKey);
 
                 var exception = Assert.Throws<InvalidOperationException>(() => provider.GetAsOpenSshPrivateKey(keyPair, "foo"));
-                Assert.AreEqual("Only curve25519 keypair can be stored in OpenSSH private key format.", exception.Message);
+                Assert.AreEqual("Only curve25519 keypair can be formatted in OpenSSH private key format.", exception.Message);
             }
 
             [Test]
@@ -250,7 +269,7 @@ namespace Crypto.Test.Providers
             {
                 keyPair = ecKeyProvider.CreateKeyPair("P-256");
                 var exception = Assert.Throws<InvalidOperationException>(() => provider.GetAsOpenSshPrivateKey(keyPair, "foo"));
-                Assert.AreEqual("Only curve25519 keypair can be stored in OpenSSH private key format.", exception.Message);
+                Assert.AreEqual("Only curve25519 keypair can be formatted in OpenSSH private key format.", exception.Message);
             }
 
             [Test]

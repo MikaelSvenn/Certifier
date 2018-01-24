@@ -38,7 +38,8 @@ namespace Crypto.Providers
 
         public string GetAsOpenSshPublicKey(IAsymmetricKey key, string comment)
         {
-            if (key.IsPrivateKey)
+            if (key.IsPrivateKey && key.CipherType != CipherType.Ec ||
+                key.IsPrivateKey && key.CipherType == CipherType.Ec && !((IEcKey)key).IsCurve25519)
             {
                 throw new InvalidOperationException("Private key cannot be formatted as OpenSSH public key.");
             }
@@ -50,7 +51,8 @@ namespace Crypto.Providers
                 case CipherType.Ec:
                     VerifyEcCurve(key);
                     header = sshKeyProvider.GetCurveSshHeader(((IEcKey) key).Curve);
-                    content = sshKeyProvider.GetEcPublicKeyContent(key);
+                    var ecKey = (IEcKey) key;
+                    content = ecKey.IsCurve25519 ? sshKeyProvider.GetEd25519PublicKeyContent(key) : sshKeyProvider.GetEcPublicKeyContent(key);
                     break;
                 case CipherType.Rsa:
                     header = "ssh-rsa";
@@ -72,7 +74,7 @@ namespace Crypto.Providers
             var privateKey = keyPair.PrivateKey as EcKey;
             if (privateKey == null || !privateKey.IsCurve25519)
             {
-                throw new InvalidOperationException("Only curve25519 keypair can be stored in OpenSSH private key format.");
+                throw new InvalidOperationException("Only curve25519 keypair can be formatted in OpenSSH private key format.");
             }
             
             string keyContent = sshKeyProvider.GetOpenSshEd25519PrivateKey(keyPair, comment);

@@ -13,9 +13,9 @@ using Ui.Console.Decorator;
 namespace Ui.Console.Test.Decorator
 {
     [TestFixture]
-    public class OpenSshWriteFormattingDecoratorTest
+    public class OpenSshPublicKeyWriteFormattingDecoratorTest
     {
-        private OpenSshWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> openSshDecorator;
+        private OpenSshPublicKeyWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>> openSshPublicKeyDecorator;
         private Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>> decoratedCommandHandler;
         private Mock<ISshFormattingProvider> formattingProvider;
         private EncodingWrapper encoding;
@@ -28,7 +28,7 @@ namespace Ui.Console.Test.Decorator
             decoratedCommandHandler = new Mock<ICommandHandler<WriteFileCommand<IAsymmetricKey>>>();
             formattingProvider = new Mock<ISshFormattingProvider>();
             encoding = new EncodingWrapper();
-            openSshDecorator = new OpenSshWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommandHandler.Object, formattingProvider.Object, encoding);
+            openSshPublicKeyDecorator = new OpenSshPublicKeyWriteFormattingDecorator<WriteFileCommand<IAsymmetricKey>>(decoratedCommandHandler.Object, formattingProvider.Object, encoding);
 
             key = Mock.Of<IAsymmetricKey>(k => k.Content == new byte[] {0x07});
             command = new WriteFileCommand<IAsymmetricKey>
@@ -43,7 +43,7 @@ namespace Ui.Console.Test.Decorator
         public void ShouldInvokeDecoratedHandlerWithOpenSshKey()
         {
             command.ContentType = ContentType.OpenSsh;
-            openSshDecorator.Execute(command);
+            openSshPublicKeyDecorator.Execute(command);
             decoratedCommandHandler.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(c => c.FileContent.SequenceEqual(encoding.GetBytes("openSshFormattedKey")))));
         }
         
@@ -54,7 +54,7 @@ namespace Ui.Console.Test.Decorator
         public void ShouldInvokeDecoratedHandlerWithEmptyContentWhenContentTypeIsNotOpenSsh(ContentType contentType)
         {
             command.ContentType = contentType;
-            openSshDecorator.Execute(command);
+            openSshPublicKeyDecorator.Execute(command);
             decoratedCommandHandler.Verify(d => d.Execute(It.Is<WriteFileCommand<IAsymmetricKey>>(c => c.FileContent == null)));
         }
     }

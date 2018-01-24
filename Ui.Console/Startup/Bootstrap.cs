@@ -53,6 +53,7 @@ namespace Ui.Console.Startup
             // Command handler
             container.Register(typeof(ICommandHandler<>), new[] { typeof(ICommandHandler<>).Assembly });
             container.Register<ICommandHandler<WriteFileCommand<IAsymmetricKey>>, WriteToFileCommandHandler<IAsymmetricKey>>();
+            container.Register<ICommandHandler<WriteFileCommand<IAsymmetricKeyPair>>, WriteToFileCommandHandler<IAsymmetricKeyPair>>();
             container.Register<ICommandHandler<WriteFileCommand<Signature>>, WriteToFileCommandHandler<Signature>>();
             container.Register<ICommandHandler<WriteToStdOutCommand<Signature>>, WriteToStdOutCommandHandler<Signature>>();
             container.Register<ICommandHandler<ReadFileCommand<byte[]>>, ReadFileCommandHandler<byte[]>>();
@@ -80,12 +81,14 @@ namespace Ui.Console.Startup
             
             //Write key
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Ssh2WriteFormattingDecorator<>));
-            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshPublicKeyWriteFormattingDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshPrivateKeyWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8PemWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(Pkcs8DerWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1PemWriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(PkcsKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AesKeyEncryptionDecorator<>));
+            container.RegisterDecorator(typeof(ICommandHandler<>), typeof(OpenSshKeyEncryptionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EncryptionPasswordValidationDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1WriteFormattingDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>), typeof(EcSec1EncryptionValidationDecorator<>));

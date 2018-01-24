@@ -56,34 +56,24 @@ namespace Crypto.Providers
             };
         }
 
-        public string GetEcPublicKeyContent(IAsymmetricKey key)
+        public string GetEcPublicKeyContent(IAsymmetricKey publicKey)
         {
-            var ecKey = (IEcKey) key;
-            var keyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(key.Content);
+            var ecKey = (IEcKey) publicKey;
+            if (ecKey.IsCurve25519)
+            {
+                throw new InvalidOperationException("Curve25519 must be formatted in Edwards form when converted to Ssh key.");
+            }
+            
+            var keyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(publicKey.Content);
 
             string curve = sshSupportedCurves.Single(c => c.Contains(ecKey.Curve)).First();
 
             byte[] identifier = encoding.GetBytes(sshCurveHeaders[curve]);
             byte[] header = encoding.GetBytes(sshCurveIdentifiers[curve]);
-            byte[] q;
-            
-            if (ecKey.IsCurve25519)
-            {
-                q = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(keyParameters.Q.GetEncoded());
-                using (var stream = new MemoryStream())
-                {
-                    stream.Write(LengthAsBytes(identifier.Length), 0, 4);
-                    stream.Write(identifier, 0, identifier.Length);
-                    stream.Write(LengthAsBytes(q.Length), 0, 4);
-                    stream.Write(q, 0, q.Length);
-                    return base64.ToBase64String(stream.ToArray());
-                }
-            }
+            byte[] q = keyParameters.Q.GetEncoded(false);
             
             using (var stream = new MemoryStream())
             {
-                q = keyParameters.Q.GetEncoded(false);
-                
                 stream.Write(LengthAsBytes(identifier.Length), 0, 4);
                 stream.Write(identifier, 0, identifier.Length);
                 stream.Write(LengthAsBytes(header.Length), 0, 4);
@@ -94,9 +84,27 @@ namespace Crypto.Providers
             }
         }
 
-        public string GetRsaPublicKeyContent(IAsymmetricKey key)
+        public string GetEd25519PublicKeyContent(IAsymmetricKey privateKey)
         {
-            var keyParameters = (RsaKeyParameters) PublicKeyFactory.CreateKey(key.Content);
+            var ecKey = (IEcKey) privateKey;
+            string curve = sshSupportedCurves.Single(c => c.Contains(ecKey.Curve)).First();
+            
+            byte[] identifier = encoding.GetBytes(sshCurveHeaders[curve]);
+            byte[] q = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(privateKey);
+            
+            using (var stream = new MemoryStream())
+            {
+                stream.Write(LengthAsBytes(identifier.Length), 0, 4);
+                stream.Write(identifier, 0, identifier.Length);
+                stream.Write(LengthAsBytes(q.Length), 0, 4);
+                stream.Write(q, 0, q.Length);
+                return base64.ToBase64String(stream.ToArray());
+            }
+        }
+        
+        public string GetRsaPublicKeyContent(IAsymmetricKey publicKey)
+        {
+            var keyParameters = (RsaKeyParameters) PublicKeyFactory.CreateKey(publicKey.Content);
             byte[] header = encoding.GetBytes("ssh-rsa");
             byte[] e = keyParameters.Exponent.ToByteArray();
             byte[] n = keyParameters.Modulus.ToByteArray();
@@ -113,9 +121,9 @@ namespace Crypto.Providers
             }
         }
 
-        public string GetDsaPublicKeyContent(IAsymmetricKey key)
+        public string GetDsaPublicKeyContent(IAsymmetricKey publicKey)
         {
-            var keyParameters = (DsaPublicKeyParameters) PublicKeyFactory.CreateKey(key.Content);
+            var keyParameters = (DsaPublicKeyParameters) PublicKeyFactory.CreateKey(publicKey.Content);
             byte[] header = encoding.GetBytes("ssh-dss");
             byte[] p = keyParameters.Parameters.P.ToByteArray();
             byte[] q = keyParameters.Parameters.Q.ToByteArray();
@@ -158,9 +166,8 @@ namespace Crypto.Providers
                 numberOfKeys = numberOfKeys.Reverse().ToArray();
             }
 
-            byte[] publicKeyWithHeader = base64.FromBase64String(GetEcPublicKeyContent(keyPair.PublicKey));
-            var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
-            byte[] publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(publicKeyParameters.Q.GetEncoded());
+            byte[] publicKeyWithHeader = base64.FromBase64String(GetEd25519PublicKeyContent((keyPair.PrivateKey)));
+            byte[] publicKeyContent = ecKeyProvider.GetEd25519PublicKeyFromCurve25519(privateKey);
             
             byte[] checkSumContent = randomGenerator.NextBytes(4);
             byte[] identifier = encoding.GetBytes(sshCurveHeaders[privateKey.Curve]);

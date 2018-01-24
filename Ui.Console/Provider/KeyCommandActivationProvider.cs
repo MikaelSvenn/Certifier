@@ -41,9 +41,21 @@ namespace Ui.Console.Provider
             }
             
             commandExecutor.Execute(createKeyCommand);
-            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
+            
+            if (createKeyCommand.Curve == "curve25519" && arguments.ContentType == ContentType.OpenSsh)
+            {
+                WriteFileCommand<IAsymmetricKeyPair> writeOpenSshCurve25519PrivateKey = fileCommandProvider.GetWriteToFileCommand<IAsymmetricKeyPair>(createKeyCommand.Result, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
+                WriteFileCommand<IAsymmetricKey> writeOpenSshCurve25519PublicKey = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PrivateKey, arguments.PublicKeyPath, arguments.ContentType);
+                commandExecutor.Execute(writeOpenSshCurve25519PrivateKey);
+                commandExecutor.Execute(writeOpenSshCurve25519PublicKey);
+                return;
+            }
+            
             WriteFileCommand<IAsymmetricKey> writePublicKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PublicKey, arguments.PublicKeyPath, arguments.ContentType);
-            commandExecutor.ExecuteSequence(new []{writePrivateKeyToFile, writePublicKeyToFile});
+            commandExecutor.Execute(writePublicKeyToFile);
+
+            WriteFileCommand<IAsymmetricKey> writePrivateKeyToFile = fileCommandProvider.GetWriteKeyToFileCommand(createKeyCommand.Result.PrivateKey, arguments.PrivateKeyPath, arguments.ContentType, arguments.EncryptionType, arguments.Password);
+            commandExecutor.Execute(writePrivateKeyToFile);
         }
         
         public void VerifyKeyPair(ApplicationArguments arguments)

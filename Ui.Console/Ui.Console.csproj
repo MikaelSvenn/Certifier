@@ -104,6 +104,8 @@
     <Compile Include="Decorator\EcSec1ValidationDecorator.cs" />
     <Compile Include="Decorator\EcSec1WriteFormattingDecorator.cs" />
     <Compile Include="Decorator\EcSec1PemWriteFormattingDecorator.cs" />
+    <Compile Include="Decorator\OpenSshKeyEncryptionDecorator.cs" />
+    <Compile Include="Decorator\OpenSshPrivateKeyWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\SshReadFormattingDecorator.cs" />
     <Compile Include="Decorator\Pkcs8DerWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\DsaKeySizeValidationDecorator.cs" />
@@ -111,7 +113,7 @@
     <Compile Include="Decorator\FilePathValidationDecorator.cs" />
     <Compile Include="Decorator\Pkcs8DerReadFormattingDecorator.cs" />
     <Compile Include="Decorator\ReadKeyFromFilePathValidationDecorator.cs" />
-    <Compile Include="Decorator\OpenSshWriteFormattingDecorator.cs" />
+    <Compile Include="Decorator\OpenSshPublicKeyWriteFormattingDecorator.cs" />
     <Compile Include="Decorator\Ssh2WriteFormattingDecorator.cs" />
     <Compile Include="Decorator\VerifyKeyTypeValidationDecorator.cs" />
     <Compile Include="Decorator\WriteToFileBase64FormattingDecorator.cs" />

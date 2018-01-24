@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography;
+using Chaos.NaCl;
 using Core.Interfaces;
 using Core.Model;
 using Crypto.Generators;
@@ -344,12 +345,9 @@ namespace Crypto.Test.Providers
             public void Setup()
             {
                 keyPair = keyProvider.CreateKeyPair("curve25519");
-                var publicKeyParameters = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(keyPair.PublicKey.Content);
-
-                byte[] q = publicKeyParameters.Q.GetEncoded();
-                result = keyProvider.GetEd25519PublicKeyFromCurve25519(q);
+                result = keyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
             }
-            
+ 
             [Test]
             public void ShouldReturn32ByteResult()
             {
@@ -357,11 +355,25 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            [Repeat(1000)]
-            public void MostSignificantBitShouldBeZeroInLittleEndianByteOrder()
+            public void ShouldReturnEd25519PublicKey()
             {
-                string mostSignificantByte = Convert.ToString(result.First(), 2).PadLeft(8, '0');
-                Assert.IsTrue(mostSignificantByte.StartsWith("0"));
+                var privateKeyParameters = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
+                byte[] expected = Ed25519.PublicKeyFromSeed(privateKeyParameters.D.ToByteArray());
+                
+                Assert.AreEqual(expected, result);
+            }
+
+            [Test]
+            public void ShouldThrowWhenPublicKeyIsGiven()
+            {
+                Assert.Throws<InvalidOperationException>(() => keyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PublicKey));
+            }
+
+            [Test]
+            public void ShouldThrowWhenNon25519KeyIsGiven()
+            {
+                keyPair = keyProvider.CreateKeyPair("P-256");
+                Assert.Throws<InvalidOperationException>(() => keyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey));
             }
         }
     }

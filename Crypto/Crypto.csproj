@@ -73,6 +73,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Chaos.NaCl\Chaos.NaCl.csproj">
+      <Project>{ae28fd14-7985-4707-a963-c94b8597ae50}</Project>
+      <Name>Chaos.NaCl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{7E9DD347-7319-47A2-9084-280BD8CE6D72}</Project>
       <Name>Core</Name>

@@ -35,7 +35,8 @@ namespace Ui.Console.Provider
         public WriteFileCommand<IAsymmetricKey> GetWriteKeyToFileCommand(IAsymmetricKey input, string output, ContentType contentType, EncryptionType encryptionType = EncryptionType.None, string password = "")
         {
             if (input.IsPrivateKey && contentType == ContentType.Ssh2 || 
-                input.IsPrivateKey && contentType == ContentType.OpenSsh ||
+                input.IsPrivateKey && input.CipherType == CipherType.Ec && !((IEcKey)input).IsCurve25519 && contentType == ContentType.OpenSsh ||
+                input.IsPrivateKey && input.CipherType != CipherType.Ec && contentType == ContentType.OpenSsh ||
                 !input.IsPrivateKey && contentType == ContentType.Sec1)
             {
                 contentType = ContentType.Pem;
@@ -43,7 +44,7 @@ namespace Ui.Console.Provider
 
             return GetWriteToFileCommand(input, output, contentType, encryptionType, password);
         }
-        
+
         public WriteToStdOutCommand<T> GetWriteToStdOutCommand<T>(T content) => new WriteToStdOutCommand<T>
         {
             Out = content
