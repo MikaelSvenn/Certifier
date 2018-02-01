@@ -16,13 +16,14 @@ using Org.BouncyCastle.Security;
 namespace Crypto.Test.Providers
 {
     [TestFixture]
+    [SingleThreaded]
     public class EcKeyProviderTest
     {
         private EcKeyProvider keyProvider;
         private IAsymmetricKeyPair keyPair;
         private AsymmetricKeyPairGenerator asymmetricKeyPairGenerator;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetupEcKeyProviderTest()
         {
             asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
@@ -32,8 +33,15 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
+        [SingleThreaded]
         public class CreateEcKeyTest : EcKeyProviderTest
         {
+            [OneTimeSetUp]
+            public void Setup()
+            {
+                keyPair = keyProvider.CreateKeyPair("brainpoolP384t1");
+            }
+            
             [Test]
             public void ShouldThrowExceptionWhenKeySizeIsDefined()
             {
@@ -97,8 +105,8 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldCreateValidCurve25519KeyPair()
             {
-                keyPair = keyProvider.CreateKeyPair("curve25519");
-                Assert.IsTrue(keyProvider.VerifyKeyPair(keyPair));
+                var curve25519keyPair = keyProvider.CreateKeyPair("curve25519");
+                Assert.IsTrue(keyProvider.VerifyKeyPair(curve25519keyPair));
             }
             
             // Older Windows cng supports only NIST curves, while the version included in Windows 10
@@ -107,16 +115,18 @@ namespace Crypto.Test.Providers
             [TestCase("P-521")]
             public void ShouldCreateInteroperablePkcs8PrivateKey(string curveName)
             {
-                keyPair = keyProvider.CreateKeyPair(curveName);
-                CngKey key = CngKey.Import(keyPair.PrivateKey.Content, CngKeyBlobFormat.Pkcs8PrivateBlob);
+                var primeKeyPair = keyProvider.CreateKeyPair(curveName);
+                CngKey key = CngKey.Import(primeKeyPair.PrivateKey.Content, CngKeyBlobFormat.Pkcs8PrivateBlob);
                 Assert.IsTrue(key.Algorithm.Algorithm.StartsWith("ECDH"));
             }
         }
         
         [TestFixture]
+        [SingleThreaded]
         public class VerifyKeyPair : EcKeyProviderTest
         {           
             [TestFixture]
+            [SingleThreaded]
             public class ShouldReturnFalseWhen : VerifyKeyPair
             {
                 [Test]
@@ -163,6 +173,7 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
+        [SingleThreaded]
         public class GetKey : EcKeyProviderTest
         {
             [Test]
@@ -210,13 +221,14 @@ namespace Crypto.Test.Providers
         }
         
         [TestFixture]
+        [SingleThreaded]
         public class GetPublicKeyByPrimitives : EcKeyProviderTest
         {
             private ECPublicKeyParameters publicKeyParameters;
             private IEcKey result;
             private byte[] q;
 
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 keyPair = keyProvider.CreateKeyPair("curve25519");
@@ -253,12 +265,13 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
+        [SingleThreaded]
         public class GetPkcs8PrivateKeyAsSec1 : EcKeyProviderTest
         {
             private IEcKey sec1Key;
             private DerSequence keySequence;
             
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
@@ -274,6 +287,7 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
+            [Repeat(100)]
             public void ShouldSetDValue()
             {
                 var privateKey = (DerOctetString) keySequence[1];
@@ -292,12 +306,13 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
+        [SingleThreaded]
         public class GetSec1PrivateKeyAsPkcs8 : EcKeyProviderTest
         {
             private IEcKey convertedKey;
             private DerSequence keySequence;
             
-            [SetUp]
+            [OneTimeSetUp]
             public void Setup()
             {
                 var sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
@@ -337,15 +352,17 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
+        [SingleThreaded]
         public class GetEd25519PublicKeyFromCurve25519 : EcKeyProviderTest
         {
             private byte[] result;
-
-            [SetUp]
+            private IAsymmetricKeyPair curve25519KeyPair;
+            
+            [OneTimeSetUp]
             public void Setup()
             {
-                keyPair = keyProvider.CreateKeyPair("curve25519");
-                result = keyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PrivateKey);
+                curve25519KeyPair = keyProvider.CreateKeyPair("curve25519");
+                result = keyProvider.GetEd25519PublicKeyFromCurve25519(curve25519KeyPair.PrivateKey);
             }
  
             [Test]
@@ -355,9 +372,10 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
+            [Repeat(100)]
             public void ShouldReturnEd25519PublicKey()
             {
-                var privateKeyParameters = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
+                var privateKeyParameters = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(curve25519KeyPair.PrivateKey.Content);
                 byte[] expected = Ed25519.PublicKeyFromSeed(privateKeyParameters.D.ToByteArray());
                 
                 Assert.AreEqual(expected, result);
@@ -366,7 +384,7 @@ namespace Crypto.Test.Providers
             [Test]
             public void ShouldThrowWhenPublicKeyIsGiven()
             {
-                Assert.Throws<InvalidOperationException>(() => keyProvider.GetEd25519PublicKeyFromCurve25519(keyPair.PublicKey));
+                Assert.Throws<InvalidOperationException>(() => keyProvider.GetEd25519PublicKeyFromCurve25519(curve25519KeyPair.PublicKey));
             }
 
             [Test]
