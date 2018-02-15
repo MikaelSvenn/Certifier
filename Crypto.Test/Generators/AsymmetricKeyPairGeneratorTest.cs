@@ -103,7 +103,7 @@ namespace Crypto.Test.Generators
         }
 
         [TestFixture]
-        public class GenerateECKeyPair : AsymmetricKeyPairGeneratorTest
+        public class GenerateEcKeyPair : AsymmetricKeyPairGeneratorTest
         {
             private AsymmetricCipherKeyPair keyPair;
 
@@ -157,6 +157,15 @@ namespace Crypto.Test.Generators
             public void ShouldThrowExceptionWhenCurveIsNotSupported()
             {
                 Assert.Throws<ArgumentException>(() => { asymmetricKeyPairGenerator.GenerateEcKeyPair("curve41417"); });
+            }
+
+            [Test]
+            [Repeat(1000)]
+            public void ShouldOnlyCreate32ByteCurve25519PrivateKey()
+            {
+                keyPair = asymmetricKeyPairGenerator.GenerateEcKeyPair("curve25519");
+                var privateKey = (ECPrivateKeyParameters) keyPair.Private;
+                Assert.AreEqual(32, privateKey.D.ToByteArray().Length);
             }
         }
 

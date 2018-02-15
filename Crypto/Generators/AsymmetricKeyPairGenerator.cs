@@ -49,33 +49,59 @@ namespace Crypto.Generators
         // Curve25519 is supported by BC, but not yet standardized and thus does not have an oid. 
         public AsymmetricCipherKeyPair GenerateEcKeyPair(string curve)
         {
-            ECKeyGenerationParameters keyGenerationParameters;
-            if (curve == "curve25519")
+            if (curve.Equals("curve25519"))
             {
-                X9ECParameters curveParameters = CustomNamedCurves.GetByName(curve);
+                return GenerateCurve25519();
+            }
+
+            DerObjectIdentifier curveOid = ECNamedCurveTable.GetOid(curve) ?? CustomNamedCurves.GetOid(curve);
+            if (curveOid == null)
+            {
+                throw new ArgumentException($"Curve {curve} is not supported.");
+            }
+
+            var keyGenerationParameters = new ECKeyGenerationParameters(curveOid, secureRandom.Generator);
+            var keyPairGenerator = new ECKeyPairGenerator();
+            keyPairGenerator.Init(keyGenerationParameters);
+
+            return keyPairGenerator.GenerateKeyPair();
+        }
+
+        private AsymmetricCipherKeyPair GenerateCurve25519()
+        {
+            var keyGenerationParameters = Curve25519KeyGenerationParameters;
+
+            var keyPairGenerator = new ECKeyPairGenerator();
+            keyPairGenerator.Init(keyGenerationParameters);
+
+            return CreateEcKeyPairAndEnsure32BytePrivateKey(keyPairGenerator);
+        }
+
+        private ECKeyGenerationParameters Curve25519KeyGenerationParameters
+        {
+            get
+            {
+                X9ECParameters curveParameters = CustomNamedCurves.GetByName("curve25519");
                 var ecDomainParameters = new ECDomainParameters(curveParameters.Curve,
                                                                 curveParameters.G,
                                                                 curveParameters.N,
                                                                 curveParameters.H,
                                                                 curveParameters.GetSeed());
 
-                keyGenerationParameters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);
+                ECKeyGenerationParameters keyGenerationParameters = new ECKeyGenerationParameters(ecDomainParameters, secureRandom.Generator);
+                return keyGenerationParameters;
             }
-            else
+        }
+
+        private static AsymmetricCipherKeyPair CreateEcKeyPairAndEnsure32BytePrivateKey(ECKeyPairGenerator keyPairGenerator)
+        {
+            AsymmetricCipherKeyPair keyPair = keyPairGenerator.GenerateKeyPair();
+            while (((ECPrivateKeyParameters) keyPair.Private).D.ToByteArray().Length != 32)
             {
-                DerObjectIdentifier curveOid = ECNamedCurveTable.GetOid(curve) ?? CustomNamedCurves.GetOid(curve);
-                if (curveOid == null)
-                {
-                    throw new ArgumentException($"Curve {curve} is not supported.");
-                }
-
-                keyGenerationParameters = new ECKeyGenerationParameters(curveOid, secureRandom.Generator);
+                keyPair = keyPairGenerator.GenerateKeyPair();
             }
 
-            var keyPairGenerator = new ECKeyPairGenerator();
-            keyPairGenerator.Init(keyGenerationParameters);
-
-            return keyPairGenerator.GenerateKeyPair();
+            return keyPair;
         }
 
         public AsymmetricCipherKeyPair GenerateElGamalKeyPair(int keySize, BigInteger prime = null, BigInteger generator = null)

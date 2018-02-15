@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Cryptography;
 using Chaos.NaCl;
 using Core.Interfaces;
@@ -16,14 +15,13 @@ using Org.BouncyCastle.Security;
 namespace Crypto.Test.Providers
 {
     [TestFixture]
-    [SingleThreaded]
     public class EcKeyProviderTest
     {
         private EcKeyProvider keyProvider;
         private IAsymmetricKeyPair keyPair;
         private AsymmetricKeyPairGenerator asymmetricKeyPairGenerator;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetupEcKeyProviderTest()
         {
             asymmetricKeyPairGenerator = new AsymmetricKeyPairGenerator(new SecureRandomGenerator());
@@ -33,10 +31,9 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        [SingleThreaded]
         public class CreateEcKeyTest : EcKeyProviderTest
         {
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 keyPair = keyProvider.CreateKeyPair("brainpoolP384t1");
@@ -122,11 +119,9 @@ namespace Crypto.Test.Providers
         }
         
         [TestFixture]
-        [SingleThreaded]
         public class VerifyKeyPair : EcKeyProviderTest
         {           
             [TestFixture]
-            [SingleThreaded]
             public class ShouldReturnFalseWhen : VerifyKeyPair
             {
                 [Test]
@@ -173,7 +168,6 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        [SingleThreaded]
         public class GetKey : EcKeyProviderTest
         {
             [Test]
@@ -221,14 +215,13 @@ namespace Crypto.Test.Providers
         }
         
         [TestFixture]
-        [SingleThreaded]
         public class GetPublicKeyByPrimitives : EcKeyProviderTest
         {
             private ECPublicKeyParameters publicKeyParameters;
             private IEcKey result;
             private byte[] q;
 
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 keyPair = keyProvider.CreateKeyPair("curve25519");
@@ -265,13 +258,12 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        [SingleThreaded]
         public class GetPkcs8PrivateKeyAsSec1 : EcKeyProviderTest
         {
             private IEcKey sec1Key;
             private DerSequence keySequence;
             
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
@@ -287,12 +279,11 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            [Repeat(100)]
             public void ShouldSetDValue()
             {
                 var privateKey = (DerOctetString) keySequence[1];
                 var privateKeyContent = (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(keyPair.PrivateKey.Content);
-                var d = new BigInteger(privateKey.GetOctets());
+                var d = new BigInteger(1, privateKey.GetOctets());
                 Assert.AreEqual(privateKeyContent.D, d);
             }
 
@@ -306,13 +297,12 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        [SingleThreaded]
         public class GetSec1PrivateKeyAsPkcs8 : EcKeyProviderTest
         {
             private IEcKey convertedKey;
             private DerSequence keySequence;
             
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 var sec1Key = keyProvider.GetPkcs8PrivateKeyAsSec1((IEcKey)keyPair.PrivateKey);
@@ -352,13 +342,12 @@ namespace Crypto.Test.Providers
         }
 
         [TestFixture]
-        [SingleThreaded]
         public class GetEd25519PublicKeyFromCurve25519 : EcKeyProviderTest
         {
             private byte[] result;
             private IAsymmetricKeyPair curve25519KeyPair;
             
-            [OneTimeSetUp]
+            [SetUp]
             public void Setup()
             {
                 curve25519KeyPair = keyProvider.CreateKeyPair("curve25519");
@@ -372,7 +361,6 @@ namespace Crypto.Test.Providers
             }
 
             [Test]
-            [Repeat(100)]
             public void ShouldReturnEd25519PublicKey()
             {
                 var privateKeyParameters = (ECPrivateKeyParameters) PrivateKeyFactory.CreateKey(curve25519KeyPair.PrivateKey.Content);
